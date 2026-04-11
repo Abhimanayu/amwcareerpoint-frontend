@@ -24,26 +24,26 @@ export function FMGEPreparationSection() {
             </p>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
-            <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-lg">
-              <div className="text-3xl font-bold">78%</div>
-              <div className="text-sm">AMW Students</div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 text-center">
+            <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-4 sm:p-6 rounded-lg">
+              <div className="text-2xl sm:text-3xl font-bold">78%</div>
+              <div className="text-xs sm:text-sm">AMW Students</div>
             </div>
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-lg">
-              <div className="text-2xl font-bold">52%</div>
-              <div className="text-sm">Georgia Avg</div>
+            <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 sm:p-6 rounded-lg">
+              <div className="text-xl sm:text-2xl font-bold">52%</div>
+              <div className="text-xs sm:text-sm">Georgia Avg</div>
             </div>
-            <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-lg">
-              <div className="text-2xl font-bold">50%</div>
-              <div className="text-sm">Uzbekistan</div>
+            <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-4 sm:p-6 rounded-lg">
+              <div className="text-xl sm:text-2xl font-bold">50%</div>
+              <div className="text-xs sm:text-sm">Uzbekistan</div>
             </div>
-            <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white p-6 rounded-lg">
-              <div className="text-2xl font-bold">48%</div>
-              <div className="text-sm">Kazakhstan</div>
+            <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white p-4 sm:p-6 rounded-lg">
+              <div className="text-xl sm:text-2xl font-bold">48%</div>
+              <div className="text-xs sm:text-sm">Kazakhstan</div>
             </div>
-            <div className="bg-gradient-to-br from-gray-500 to-gray-600 text-white p-6 rounded-lg">
-              <div className="text-2xl font-bold">45%</div>
-              <div className="text-sm">Russia Avg</div>
+            <div className="col-span-2 sm:col-span-1 bg-gradient-to-br from-gray-500 to-gray-600 text-white p-4 sm:p-6 rounded-lg">
+              <div className="text-xl sm:text-2xl font-bold">45%</div>
+              <div className="text-xs sm:text-sm">Russia Avg</div>
             </div>
           </div>
         </div>

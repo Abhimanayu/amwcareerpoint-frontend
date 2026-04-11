@@ -1,52 +1,38 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Carousel } from '@/components/ui/Carousel';
+import { getUniversities } from '@/lib/universities';
 
-const universities = [
-  {
-    name: 'Kharkiv National Medical University',
-    country: 'Ukraine',
-    image: '/universities/kharkiv.jpg',
-  },
-  {
-    name: 'Statutory Autonomous, AIIMS New Delhi',
-    country: 'India',
-    image: '/universities/aiims.jpg',
-  },
-  {
-    name: 'NJSC Astana Medical University',
-    country: 'Kazakhstan',
-    image: '/universities/astana.jpg',
-  },
-  {
-    name: 'I.K. Akhunbaev Kyrgyz State Medical Academy',
-    country: 'Kyrgyzstan',
-    image: '/universities/kyrgyz.jpg',
-  },
-  {
-    name: 'Tashkent Medical Academy',
-    country: 'Uzbekistan',
-    image: '/universities/tashkent.jpg',
-  },
-  {
-    name: 'China Medical University',
-    country: 'China',
-    image: '/universities/china.jpg',
-  },
-  {
-    name: 'First Moscow State Medical University',
-    country: 'Russia',
-    image: '/universities/moscow.jpg',
-  },
-  {
-    name: 'Bogomolets National Medical University',
-    country: 'Ukraine',
-    image: '/universities/bogomolets.jpg',
-  },
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+const fallbackUniversities = [
+  { name: 'Kharkiv National Medical University', country: 'Ukraine', image: '/universities/kharkiv.jpg' },
+  { name: 'NJSC Astana Medical University', country: 'Kazakhstan', image: '/universities/astana.jpg' },
+  { name: 'I.K. Akhunbaev Kyrgyz State Medical Academy', country: 'Kyrgyzstan', image: '/universities/kyrgyz.jpg' },
+  { name: 'Tashkent Medical Academy', country: 'Uzbekistan', image: '/universities/tashkent.jpg' },
+  { name: 'First Moscow State Medical University', country: 'Russia', image: '/universities/moscow.jpg' },
+  { name: 'Bogomolets National Medical University', country: 'Ukraine', image: '/universities/bogomolets.jpg' },
 ];
 
 export function UniversitiesSection() {
+  const [universities, setUniversities] = useState<any[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    getUniversities({ limit: 10, featured: true })
+      .then((res) => {
+        const items = Array.isArray(res.data) ? res.data : [];
+        if (items.length > 0) setUniversities(items);
+      })
+      .catch(() => {})
+      .finally(() => setLoaded(true));
+  }, []);
+
+  const useFallback = loaded && universities.length === 0;
+
+  if (!loaded) return null;
   return (
     <section className="bg-[#F9F8F6] py-10 sm:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -69,23 +55,31 @@ export function UniversitiesSection() {
         {/* Image carousel */}
         <div className="px-4 sm:px-5">
           <Carousel slideClass="basis-full sm:basis-1/2 lg:basis-1/4 pl-3 sm:pl-4" dots={false}>
-            {universities.map((uni, i) => (
-              <div key={i} className="relative rounded-xl overflow-hidden group cursor-pointer h-[320px] sm:h-[380px] lg:h-[420px]">
+            {useFallback ? fallbackUniversities.map((uni, i) => (
+              <div key={i} className="relative rounded-xl overflow-hidden group cursor-pointer h-[240px] sm:h-[320px] lg:h-[420px]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={uni.image}
-                  alt={uni.name}
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                {/* Gradient overlay at bottom */}
+                <img src={uni.image} alt={uni.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/70 to-transparent" />
-                {/* University name */}
                 <div className="absolute bottom-0 left-0 right-0 px-3 pb-3">
-                  <p className="text-white text-[11px] sm:text-xs font-medium leading-snug drop-shadow-md">
-                    {uni.name}
-                  </p>
+                  <p className="text-white text-[11px] sm:text-xs font-medium leading-snug drop-shadow-md">{uni.name}</p>
                 </div>
               </div>
+            )) : universities.map((uni: any) => (
+              <Link key={uni._id} href={`/universities/${uni.slug}`} className="block">
+                <div className="relative rounded-xl overflow-hidden group cursor-pointer h-[240px] sm:h-[320px] lg:h-[420px]">
+                  {uni.heroImage || uni.logo ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img src={uni.heroImage || uni.logo} alt={uni.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-800" />
+                  )}
+                  <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/70 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 px-3 pb-3">
+                  <p className="text-white text-[11px] sm:text-xs font-medium leading-snug drop-shadow-md line-clamp-2">{uni.name}</p>
+                  {uni.country?.name && <p className="text-white/80 text-[10px] drop-shadow-md truncate">{uni.country.name}</p>}
+                  </div>
+                </div>
+              </Link>
             ))}
           </Carousel>
         </div>

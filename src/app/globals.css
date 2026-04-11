@@ -16,15 +16,42 @@
   --color-text-heading: #0D1B3E;
 }
 
-button, [role="button"], a { touch-action: manipulation; }
+button,
+[role="button"],
+a {
+  touch-action: manipulation;
+}
 
 body {
   font-family: var(--font-sans);
   color: var(--color-text-body);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 .font-heading {
   font-family: var(--font-heading);
+}
+
+/* ══════════ GLOBAL UI PROTECTION ══════════ */
+
+/* Prevent images from busting layout */
+img, video {
+  max-width: 100%;
+}
+
+/* Prevent long words / URLs from overflowing containers */
+h1, h2, h3, h4, h5, h6, p, li, td, th, span, a, label {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Scrollbar-hidden utility (used on nav bars) */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }

@@ -14,10 +14,10 @@ export function Footer() {
             <div className="font-heading text-base font-bold text-white mb-2">
               <span className="text-[#F26419]">AMW</span> Career Point
             </div>
-            <p className="text-[11px] leading-relaxed text-gray-400 mb-3">
+            <p className="text-xs leading-relaxed text-gray-400 mb-3">
               India&apos;s most trusted MBBS consultancy since 2009. Helping NEET aspirants secure admissions in top NMC-approved medical colleges.
             </p>
-            <div className="space-y-1 text-[11px]">
+            <div className="space-y-1 text-xs">
               <a href="tel:+919929299268" className="block hover:text-white transition-colors">+91-9929299268</a>
               <a href="mailto:support@amwcareerpoint.com" className="block hover:text-white transition-colors">support@amwcareerpoint.com</a>
             </div>
@@ -25,8 +25,8 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-[11px] font-bold text-white uppercase tracking-wider mb-2.5">Quick Links</h4>
-            <ul className="space-y-1.5 text-[11px]">
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-2.5">Quick Links</h4>
+            <ul className="space-y-1.5 text-xs">
               {[
                 { href: '/', label: 'Home' },
                 { href: '/about', label: 'About Us' },
@@ -43,8 +43,8 @@ export function Footer() {
 
           {/* Destinations */}
           <div>
-            <h4 className="text-[11px] font-bold text-white uppercase tracking-wider mb-2.5">MBBS Destinations</h4>
-            <ul className="space-y-1.5 text-[11px]">
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-2.5">MBBS Destinations</h4>
+            <ul className="space-y-1.5 text-xs">
               {destinations.map((c) => (
                 <li key={c}>
                   <Link href={`/countries/${c.toLowerCase()}`} className="hover:text-white transition-colors">MBBS in {c}</Link>
@@ -55,13 +55,13 @@ export function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="text-[11px] font-bold text-white uppercase tracking-wider mb-2.5">Office</h4>
-            <p className="text-[11px] text-gray-400 leading-relaxed mb-2">
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-2.5">Office</h4>
+            <p className="text-xs text-gray-400 leading-relaxed mb-2">
               D 100 A, Supreme Complex,<br />
               Meera Marg, Bani Park,<br />
               Jaipur, Rajasthan 302006
             </p>
-            <p className="text-[11px] text-gray-400">Mon–Sat, 9 AM – 7 PM</p>
+            <p className="text-xs text-gray-400">Mon–Sat, 9 AM – 7 PM</p>
           </div>
         </div>
       </div>

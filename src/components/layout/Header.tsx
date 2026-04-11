@@ -2,12 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 
 const menuItems = [
   { href: '/', label: 'Home' },
-  { href: '/countries', label: 'MBBS India' },
-  { href: '/universities', label: 'MBBS Abroad', caret: true },
+  { href: '/universities?country=india', label: 'MBBS India' },
+  { href: '/countries', label: 'MBBS Abroad', caret: true },
   { href: '#', label: 'College Predictor' },
   { href: '/blogs', label: 'Blog', caret: true },
   { href: '#', label: 'Login' },
@@ -21,14 +20,15 @@ export function Header() {
       <header className="sticky top-0 z-50 border-b border-gray-100 bg-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-12 sm:h-14 items-center justify-between">
-            <Link href="/" className="flex items-center">
-              <Image src="/logo.svg" alt="AMW Career Point" width={80} height={44} className="h-8 sm:h-9 w-auto" priority />
+            <Link href="/" className="flex items-center shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo.svg" alt="AMW Career Point" style={{ height: '36px', width: 'auto' }} />
             </Link>
 
             {/* Desktop Nav */}
-            <nav className="hidden lg:flex items-center gap-6">
+            <nav className="hidden xl:flex items-center gap-5">
               {menuItems.map((item) => (
-                <Link key={item.label} href={item.href} className="flex items-center gap-1 text-[13px] font-medium text-[#0D1B3E] hover:text-[#F26419] transition-colors">
+                <Link key={item.label} href={item.href} className="flex items-center gap-1 text-[13px] font-medium text-[#0D1B3E] hover:text-[#F26419] transition-colors whitespace-nowrap">
                   {item.label}
                   {item.caret && (
                     <svg className="h-3 w-3" viewBox="0 0 12 12" fill="currentColor"><path d="M6 8.5L2.5 5h7L6 8.5z" /></svg>
@@ -37,17 +37,17 @@ export function Header() {
               ))}
             </nav>
 
-            <div className="hidden lg:flex items-center gap-4">
-              <a href="tel:+919929299268" className="text-[13px] font-medium text-[#0D1B3E]">
+            <div className="hidden xl:flex items-center gap-4">
+              <a href="tel:+919929299268" className="text-[13px] font-medium text-[#0D1B3E] whitespace-nowrap">
                 <span className="font-bold text-[#F26419]">Call</span> +91-9929299268
               </a>
-              <Link href="#counselling" className="h-9 px-5 rounded-full bg-[#F26419] text-white text-[13px] font-bold inline-flex items-center hover:bg-[#FF8040] transition-colors">
+              <Link href="#counselling" className="h-9 px-5 rounded-full bg-[#F26419] text-white text-[13px] font-bold inline-flex items-center hover:bg-[#FF8040] transition-colors whitespace-nowrap">
                 Free Counselling
               </Link>
             </div>
 
             {/* Mobile hamburger */}
-            <button type="button" onClick={() => setIsMenuOpen(!isMenuOpen)} className="lg:hidden p-2 text-[#0D1B3E]" style={{ touchAction: 'manipulation' }}>
+            <button type="button" onClick={() => setIsMenuOpen(!isMenuOpen)} className="xl:hidden p-2 text-[#0D1B3E]" style={{ touchAction: 'manipulation' }}>
               <span className="sr-only">Menu</span>
               <div className="space-y-1.5">
                 <div className={`h-0.5 w-5 bg-current transition-all ${isMenuOpen ? 'translate-y-2 rotate-45' : ''}`} />
@@ -60,7 +60,7 @@ export function Header() {
       </header>
 
       {isMenuOpen && (
-        <div className="fixed inset-x-0 top-[48px] sm:top-[56px] z-40 bg-white border-b border-gray-200 shadow-md lg:hidden">
+        <div className="fixed inset-x-0 top-[48px] sm:top-[56px] z-40 bg-white border-b border-gray-200 shadow-md xl:hidden">
           <nav className="max-w-7xl mx-auto px-4 py-3 space-y-0.5">
             {menuItems.map((item, i) => (
               <Link key={i} href={item.href} onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-[13px] font-medium text-[#0D1B3E] hover:bg-gray-50 rounded-lg">

@@ -1,17 +1,41 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Carousel } from '@/components/ui/Carousel';
+import { getCountries } from '@/lib/countries';
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+const fallbackCountries = [
+  { name: 'Russia', code: 'ru', unis: '50+', fees: '₹2.5L – 6L', dur: '6 Yrs', highlights: ['No IELTS', 'WHO Approved', 'Low Cost'] },
+  { name: 'Ukraine', code: 'ua', unis: '30+', fees: '₹3L – 5L', dur: '6 Yrs', highlights: ['English Medium', 'EU Recognition', 'Quality Edu'] },
+  { name: 'Kazakhstan', code: 'kz', unis: '25+', fees: '₹3.5L – 7L', dur: '6 Yrs', highlights: ['Advanced Infra', 'Safe', 'Cultural Similarity'] },
+  { name: 'Georgia', code: 'ge', unis: '15+', fees: '₹4L – 8L', dur: '6 Yrs', highlights: ['European Std', 'Modern', 'English Teaching'] },
+  { name: 'Kyrgyzstan', code: 'kg', unis: '20+', fees: '₹2L – 4L', dur: '6 Yrs', highlights: ['Most Affordable', 'Indian Food', 'Easy Admission'] },
+  { name: 'Philippines', code: 'ph', unis: '18+', fees: '₹3L – 6L', dur: '4 Yrs', highlights: ['English Speaking', 'US Curriculum', 'USMLE Prep'] },
+];
 
 export function CountriesSection() {
-  const countries = [
-    { name: 'Russia', code: 'ru', unis: '50+', fees: '₹2.5L – 6L', dur: '6 Yrs', highlights: ['No IELTS', 'WHO Approved', 'Low Cost'] },
-    { name: 'Ukraine', code: 'ua', unis: '30+', fees: '₹3L – 5L', dur: '6 Yrs', highlights: ['English Medium', 'EU Recognition', 'Quality Edu'] },
-    { name: 'Kazakhstan', code: 'kz', unis: '25+', fees: '₹3.5L – 7L', dur: '6 Yrs', highlights: ['Advanced Infra', 'Safe', 'Cultural Similarity'] },
-    { name: 'Georgia', code: 'ge', unis: '15+', fees: '₹4L – 8L', dur: '6 Yrs', highlights: ['European Std', 'Modern', 'English Teaching'] },
-    { name: 'Kyrgyzstan', code: 'kg', unis: '20+', fees: '₹2L – 4L', dur: '6 Yrs', highlights: ['Most Affordable', 'Indian Food', 'Easy Admission'] },
-    { name: 'Philippines', code: 'ph', unis: '18+', fees: '₹3L – 6L', dur: '4 Yrs', highlights: ['English Speaking', 'US Curriculum', 'USMLE Prep'] },
-  ];
+  const [countries, setCountries] = useState<any[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    getCountries({ limit: 10 })
+      .then((res) => {
+        const items = Array.isArray(res.data) ? res.data : [];
+        if (items.length > 0) setCountries(items);
+        else setCountries([]);
+      })
+      .catch(() => setCountries([]))
+      .finally(() => setLoaded(true));
+  }, []);
+
+  // Use API data if available, otherwise show fallback
+  const useFallback = loaded && countries.length === 0;
+  const displayCountries = useFallback ? fallbackCountries : [];
+
+  if (!loaded) return null; // or skeleton
 
   return (
     <section className="bg-white py-10 sm:py-14">
@@ -24,25 +48,18 @@ export function CountriesSection() {
 
         <div className="px-4 sm:px-5">
           <Carousel slideClass="basis-full sm:basis-1/2 lg:basis-1/3 pl-4 sm:pl-5">
-            {countries.map((c, i) => (
+            {useFallback ? displayCountries.map((c: any, i: number) => (
               <div key={i} className="rounded-xl border border-border bg-white overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
-                {/* Navy header */}
                 <div className="bg-navy px-4 py-3 text-white">
                   <div className="flex items-center gap-2.5">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={`https://flagcdn.com/w40/${c.code}.png`}
-                      srcSet={`https://flagcdn.com/w80/${c.code}.png 2x`}
-                      alt={`${c.name} flag`}
-                      className="w-8 h-6 rounded-sm object-cover"
-                    />
+                    <img src={`https://flagcdn.com/w40/${c.code}.png`} srcSet={`https://flagcdn.com/w80/${c.code}.png 2x`} alt={`${c.name} flag`} className="w-8 h-6 rounded-sm object-cover" />
                     <div>
-                      <h3 className="font-heading text-[15px] font-bold">{c.name}</h3>
+                      <h3 className="font-heading text-[15px] font-bold truncate">{c.name}</h3>
                       <span className="text-[11px] opacity-90">{c.unis} Universities</span>
                     </div>
                   </div>
                 </div>
-                {/* Body */}
                 <div className="p-4 flex flex-col flex-1">
                   <div className="grid grid-cols-2 gap-2.5 mb-3">
                     <div className="rounded-lg bg-bg-light px-2.5 py-1.5 text-center">
@@ -55,7 +72,7 @@ export function CountriesSection() {
                     </div>
                   </div>
                   <ul className="space-y-1 mb-3">
-                    {c.highlights.map((h, j) => (
+                    {c.highlights.map((h: string, j: number) => (
                       <li key={j} className="flex items-center gap-2 text-[13px] text-text-body">
                         <span className="w-1.5 h-1.5 rounded-full bg-orange flex-shrink-0" />
                         {h}
@@ -64,6 +81,39 @@ export function CountriesSection() {
                   </ul>
                   <div className="mt-auto">
                     <Link href={`/countries/${c.name.toLowerCase()}`} className="block w-full text-center py-2 rounded-full bg-orange text-white text-[13px] font-bold hover:bg-orange-hover transition-colors">
+                      View Universities
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )) : countries.map((c: any) => (
+              <div key={c._id} className="rounded-xl border border-border bg-white overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
+                <div className="bg-navy px-4 py-3 text-white">
+                  <div className="flex items-center gap-2.5">
+                    {c.flagImage && (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src={c.flagImage} alt={`${c.name} flag`} className="w-8 h-6 rounded-sm object-cover" />
+                    )}
+                    <div>
+                      <h3 className="font-heading text-[15px] font-bold truncate">{c.name || 'Country'}</h3>
+                      {c.tagline && <span className="text-[11px] opacity-90">{c.tagline}</span>}
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4 flex flex-col flex-1">
+                  {/* Highlights */}
+                  {c.highlights && c.highlights.length > 0 && (
+                  <ul className="space-y-1 mb-3">
+                    {c.highlights.slice(0, 4).map((h: string, j: number) => (
+                      <li key={j} className="flex items-center gap-2 text-[13px] text-text-body">
+                        <span className="w-1.5 h-1.5 rounded-full bg-orange flex-shrink-0" />
+                        {h}
+                      </li>
+                    ))}
+                  </ul>
+                  )}
+                  <div className="mt-auto">
+                    <Link href={`/countries/${c.slug}`} className="block w-full text-center py-2 rounded-full bg-orange text-white text-[13px] font-bold hover:bg-orange-hover transition-colors">
                       View Universities
                     </Link>
                   </div>

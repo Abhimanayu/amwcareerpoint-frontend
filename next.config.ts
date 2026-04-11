@@ -1,8 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Allow mobile browsers to access the development server
-  allowedDevOrigins: ['192.168.3.11'],
   images: {
     remotePatterns: [
       {
@@ -12,6 +10,18 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'img.youtube.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'flagcdn.com',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+      {
+        protocol: 'https',
+        hostname: '**',
       },
     ],
   },

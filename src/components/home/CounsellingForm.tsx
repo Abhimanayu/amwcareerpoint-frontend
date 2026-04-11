@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { submitEnquiry } from '@/lib/enquiries';
 
 export function CounsellingForm() {
   const [formData, setFormData] = useState({
@@ -11,10 +12,31 @@ export function CounsellingForm() {
     preference: '',
     message: ''
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+    setSubmitting(true);
+    setError('');
+    try {
+      await submitEnquiry({
+        name: formData.fullName,
+        email: formData.emailAddress,
+        phone: formData.phoneNo,
+        neetScore: formData.neetScore,
+        preferredCountry: formData.preference,
+        message: formData.message,
+        source: 'counselling-form',
+      });
+      setSubmitted(true);
+      setFormData({ fullName: '', phoneNo: '', emailAddress: '', neetScore: '', preference: '', message: '' });
+    } catch {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -31,6 +53,16 @@ export function CounsellingForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-2.5">
+        {submitted && (
+          <div className="rounded-lg bg-green-50 border border-green-200 p-3 text-center">
+            <p className="text-sm font-semibold text-green-700">Thank you! Our expert will call you within 2 hours.</p>
+          </div>
+        )}
+        {error && (
+          <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-center">
+            <p className="text-sm text-red-700">{error}</p>
+          </div>
+        )}
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-medium text-[#0D1B3E] mb-1">Full Name</label>
@@ -79,8 +111,8 @@ export function CounsellingForm() {
           <textarea name="message" placeholder="Tell us about your goals..." rows={2} value={formData.message} onChange={handleChange} className="w-full resize-none rounded-lg border border-[#DDD9D2] bg-white px-3 py-2 text-sm text-[#0D1B3E] outline-none transition-all focus:border-[#F26419] focus:ring-2 focus:ring-orange-100" />
         </div>
 
-        <button type="submit" className="w-full h-10 rounded-full bg-[#F26419] text-white text-[13px] font-bold hover:bg-[#FF8040] transition-colors">
-          Submit &amp; Get Free Guidance →
+        <button type="submit" disabled={submitting} className="w-full h-10 rounded-full bg-[#F26419] text-white text-[13px] font-bold hover:bg-[#FF8040] transition-colors disabled:opacity-50">
+          {submitting ? 'Submitting...' : 'Submit & Get Free Guidance →'}
         </button>
 
         <p className="text-center text-[11px] text-[#4A4742]">

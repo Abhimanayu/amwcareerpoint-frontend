@@ -1,10 +1,13 @@
-export function ReviewsSection() {
-  const reviews = [
-    { name: 'Sunita Agarwal', time: '2 weeks ago', text: 'Excellent service! My son got admission in a top Russian university. The team was available 24/7. Highly trustworthy.' },
-    { name: 'Vikram Nair', time: '1 month ago', text: 'From document processing to visa — everything was managed perfectly. Dr. Rajesh\'s guidance was spot on.' },
-    { name: 'Prathima Reddy', time: '3 weeks ago', text: 'Transparent, honest, and incredibly knowledgeable. No hidden fees, no surprises. 100% recommended.' },
-  ];
+const reviews = [
+  { name: 'Sunita Agarwal', time: '2 weeks ago', rating: 5, text: 'Excellent service! My son got admission in a top Russian university. The team was available 24/7. Highly trustworthy.' },
+  { name: 'Vikram Nair', time: '1 month ago', rating: 5, text: 'From document processing to visa — everything was managed perfectly. Dr. Rajesh\'s guidance was spot on.' },
+  { name: 'Prathima Reddy', time: '3 weeks ago', rating: 5, text: 'Transparent, honest, and incredibly knowledgeable. No hidden fees, no surprises. 100% recommended.' },
+  { name: 'Rahul Mehra', time: '1 week ago', rating: 5, text: 'AMW Career Point made the entire admission process smooth and stress-free. Got into a top university in Georgia. Their team is genuinely caring.' },
+  { name: 'Anjali Sharma', time: '2 months ago', rating: 5, text: 'Best consultancy for MBBS abroad. They guided us from NEET counselling to visa — everything handled professionally. Truly recommended!' },
+  { name: 'Deepak Joshi', time: '3 weeks ago', rating: 5, text: 'Very professional and supportive team. My daughter got admission in Kazakhstan without any hassle. Will always be grateful to AMW.' },
+];
 
+export function ReviewsSection() {
   return (
     <section className="bg-[#F9F8F6] py-10 sm:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -27,14 +30,14 @@ export function ReviewsSection() {
             <div key={i} className="rounded-xl border border-[#DDD9D2] bg-white p-4 sm:p-5">
               <div className="flex items-center gap-3 mb-2.5">
                 <div className="w-9 h-9 rounded-full bg-[#0D1B3E] flex items-center justify-center text-white text-[11px] font-bold">
-                  {r.name.split(' ').map(n => n[0]).join('')}
+                  {r.name.split(' ').map((n) => n[0]).join('')}
                 </div>
                 <div>
                   <div className="text-[13px] font-bold text-[#0D1B3E]">{r.name}</div>
                   <div className="text-[10px] text-[#4A4742]">{r.time}</div>
                 </div>
               </div>
-              <div className="text-yellow-400 text-[13px] mb-1.5">★★★★★</div>
+              <div className="text-yellow-400 text-[13px] mb-1.5">{'★'.repeat(r.rating)}</div>
               <p className="text-[13px] text-[#4A4742] leading-relaxed">{r.text}</p>
             </div>
           ))}
