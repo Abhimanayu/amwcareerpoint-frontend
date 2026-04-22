@@ -1,5 +1,6 @@
-import Image from 'next/image';
 import Link from 'next/link';
+import { SafeImage } from '@/components/ui/SafeImage';
+import { resolveMediaUrl } from '@/lib/utils';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -32,18 +33,18 @@ export function CollegeHero({
   courseDuration,
   hostelFees,
 }: CollegeHeroProps) {
+  const resolvedHeroImage = resolveMediaUrl(heroImage);
+  const resolvedCountryFlagImage = resolveMediaUrl(countryFlagImage);
+
   return (
     <section className="relative isolate overflow-hidden bg-[#0D1B3E]">
-      {heroImage ? (
-        <Image
-          src={heroImage}
+      {resolvedHeroImage ? (
+        <SafeImage
+          src={resolvedHeroImage}
           alt={name || 'University'}
           fill
-          priority
           className="object-cover object-center"
-          onError={(e) => {
-            (e.currentTarget as HTMLImageElement).style.display = 'none';
-          }}
+          fallbackElement={<div className="absolute inset-0 bg-[#0D1B3E]" />}
         />
       ) : null}
       <div className="absolute inset-0 bg-gradient-to-r from-[#0D1B3E] via-[#0D1B3E]/90 to-[#0D1B3E]/40" />
@@ -52,8 +53,15 @@ export function CollegeHero({
         <div className="max-w-2xl">
           {countryName && (
             <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-medium uppercase tracking-wider backdrop-blur-sm">
-              {countryFlagImage && (
-                <Image src={countryFlagImage} alt={countryName} width={20} height={14} className="rounded-[2px]" />
+              {resolvedCountryFlagImage && (
+                <SafeImage
+                  src={resolvedCountryFlagImage}
+                  alt={countryName}
+                  width={20}
+                  height={14}
+                  className="rounded-[2px]"
+                  fallbackElement={<span className="block h-[14px] w-5 rounded-[2px] bg-white/20" />}
+                />
               )}
               <span className="text-white/90">
                 {countryName}

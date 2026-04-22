@@ -14,7 +14,39 @@ export const LIMITS = {
     slug: { min: 2, max: 80 },
     tagline: { max: 150 },
     description: { min: 20, max: 2000 },
+    feeRange: { max: 60 },
+    duration: { max: 60 },
+    medium: { max: 60 },
+    livingCost: { max: 60 },
+    features: { maxItems: 6, iconMax: 8, titleMax: 60, descriptionMax: 220 },
+    studentLife: {
+      eyebrowMax: 40,
+      titleMax: 90,
+      descriptionMax: 320,
+      cardsMax: 6,
+      cardIconMax: 8,
+      cardTitleMax: 40,
+      cardDescriptionMax: 180,
+    },
+    documentsChecklist: {
+      eyebrowMax: 80,
+      titleMax: 180,
+      itemsMax: 12,
+      itemLabelMax: 140,
+    },
+    supportExperience: {
+      eyebrowMax: 40,
+      titleMax: 90,
+      descriptionMax: 320,
+      progressItemsMax: 6,
+      progressLabelMax: 70,
+      progressStatusMax: 20,
+      supportCardsMax: 6,
+      supportCardTitleMax: 18,
+      supportCardSubtitleMax: 55,
+    },
     highlights: { maxItems: 12, maxLen: 120 },
+    faqs: { maxItems: 12, questionMax: 200, answerMax: 1000 },
     eligibility: { maxItems: 15, maxLen: 200 },
     admissionProcess: { maxItems: 10, titleMax: 80, descMax: 250 },
     seoTitle: { max: 70 },
@@ -62,7 +94,31 @@ export function validateCountryForm(form: {
   slug: string;
   tagline: string;
   description: string;
+  feeRange: string;
+  duration: string;
+  medium: string;
+  livingCost: string;
+  features: { icon: string; title: string; description: string }[];
+  studentLife: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    cards: { icon: string; title: string; description: string }[];
+  };
+  documentsChecklist: {
+    eyebrow: string;
+    title: string;
+    items: { label: string }[];
+  };
+  supportExperience: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    progressItems: { label: string; value: number; status: string }[];
+    supportCards: { title: string; subtitle: string }[];
+  };
   highlights: string[];
+  faqs: { question: string; answer: string }[];
   eligibility: string[];
   admissionProcess: { step: number; title: string; description: string }[];
   seo: { metaTitle: string; metaDescription: string; keywords: string };
@@ -81,10 +137,125 @@ export function validateCountryForm(form: {
 
   if (form.description && form.description.length < L.description.min) errors.push({ field: 'description', message: `Description must be at least ${L.description.min} characters` });
   if (form.description.length > L.description.max) errors.push({ field: 'description', message: `Description must not exceed ${L.description.max} characters` });
+  if (form.feeRange.length > L.feeRange.max) errors.push({ field: 'feeRange', message: `Tuition fee must not exceed ${L.feeRange.max} characters` });
+  if (form.duration.length > L.duration.max) errors.push({ field: 'duration', message: `Duration must not exceed ${L.duration.max} characters` });
+  if (form.medium.length > L.medium.max) errors.push({ field: 'medium', message: `Medium must not exceed ${L.medium.max} characters` });
+  if (form.livingCost.length > L.livingCost.max) errors.push({ field: 'livingCost', message: `Living cost must not exceed ${L.livingCost.max} characters` });
+
+  const activeFeatures = form.features.filter((item) => item.title.trim() || item.description.trim() || item.icon.trim());
+  if (activeFeatures.length > L.features.maxItems) {
+    errors.push({ field: 'features', message: `Maximum ${L.features.maxItems} feature cards allowed` });
+  }
+  if (activeFeatures.some((item) => !item.title.trim())) {
+    errors.push({ field: 'features', message: 'Each feature card needs a title' });
+  }
+  if (activeFeatures.some((item) => item.icon.length > L.features.iconMax)) {
+    errors.push({ field: 'features', message: `Feature icons must not exceed ${L.features.iconMax} characters` });
+  }
+  if (activeFeatures.some((item) => item.title.length > L.features.titleMax)) {
+    errors.push({ field: 'features', message: `Feature titles must not exceed ${L.features.titleMax} characters` });
+  }
+  if (activeFeatures.some((item) => item.description.length > L.features.descriptionMax)) {
+    errors.push({ field: 'features', message: `Feature descriptions must not exceed ${L.features.descriptionMax} characters` });
+  }
+
+  if (form.studentLife.eyebrow.length > L.studentLife.eyebrowMax) {
+    errors.push({ field: 'studentLife.eyebrow', message: `Student life eyebrow must not exceed ${L.studentLife.eyebrowMax} characters` });
+  }
+  if (form.studentLife.title.length > L.studentLife.titleMax) {
+    errors.push({ field: 'studentLife.title', message: `Student life title must not exceed ${L.studentLife.titleMax} characters` });
+  }
+  if (form.studentLife.description.length > L.studentLife.descriptionMax) {
+    errors.push({ field: 'studentLife.description', message: `Student life description must not exceed ${L.studentLife.descriptionMax} characters` });
+  }
+
+  const activeStudentLifeCards = form.studentLife.cards.filter(
+    (item) => item.title.trim() || item.description.trim() || item.icon.trim()
+  );
+  if (activeStudentLifeCards.length > L.studentLife.cardsMax) {
+    errors.push({ field: 'studentLife.cards', message: `Maximum ${L.studentLife.cardsMax} student life cards allowed` });
+  }
+  if (activeStudentLifeCards.some((item) => !item.title.trim())) {
+    errors.push({ field: 'studentLife.cards', message: 'Each student life card needs a title' });
+  }
+  if (activeStudentLifeCards.some((item) => item.icon.length > L.studentLife.cardIconMax)) {
+    errors.push({ field: 'studentLife.cards', message: `Student life icons must not exceed ${L.studentLife.cardIconMax} characters` });
+  }
+  if (activeStudentLifeCards.some((item) => item.title.length > L.studentLife.cardTitleMax)) {
+    errors.push({ field: 'studentLife.cards', message: `Student life titles must not exceed ${L.studentLife.cardTitleMax} characters` });
+  }
+  if (activeStudentLifeCards.some((item) => item.description.length > L.studentLife.cardDescriptionMax)) {
+    errors.push({ field: 'studentLife.cards', message: `Student life descriptions must not exceed ${L.studentLife.cardDescriptionMax} characters` });
+  }
+
+  if (form.documentsChecklist.eyebrow.length > L.documentsChecklist.eyebrowMax) {
+    errors.push({ field: 'documentsChecklist.eyebrow', message: `Documents checklist eyebrow must not exceed ${L.documentsChecklist.eyebrowMax} characters` });
+  }
+  if (form.documentsChecklist.title.length > L.documentsChecklist.titleMax) {
+    errors.push({ field: 'documentsChecklist.title', message: `Documents checklist title must not exceed ${L.documentsChecklist.titleMax} characters` });
+  }
+
+  const activeDocumentsChecklistItems = form.documentsChecklist.items.filter((item) => item.label.trim());
+  if (activeDocumentsChecklistItems.length > L.documentsChecklist.itemsMax) {
+    errors.push({ field: 'documentsChecklist.items', message: `Maximum ${L.documentsChecklist.itemsMax} checklist items allowed` });
+  }
+  if (activeDocumentsChecklistItems.some((item) => item.label.length > L.documentsChecklist.itemLabelMax)) {
+    errors.push({ field: 'documentsChecklist.items', message: `Checklist items must not exceed ${L.documentsChecklist.itemLabelMax} characters` });
+  }
+
+  if (form.supportExperience.eyebrow.length > L.supportExperience.eyebrowMax) {
+    errors.push({ field: 'supportExperience.eyebrow', message: `Support eyebrow must not exceed ${L.supportExperience.eyebrowMax} characters` });
+  }
+  if (form.supportExperience.title.length > L.supportExperience.titleMax) {
+    errors.push({ field: 'supportExperience.title', message: `Support title must not exceed ${L.supportExperience.titleMax} characters` });
+  }
+  if (form.supportExperience.description.length > L.supportExperience.descriptionMax) {
+    errors.push({ field: 'supportExperience.description', message: `Support description must not exceed ${L.supportExperience.descriptionMax} characters` });
+  }
+
+  const activeProgressItems = form.supportExperience.progressItems.filter(
+    (item) => item.label.trim() || item.status.trim()
+  );
+  if (activeProgressItems.length > L.supportExperience.progressItemsMax) {
+    errors.push({ field: 'supportExperience.progressItems', message: `Maximum ${L.supportExperience.progressItemsMax} support progress items allowed` });
+  }
+  if (activeProgressItems.some((item) => !item.label.trim())) {
+    errors.push({ field: 'supportExperience.progressItems', message: 'Each support progress item needs a label' });
+  }
+  if (activeProgressItems.some((item) => item.label.length > L.supportExperience.progressLabelMax)) {
+    errors.push({ field: 'supportExperience.progressItems', message: `Support progress labels must not exceed ${L.supportExperience.progressLabelMax} characters` });
+  }
+  if (activeProgressItems.some((item) => item.status.length > L.supportExperience.progressStatusMax)) {
+    errors.push({ field: 'supportExperience.progressItems', message: `Support progress status must not exceed ${L.supportExperience.progressStatusMax} characters` });
+  }
+  if (activeProgressItems.some((item) => item.value < 0 || item.value > 100 || Number.isNaN(item.value))) {
+    errors.push({ field: 'supportExperience.progressItems', message: 'Support progress values must be between 0 and 100' });
+  }
+
+  const activeSupportCards = form.supportExperience.supportCards.filter(
+    (item) => item.title.trim() || item.subtitle.trim()
+  );
+  if (activeSupportCards.length > L.supportExperience.supportCardsMax) {
+    errors.push({ field: 'supportExperience.supportCards', message: `Maximum ${L.supportExperience.supportCardsMax} support cards allowed` });
+  }
+  if (activeSupportCards.some((item) => !item.title.trim())) {
+    errors.push({ field: 'supportExperience.supportCards', message: 'Each support card needs a title' });
+  }
+  if (activeSupportCards.some((item) => item.title.length > L.supportExperience.supportCardTitleMax)) {
+    errors.push({ field: 'supportExperience.supportCards', message: `Support card titles must not exceed ${L.supportExperience.supportCardTitleMax} characters` });
+  }
+  if (activeSupportCards.some((item) => item.subtitle.length > L.supportExperience.supportCardSubtitleMax)) {
+    errors.push({ field: 'supportExperience.supportCards', message: `Support card subtitles must not exceed ${L.supportExperience.supportCardSubtitleMax} characters` });
+  }
 
   const activeHighlights = form.highlights.filter(Boolean);
   if (activeHighlights.length > L.highlights.maxItems) errors.push({ field: 'highlights', message: `Maximum ${L.highlights.maxItems} highlights allowed` });
   if (activeHighlights.some((h) => h.length > L.highlights.maxLen)) errors.push({ field: 'highlights', message: `Each highlight must not exceed ${L.highlights.maxLen} characters` });
+
+  const activeFaqs = form.faqs.filter((f) => f.question.trim());
+  if (activeFaqs.length > L.faqs.maxItems) errors.push({ field: 'faqs', message: `Maximum ${L.faqs.maxItems} FAQs allowed` });
+  if (activeFaqs.some((f) => f.question.length > L.faqs.questionMax)) errors.push({ field: 'faqs', message: `FAQ question must not exceed ${L.faqs.questionMax} characters` });
+  if (activeFaqs.some((f) => f.answer.length > L.faqs.answerMax)) errors.push({ field: 'faqs', message: `FAQ answer must not exceed ${L.faqs.answerMax} characters` });
 
   const activeEligibility = form.eligibility.filter(Boolean);
   if (activeEligibility.length > L.eligibility.maxItems) errors.push({ field: 'eligibility', message: `Maximum ${L.eligibility.maxItems} eligibility criteria allowed` });

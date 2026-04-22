@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 
 const YOUTUBE_CHANNEL = 'https://www.youtube.com/@amwcarrierpoint368/videos';
 

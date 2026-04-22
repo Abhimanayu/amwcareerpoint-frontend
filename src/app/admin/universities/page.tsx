@@ -6,6 +6,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import DataTable from '@/components/admin/DataTable';
 import ConfirmModal from '@/components/admin/ConfirmModal';
 import StatusBadge from '@/components/admin/StatusBadge';
+import { SafeImage } from '@/components/ui/SafeImage';
 import { adminGetUniversities, deleteUniversity } from '@/lib/universities';
 import { handleApiError } from '@/lib/handleApiError';
 
@@ -55,9 +56,16 @@ export default function AdminUniversitiesPage() {
       render: (item: Record<string, unknown>) => (
         <div className="flex items-center gap-3">
           {item.logo ? (
-            <img src={item.logo as string} alt="" className="w-8 h-8 rounded object-cover" />
+            <SafeImage 
+              src={item.logo as string} 
+              alt="" 
+              width={32}
+              height={32}
+              className="w-8 h-8 rounded object-cover"
+              fallbackElement={<div className="w-8 h-8 rounded bg-gray-200 flex items-center justify-center text-xs">🏫</div>}
+            />
           ) : (
-            <div className="w-8 h-8 rounded bg-gray-200" />
+            <div className="w-8 h-8 rounded bg-gray-200 flex items-center justify-center text-xs">🏫</div>
           )}
           <div className="min-w-0">
             <div className="font-medium truncate">{item.name as string}</div>

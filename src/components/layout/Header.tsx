@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { SafeImage } from '../ui/SafeImage';
 
 const menuItems = [
   { href: '/', label: 'Home' },
@@ -21,8 +22,19 @@ export function Header() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-12 sm:h-14 items-center justify-between">
             <Link href="/" className="flex items-center shrink-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.svg" alt="AMW Career Point" style={{ height: '36px', width: 'auto' }} />
+              <SafeImage 
+                src="/logo.svg" 
+                alt="AMW Career Point"
+                width={120}
+                height={36}
+                priority
+                style={{ height: '36px', width: 'auto' }}
+                fallbackElement={
+                  <div className="h-9 px-4 bg-[#0D1B3E] text-white rounded flex items-center text-sm font-bold">
+                    AMW
+                  </div>
+                }
+              />
             </Link>
 
             {/* Desktop Nav */}

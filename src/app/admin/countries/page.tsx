@@ -6,6 +6,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import DataTable from '@/components/admin/DataTable';
 import ConfirmModal from '@/components/admin/ConfirmModal';
 import StatusBadge from '@/components/admin/StatusBadge';
+import { FlagImage } from '@/components/ui/UniversalImage';
 import { adminGetCountries, deleteCountry } from '@/lib/countries';
 import { handleApiError } from '@/lib/handleApiError';
 
@@ -33,7 +34,13 @@ export default function AdminCountriesPage() {
     setLoading(false);
   }, []);
 
-  useEffect(() => { fetchCountries(); }, [fetchCountries]);
+  useEffect(() => {
+    const frameId = globalThis.requestAnimationFrame(() => {
+      void fetchCountries();
+    });
+
+    return () => globalThis.cancelAnimationFrame(frameId);
+  }, [fetchCountries]);
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -54,11 +61,13 @@ export default function AdminCountriesPage() {
       label: 'Country',
       render: (item: Record<string, unknown>) => (
         <div className="flex items-center gap-3">
-          {item.flagImage ? (
-            <img src={item.flagImage as string} alt="" className="w-8 h-6 rounded object-cover" />
-          ) : (
-            <div className="w-8 h-6 rounded bg-gray-200" />
-          )}
+          <FlagImage 
+            src={item.flagImage as string} 
+            alt={`${item.name} flag`} 
+            width={32}
+            height={24}
+            className="w-8 h-6 rounded object-cover"
+          />
           <span className="font-medium">{item.name as string}</span>
         </div>
       ),
@@ -79,7 +88,7 @@ export default function AdminCountriesPage() {
           <h1 className="text-2xl font-bold text-gray-900">Countries</h1>
           <button
             onClick={() => router.push('/admin/countries/new')}
-            className="px-4 py-2 bg-[#F26419] hover:bg-[#FF8040] text-white text-sm font-semibold rounded-xl transition-colors"
+            className="px-4 py-2 bg-orange hover:bg-orange-hover text-white text-sm font-semibold rounded-xl transition-colors"
           >
             + Add Country
           </button>

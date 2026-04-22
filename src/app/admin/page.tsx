@@ -7,6 +7,7 @@ import { adminGetCountries } from '@/lib/countries';
 import { adminGetUniversities } from '@/lib/universities';
 import { getEnquiries } from '@/lib/enquiries';
 import { adminGetBlogs } from '@/lib/blogs';
+import { adminGetFaqs } from '@/lib/faqs';
 
 interface StatCard {
   label: string;
@@ -24,11 +25,12 @@ export default function AdminDashboard() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [countries, universities, enquiries, blogs] = await Promise.allSettled([
+        const [countries, universities, enquiries, blogs, faqs] = await Promise.allSettled([
           adminGetCountries({ limit: 1 }),
           adminGetUniversities({ limit: 1 }),
           getEnquiries({ limit: 5, sort: '-createdAt' }),
           adminGetBlogs({ limit: 1 }),
+          adminGetFaqs({ limit: 1 }),
         ]);
 
         const getTotal = (r: PromiseSettledResult<Record<string, unknown>>) => {
@@ -50,6 +52,7 @@ export default function AdminDashboard() {
           { label: 'Universities', value: getTotal(universities), href: '/admin/universities', color: 'bg-purple-500', icon: 'M12 14l9-5-9-5-9 5 9 5z M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z' },
           { label: 'Enquiries', value: getTotal(enquiries), href: '/admin/enquiries', color: 'bg-green-500', icon: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
           { label: 'Blogs', value: getTotal(blogs), href: '/admin/blogs', color: 'bg-pink-500', icon: 'M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z' },
+          { label: 'FAQs', value: getTotal(faqs), href: '/admin/faqs', color: 'bg-amber-500', icon: 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
         ]);
 
         if (enquiries.status === 'fulfilled') {
@@ -83,8 +86,8 @@ export default function AdminDashboard() {
 
         {/* Stat cards */}
         {loading ? (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {[...Array(4)].map((_, i) => (
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            {[...Array(5)].map((_, i) => (
               <div key={i} className="bg-white rounded-xl border border-gray-200 p-5 animate-pulse">
                 <div className="h-4 w-16 bg-gray-200 rounded mb-3" />
                 <div className="h-8 w-12 bg-gray-200 rounded" />
@@ -92,7 +95,7 @@ export default function AdminDashboard() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
             {stats.map((s) => (
               <Link key={s.label} href={s.href} className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition-shadow group">
                 <div className="flex items-center justify-between mb-3">
@@ -143,11 +146,12 @@ export default function AdminDashboard() {
         {/* Quick Actions */}
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <h2 className="font-semibold text-gray-900 mb-3">Quick Actions</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {[
               { label: 'Add Country', href: '/admin/countries/new', icon: '🌍' },
               { label: 'Add University', href: '/admin/universities/new', icon: '🏛️' },
               { label: 'Add Blog Post', href: '/admin/blogs/new', icon: '📝' },
+              { label: 'Add FAQ', href: '/admin/faqs/new', icon: '❓' },
             ].map((action) => (
               <Link key={action.href} href={action.href} className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg border border-gray-200 hover:border-[#F26419]/40 hover:bg-[#F26419]/5 transition-colors group">
                 <span className="text-lg">{action.icon}</span>

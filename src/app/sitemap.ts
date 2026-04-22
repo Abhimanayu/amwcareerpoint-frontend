@@ -2,6 +2,7 @@ import { MetadataRoute } from 'next';
 import { getCountries } from '@/lib/countries';
 import { getUniversities } from '@/lib/universities';
 import { getBlogs } from '@/lib/blogs';
+import { extractCollectionData } from '@/lib/utils';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
@@ -21,7 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     const res = await getCountries({ limit: 100 });
-    const countries = Array.isArray(res.data) ? res.data : [];
+    const countries = extractCollectionData<{ slug: string; updatedAt?: string }>(res, ['countries']);
     countryPages = countries.map((c: { slug: string; updatedAt?: string }) => ({
       url: `${siteUrl}/countries/${c.slug}`,
       lastModified: c.updatedAt ? new Date(c.updatedAt) : new Date(),
@@ -32,7 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     const res = await getUniversities({ limit: 200 });
-    const universities = Array.isArray(res.data) ? res.data : [];
+    const universities = extractCollectionData<{ slug: string; updatedAt?: string }>(res, ['universities']);
     universityPages = universities.map((u: { slug: string; updatedAt?: string }) => ({
       url: `${siteUrl}/universities/${u.slug}`,
       lastModified: u.updatedAt ? new Date(u.updatedAt) : new Date(),
@@ -43,7 +44,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     const res = await getBlogs({ limit: 200 });
-    const blogs = Array.isArray(res.data) ? res.data : [];
+    const blogs = extractCollectionData<{ slug: string; updatedAt?: string }>(res, ['blogs']);
     blogPages = blogs.map((b: { slug: string; updatedAt?: string }) => ({
       url: `${siteUrl}/blogs/${b.slug}`,
       lastModified: b.updatedAt ? new Date(b.updatedAt) : new Date(),

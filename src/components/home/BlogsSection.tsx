@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Carousel } from '@/components/ui/Carousel';
 import { getBlogs } from '@/lib/blogs';
+import { SafeImage } from '@/components/ui/SafeImage';
+import { extractCollectionData, formatDate, pickBlogImageSource } from '@/lib/utils';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -20,7 +22,7 @@ export function BlogsSection() {
   useEffect(() => {
     getBlogs({ limit: 6 })
       .then((res) => {
-        const items = Array.isArray(res.data) ? res.data : [];
+        const items = extractCollectionData<any>(res, ['blogs']);
         if (items.length > 0) setBlogs(items);
       })
       .catch(() => {})
@@ -49,7 +51,10 @@ export function BlogsSection() {
         {/* Blog Carousel */}
         <div className="px-4 sm:px-5">
           <Carousel slideClass="basis-full sm:basis-1/2 lg:basis-1/3 pl-4 sm:pl-5">
-            {(useFallback ? fallbackBlogs : blogs).map((blog: any) => (
+            {(useFallback ? fallbackBlogs : blogs).map((blog: any) => {
+              const imageSource = useFallback ? (blog.image || '/blogs/russia-universities-nmc.jpg') : (pickBlogImageSource(blog) || '/blogs/russia-universities-nmc.jpg');
+
+              return (
               <Link
                 key={blog.slug || blog._id}
                 href={`/blogs/${blog.slug}`}
@@ -57,13 +62,13 @@ export function BlogsSection() {
               >
                 {/* Image */}
                 <div className="relative h-48 sm:h-52 overflow-hidden bg-gray-100">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={blog.coverImage || blog.image || '/blogs/default.jpg'}
+                  <SafeImage
+                    src={imageSource}
                     alt={blog.title || 'Blog post'}
+                    fill
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
-                    onError={(e) => { (e.target as HTMLImageElement).src = '/blogs/default.jpg'; }}
+                    fallbackSrc="/blogs/russia-universities-nmc.jpg"
+                    fallbackElement={<div className="absolute inset-0 flex items-center justify-center text-3xl bg-gradient-to-br from-[#F9F8F6] to-[#DDD9D2]">📝</div>}
                   />
                 </div>
 
@@ -83,7 +88,7 @@ export function BlogsSection() {
 
                   <div className="mt-3 flex items-center gap-2 text-xs text-[#4A4742]/60">
                     {blog.readTime && <span>• {blog.readTime}</span>}
-                    <span>· {blog.createdAt ? new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : blog.date || ''}</span>
+                    <span>· {blog.createdAt ? formatDate(blog.createdAt, 'en-US', { month: 'long', year: 'numeric' }) : blog.date || ''}</span>
                   </div>
 
                   <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-[#F26419] group-hover:gap-2 transition-all">
@@ -91,7 +96,8 @@ export function BlogsSection() {
                   </span>
                 </div>
               </Link>
-            ))}
+              );
+            })}
           </Carousel>
         </div>
 

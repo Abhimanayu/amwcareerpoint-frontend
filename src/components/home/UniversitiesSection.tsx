@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Carousel } from '@/components/ui/Carousel';
+import { SafeImage } from '@/components/ui/SafeImage';
 import { getUniversities } from '@/lib/universities';
+import { extractCollectionData, pickUniversityImageSource } from '@/lib/utils';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -23,7 +25,7 @@ export function UniversitiesSection() {
   useEffect(() => {
     getUniversities({ limit: 10, featured: true })
       .then((res) => {
-        const items = Array.isArray(res.data) ? res.data : [];
+        const items = extractCollectionData<any>(res, ['universities']);
         if (items.length > 0) setUniversities(items);
       })
       .catch(() => {})
@@ -57,19 +59,32 @@ export function UniversitiesSection() {
           <Carousel slideClass="basis-full sm:basis-1/2 lg:basis-1/4 pl-3 sm:pl-4" dots={false}>
             {useFallback ? fallbackUniversities.map((uni, i) => (
               <div key={i} className="relative rounded-xl overflow-hidden group cursor-pointer h-[240px] sm:h-[320px] lg:h-[420px]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={uni.image} alt={uni.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <SafeImage 
+                  src={uni.image} 
+                  alt={uni.name} 
+                  fill
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  fallbackElement={<div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center text-3xl text-white/30">🏫</div>}
+                />
                 <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/70 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 px-3 pb-3">
                   <p className="text-white text-[11px] sm:text-xs font-medium leading-snug drop-shadow-md">{uni.name}</p>
                 </div>
               </div>
-            )) : universities.map((uni: any) => (
+            )) : universities.map((uni: any) => {
+              const imageSource = pickUniversityImageSource(uni);
+
+              return (
               <Link key={uni._id} href={`/universities/${uni.slug}`} className="block">
                 <div className="relative rounded-xl overflow-hidden group cursor-pointer h-[240px] sm:h-[320px] lg:h-[420px]">
-                  {uni.heroImage || uni.logo ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img src={uni.heroImage || uni.logo} alt={uni.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  {imageSource ? (
+                    <SafeImage
+                      src={imageSource}
+                      alt={uni.name || 'University'}
+                      fill
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      fallbackElement={<div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-800" />}
+                    />
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-800" />
                   )}
@@ -80,7 +95,8 @@ export function UniversitiesSection() {
                   </div>
                 </div>
               </Link>
-            ))}
+              );
+            })}
           </Carousel>
         </div>
 

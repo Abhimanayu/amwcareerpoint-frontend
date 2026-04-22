@@ -1,7 +1,8 @@
 import Link from 'next/link';
+import { getCurrentYear } from '@/lib/utils';
 
 export function Footer() {
-  const currentYear = new Date().getFullYear();
+  const currentYear = getCurrentYear();
 
   const countries = [
     'Russia', 'Ukraine', 'Georgia', 'Kazakhstan', 'Uzbekistan', 'China', 'Kyrgyzstan', 'Belarus'
@@ -17,7 +18,7 @@ export function Footer() {
               <span className="text-red-500">AMW</span> Career Point
             </div>
             <p className="text-gray-300 mb-6 max-w-md leading-relaxed">
-              India's most trusted MBBS consultancy since 2009. Helping
+              India&apos;s most trusted MBBS consultancy since 2009. Helping
               NEET aspirants secure admissions in top government, private, and NMC-approved
               international medical colleges.
             </p>

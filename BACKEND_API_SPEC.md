@@ -17,11 +17,12 @@
 7. [Blogs](#7-blogs)
 8. [Blog Categories](#8-blog-categories)
 9. [Enquiries](#9-enquiries)
-10. [Media Upload](#10-media-upload)
-11. [Pagination & Sorting](#11-pagination--sorting)
-12. [CORS Configuration](#12-cors-configuration)
-13. [All Endpoints Summary](#13-all-endpoints-summary)
-14. [Database Models (Mongoose Schemas)](#14-database-models-mongoose-schemas)
+10. [FAQs](#10-faqs)
+11. [Media Upload](#11-media-upload)
+12. [Pagination & Sorting](#12-pagination--sorting)
+13. [CORS Configuration](#13-cors-configuration)
+14. [All Endpoints Summary](#14-all-endpoints-summary)
+15. [Database Models (Mongoose Schemas)](#15-database-models-mongoose-schemas)
 
 ---
 
@@ -1155,7 +1156,139 @@ OR
 
 ---
 
-## 10. Media Upload
+## 10. FAQs
+
+Page-level FAQs managed independently from university-embedded FAQs. University FAQs stay embedded in the university model.
+
+### 10.1 List FAQs (Public)
+
+```
+GET /faqs?page=home
+GET /faqs?page=country&pageSlug=russia
+GET /faqs?page=contact
+GET /faqs?page=general
+Auth: None
+```
+
+**Query Parameters:**
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `page` | String | Required. Enum: `home`, `country`, `contact`, `general` |
+| `pageSlug` | String | Optional. Used when `page=country` to scope FAQs to a specific country slug |
+| `status` | String | Optional. `all` returns active + inactive (admin use) |
+
+**Response (200):**
+
+```json
+{
+  "data": [
+    {
+      "_id": "665abc...",
+      "question": "Are foreign MBBS degrees valid in India?",
+      "answer": "Yes, MBBS degrees from NMC-approved universities are valid...",
+      "page": "home",
+      "pageSlug": null,
+      "order": 1,
+      "isActive": true,
+      "createdAt": "2024-06-01T00:00:00.000Z",
+      "updatedAt": "2024-06-01T00:00:00.000Z"
+    }
+  ]
+}
+```
+
+### 10.2 Get Single FAQ (Public)
+
+```
+GET /faqs/:id
+Auth: None
+```
+
+**Response (200):**
+
+```json
+{
+  "data": {
+    "_id": "665abc...",
+    "question": "Are foreign MBBS degrees valid in India?",
+    "answer": "Yes, MBBS degrees from NMC-approved universities...",
+    "page": "home",
+    "pageSlug": null,
+    "order": 1,
+    "isActive": true
+  }
+}
+```
+
+### 10.3 Create FAQ (Admin)
+
+```
+POST /faqs
+Content-Type: application/json
+Auth: Bearer <token>
+```
+
+**Body:**
+
+```json
+{
+  "question": "Is NEET mandatory?",
+  "answer": "Yes, NEET qualification is mandatory for Indian students.",
+  "page": "contact",
+  "pageSlug": null,
+  "order": 1
+}
+```
+
+| Field | Type | Validation |
+|-------|------|------------|
+| `question` | String | Required, max 300 chars |
+| `answer` | String | Required, max 2000 chars |
+| `page` | String | Required. Enum: `home`, `country`, `contact`, `general` |
+| `pageSlug` | String | Optional. Required when `page=country` |
+| `order` | Number | Optional, default 0 |
+| `isActive` | Boolean | Optional, default `true` |
+
+### 10.4 Update FAQ (Admin)
+
+```
+PUT /faqs/:id
+Content-Type: application/json
+Auth: Bearer <token>
+```
+
+Same body as create. All fields optional (partial update).
+
+### 10.5 Delete FAQ (Admin)
+
+```
+DELETE /faqs/:id
+Auth: Bearer <token>
+```
+
+### 10.6 Bulk Reorder FAQs (Admin)
+
+```
+PUT /faqs/reorder
+Content-Type: application/json
+Auth: Bearer <token>
+```
+
+**Body:**
+
+```json
+{
+  "items": [
+    { "id": "665abc...", "order": 1 },
+    { "id": "665def...", "order": 2 }
+  ]
+}
+```
+
+---
+
+## 11. Media Upload
 
 ### 10.1 Upload Image
 
@@ -1203,7 +1336,7 @@ Auth: Bearer <token>
 
 ---
 
-## 11. Pagination & Sorting
+## 12. Pagination & Sorting
 
 All list endpoints (`GET /countries`, `GET /universities`, etc.) must support these query parameters:
 
@@ -1240,7 +1373,7 @@ Where `total` is the total count of ALL matching records (not just current page)
 
 ---
 
-## 12. CORS Configuration
+## 13. CORS Configuration
 
 ```javascript
 // Express.js example
@@ -1262,7 +1395,7 @@ Access-Control-Allow-Headers: Content-Type, Authorization
 
 ---
 
-## 13. All Endpoints Summary
+## 14. All Endpoints Summary
 
 | # | Method | Endpoint | Auth | Description |
 |---|--------|----------|------|-------------|
@@ -1301,11 +1434,17 @@ Access-Control-Allow-Headers: Content-Type, Authorization
 | 33 | POST | `/enquiries` | No | Submit enquiry (public form) |
 | 34 | GET | `/enquiries` | Yes | List enquiries |
 | 35 | PUT | `/enquiries/:id` | Yes | Update enquiry |
-| 36 | POST | `/media/upload` | Yes | Upload image |
+| 36 | GET | `/faqs` | No | List FAQs (filterable by page/pageSlug) |
+| 37 | GET | `/faqs/:id` | No | Get single FAQ |
+| 38 | POST | `/faqs` | Yes | Create FAQ |
+| 39 | PUT | `/faqs/:id` | Yes | Update FAQ |
+| 40 | DELETE | `/faqs/:id` | Yes | Delete FAQ |
+| 41 | PUT | `/faqs/reorder` | Yes | Bulk reorder FAQs |
+| 42 | POST | `/media/upload` | Yes | Upload image |
 
 ---
 
-## 14. Database Models (Mongoose Schemas)
+## 15. Database Models (Mongoose Schemas)
 
 Here are the exact Mongoose schema definitions for reference:
 
@@ -1467,6 +1606,20 @@ const ReviewMetaSchema = new mongoose.Schema({
   totalReviews:  { type: Number, default: 0 },
 }, { timestamps: true });
 ```
+
+### FAQ
+```javascript
+const FaqSchema = new mongoose.Schema({
+  question:  { type: String, required: true, maxlength: 300 },
+  answer:    { type: String, required: true, maxlength: 2000 },
+  page:      { type: String, enum: ['home', 'country', 'contact', 'general'], required: true },
+  pageSlug:  { type: String, default: null },  // e.g. country slug — used when page=country
+  order:     { type: Number, default: 0 },
+  isActive:  { type: Boolean, default: true },
+}, { timestamps: true });
+```
+
+> **Note:** University FAQs remain embedded inside the University model (`faqs: [{ question, answer }]`). This separate FAQ collection handles page-level FAQs for home, contact, country, and general pages.
 
 ---
 

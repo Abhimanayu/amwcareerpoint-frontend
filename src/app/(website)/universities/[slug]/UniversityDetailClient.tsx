@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { CollegeHero } from '@/components/ui/CollegeHero';
 import { CollegeGallery } from '@/components/ui/CollegeGallery';
 import { FeeCard } from '@/components/ui/FeeCard';
 import { SafeImage } from '@/components/ui/SafeImage';
+import { pickUniversityImageSource } from '@/lib/utils';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -61,12 +61,7 @@ export default function UniversityDetailClient({
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  /* ───────────── active nav tracking ───────────── */
   const [activeNav, setActiveNav] = useState('overview');
-  if (typeof window !== 'undefined') {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    // Passive scroll tracking via IntersectionObserver set up once
-  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -489,8 +484,8 @@ export default function UniversityDetailClient({
               {relatedUniversities.map((uni: any, i: number) => (
                 <Link key={uni._id || `rel-${i}`} href={`/universities/${uni.slug}`} className="group overflow-hidden rounded-2xl border border-[#DDD9D2] bg-white transition-shadow hover:shadow-lg">
                   <div className="relative h-40 bg-[#0D1B3E]">
-                    {uni.heroImage ? (
-                      <SafeImage src={uni.heroImage} alt={uni.name || 'University'} fill className="object-cover transition-transform duration-300 group-hover:scale-105" fallbackElement={<div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0D1B3E] to-[#162550] text-2xl text-white/30">🏫</div>} />
+                    {pickUniversityImageSource(uni) ? (
+                      <SafeImage src={pickUniversityImageSource(uni)} alt={uni.name || 'University'} fill className="object-cover transition-transform duration-300 group-hover:scale-105" fallbackElement={<div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0D1B3E] to-[#162550] text-2xl text-white/30">🏫</div>} />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0D1B3E] to-[#162550] text-2xl text-white/30">🏫</div>
                     )}

@@ -6,6 +6,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import DataTable from '@/components/admin/DataTable';
 import ConfirmModal from '@/components/admin/ConfirmModal';
 import StatusBadge from '@/components/admin/StatusBadge';
+import { CoverImage } from '@/components/ui/UniversalImage';
 import { adminGetBlogs, deleteBlog } from '@/lib/blogs';
 import { handleApiError } from '@/lib/handleApiError';
 
@@ -54,11 +55,13 @@ export default function AdminBlogsPage() {
       label: 'Blog',
       render: (item: Record<string, unknown>) => (
         <div className="flex items-center gap-3">
-          {item.coverImage ? (
-            <img src={item.coverImage as string} alt="" className="w-12 h-8 rounded object-cover" />
-          ) : (
-            <div className="w-12 h-8 rounded bg-gray-200" />
-          )}
+          <CoverImage 
+            src={item.coverImage as string} 
+            alt={`${item.title} cover`} 
+            width={48}
+            height={32}
+            className="w-12 h-8 rounded object-cover flex-shrink-0"
+          />
           <div className="min-w-0">
             <div className="font-medium truncate max-w-[300px]">{item.title as string}</div>
             <div className="text-xs text-gray-500">{(item.category as Record<string, unknown>)?.name as string || ''}</div>

@@ -9,3 +9,4 @@ export * from './CourseCard';
 export * from './CollegeHero';
 export * from './CollegeGallery';
 export * from './EmptyState';
+export * from './UniversalImage';

@@ -1,7 +1,8 @@
 import Link from 'next/link';
+import { getCurrentYear } from '@/lib/utils';
 
 export function Footer() {
-  const year = new Date().getFullYear();
+  const year = getCurrentYear();
 
   const destinations = ['Russia', 'Ukraine', 'Georgia', 'Kazakhstan', 'Uzbekistan', 'Kyrgyzstan'];
 

@@ -2,18 +2,27 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { getCountries } from '@/lib/countries';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { SafeImage } from '@/components/ui/SafeImage';
+import { extractCollectionData, resolveMediaUrl } from '@/lib/utils';
 
 export const metadata: Metadata = {
   title: 'Countries for MBBS Abroad',
   description: 'Explore top countries for MBBS abroad with AMW Career Point including Russia, Ukraine, Georgia, Kazakhstan and more. Find the best destination for your medical education.',
 };
 
+const COUNTRY_PAGE_FEATURES = [
+  { id: 'fees', icon: '💰', title: 'Affordable Fees', desc: 'Much lower tuition fees compared to private medical colleges in India.' },
+  { id: 'quality', icon: '🏆', title: 'Quality Education', desc: 'WHO and NMC approved universities with modern facilities.' },
+  { id: 'recognition', icon: '🌍', title: 'Global Recognition', desc: 'Degrees recognized worldwide for practice and higher studies.' },
+  { id: 'english', icon: '📚', title: 'English Medium', desc: 'Courses taught in English with experienced international faculty.' },
+];
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export default async function CountriesPage() {
   let countries: any[] = [];
   try {
     const res = await getCountries({ limit: 50 });
-    countries = Array.isArray(res.data) ? res.data : [];
+    countries = extractCollectionData<any>(res, ['countries']);
   } catch { /* API unavailable */ }
 
   return (
@@ -32,6 +41,8 @@ export default async function CountriesPage() {
           </p>
         </div>
       </section>
+
+
 
       {/* ── Countries Grid ── */}
       <section className="bg-[#F9F8F6] py-10 sm:py-14">
@@ -66,10 +77,18 @@ export default async function CountriesPage() {
                   <div className="bg-[#0D1B3E] px-4 py-3 text-white">
                     <div className="flex items-center gap-2.5">
                       {country.flagImage ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img src={country.flagImage} alt={`${country.name} flag`} className="w-8 h-6 rounded-sm object-cover" />
+                        <SafeImage 
+                          src={country.flagImage} 
+                          alt={`${country.name} flag`} 
+                          width={32}
+                          height={24}
+                          className="w-8 h-6 rounded-sm object-cover"
+                          fallbackElement={
+                            <div className="w-8 h-6 rounded-sm bg-white/20 flex items-center justify-center text-xs">🏳️</div>
+                          }
+                        />
                       ) : (
-                        <div className="w-8 h-6 rounded-sm bg-white/20" />
+                        <div className="w-8 h-6 rounded-sm bg-white/20 flex items-center justify-center text-xs">🏳️</div>
                       )}
                       <div className="min-w-0">
                         <h3 className="font-heading text-[15px] font-bold truncate">{country.name || 'Country'}</h3>
@@ -105,8 +124,8 @@ export default async function CountriesPage() {
                     {/* Highlights */}
                     {Array.isArray(country.highlights) && country.highlights.length > 0 && (
                       <ul className="space-y-1 mb-3">
-                        {country.highlights.slice(0, 3).map((h: string, i: number) => (
-                          <li key={i} className="flex items-center gap-2 text-[13px] text-[#4A4742]">
+                        {country.highlights.slice(0, 3).map((h: string) => (
+                          <li key={h} className="flex items-center gap-2 text-[13px] text-[#4A4742]">
                             <span className="w-1.5 h-1.5 rounded-full bg-[#F26419] flex-shrink-0" />
                             <span className="truncate">{h}</span>
                           </li>
@@ -142,13 +161,8 @@ export default async function CountriesPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
-            {[
-              { icon: '💰', title: 'Affordable Fees', desc: 'Much lower tuition fees compared to private medical colleges in India.' },
-              { icon: '🏆', title: 'Quality Education', desc: 'WHO and NMC approved universities with modern facilities.' },
-              { icon: '🌍', title: 'Global Recognition', desc: 'Degrees recognized worldwide for practice and higher studies.' },
-              { icon: '📚', title: 'English Medium', desc: 'Courses taught in English with experienced international faculty.' },
-            ].map((f, i) => (
-              <div key={i} className="rounded-xl border border-[#DDD9D2] bg-white p-4 sm:p-5 hover:shadow-md transition-shadow text-center">
+            {COUNTRY_PAGE_FEATURES.map((f) => (
+              <div key={f.id} className="rounded-xl border border-[#DDD9D2] bg-white p-4 sm:p-5 hover:shadow-md transition-shadow text-center">
                 <span className="text-2xl mb-2.5 block">{f.icon}</span>
                 <h3 className="font-heading text-[15px] font-bold text-[#0D1B3E] mb-1.5">{f.title}</h3>
                 <p className="text-[13px] leading-relaxed text-[#4A4742]">{f.desc}</p>

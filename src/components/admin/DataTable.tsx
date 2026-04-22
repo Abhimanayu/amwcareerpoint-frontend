@@ -65,6 +65,9 @@ export default function DataTable<T extends Record<string, unknown>>({
     );
   }
 
+  console.log(columns);
+  
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
       {/* Search bar */}

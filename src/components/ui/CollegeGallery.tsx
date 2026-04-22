@@ -6,13 +6,14 @@ import { SafeImage } from '@/components/ui/SafeImage';
 interface CollegeGalleryProps {
   images: string[];
   universityName?: string;
+  fallbackSrc?: string;
 }
 
 /**
  * Protected campus gallery with carousel.
  * Handles: empty array, broken images, single image.
  */
-export function CollegeGallery({ images, universityName = 'Campus' }: CollegeGalleryProps) {
+export function CollegeGallery({ images, universityName = 'Campus', fallbackSrc }: CollegeGalleryProps) {
   const [index, setIndex] = useState(0);
   const gallery = images.filter(Boolean);
 
@@ -29,6 +30,7 @@ export function CollegeGallery({ images, universityName = 'Campus' }: CollegeGal
           alt={`${universityName} campus`}
           fill
           className="object-cover"
+          fallbackSrc={fallbackSrc}
           fallbackElement={
             <div className="flex h-full w-full items-center justify-center bg-[#DDD9D2] text-sm text-[#4A4742]">
               Image unavailable
@@ -77,6 +79,7 @@ export function CollegeGallery({ images, universityName = 'Campus' }: CollegeGal
                 alt=""
                 fill
                 className="object-cover"
+                fallbackSrc={fallbackSrc}
                 fallbackElement={
                   <div className="flex h-full w-full items-center justify-center bg-[#DDD9D2] text-[10px] text-[#4A4742]">—</div>
                 }

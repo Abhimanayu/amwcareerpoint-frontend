@@ -18,12 +18,15 @@ const nextConfig: NextConfig = {
       {
         protocol: 'http',
         hostname: 'localhost',
+        port: '5002',
       },
       {
         protocol: 'https',
         hostname: '**',
       },
     ],
+    // Allow localhost images to be unoptimized to avoid private IP issues
+    unoptimized: process.env.NODE_ENV === 'development',
   },
 };
 

@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getUniversityBySlug, getUniversities } from '@/lib/universities';
 import { getCountryBySlug } from '@/lib/countries';
+import { extractCollectionData, pickUniversityImageSource, resolveMediaUrl } from '@/lib/utils';
 import UniversityDetailClient from './UniversityDetailClient';
 
 type Props = {
@@ -19,10 +19,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (!university) return { title: 'University Not Found' };
     const title = university.seo?.metaTitle || `${university.name} - MBBS Admission`;
     const description = university.seo?.metaDescription || `Study MBBS at ${university.name}. ${university.description || ''} Get complete admission details, fees, and eligibility.`;
+    const ogImage = resolveMediaUrl(pickUniversityImageSource(university));
     return {
       title,
       description,
-      openGraph: { title, description, type: 'article', images: university.heroImage ? [{ url: university.heroImage }] : undefined },
+      openGraph: { title, description, type: 'article', images: ogImage ? [{ url: ogImage }] : undefined },
     };
   } catch {
     return { title: 'University Not Found' };
@@ -54,7 +55,7 @@ export default async function UniversityDetailPage({ params }: Props) {
   try {
     if (university.country?._id) {
       const uRes = await getUniversities({ country: university.country._id, limit: 6 });
-      const all = Array.isArray(uRes.data) ? uRes.data : [];
+      const all = extractCollectionData<any>(uRes, ['universities']);
       relatedUniversities = all.filter((u: any) => u._id !== university._id).slice(0, 3);
     }
   } catch { /* ok */ }

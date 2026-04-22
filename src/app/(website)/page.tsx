@@ -15,6 +15,9 @@ import {
   CTASection,
   FAQSection
 } from '@/components/home';
+import { getPublicFaqs, homeFallbackFaqs } from '@/lib/server/faqs';
+
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'AMW Career Point - MBBS Abroad Consultancy | Study Medicine Overseas',
@@ -26,7 +29,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
+export default async function Home() {
+  const faqs = await getPublicFaqs('home', { fallback: homeFallbackFaqs });
+
   return (
     <>
       <HeroSection />
@@ -42,7 +47,7 @@ export default function Home() {
       <VideosSection />
       <BlogsSection />
       <CTASection />
-      <FAQSection />
+      <FAQSection faqs={faqs} />
     </>
   );
 }

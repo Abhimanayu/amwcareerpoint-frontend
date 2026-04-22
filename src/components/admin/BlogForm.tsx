@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ImageUploader from '@/components/admin/ImageUploader';
+import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { createBlog, updateBlog, getBlogCategories } from '@/lib/blogs';
 import { handleApiError } from '@/lib/handleApiError';
 import { validateBlogForm, getFieldError, LIMITS, type ValidationError } from '@/lib/validation';
+import { validateBlogContent, type ContentValidationResult } from '@/lib/contentValidation';
 import { FieldError, CharCount, ValidationBanner } from '@/components/admin/FormValidation';
 
 interface BlogFormProps {
@@ -35,6 +37,7 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
+  const [contentValidation, setContentValidation] = useState<ContentValidationResult | null>(null);
   const L = LIMITS.blog;
 
   useEffect(() => {
@@ -92,7 +95,16 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
     setSaving(false);
   };
 
-  const updateField = (key: string, value: unknown) => setForm((p) => ({ ...p, [key]: value }));
+  const updateField = (key: string, value: unknown) => {
+    setForm((p) => ({ ...p, [key]: value }));
+    
+    // Validate content for mobile safety
+    if (key === 'content' && typeof value === 'string') {
+      const validation = validateBlogContent(value);
+      setContentValidation(validation);
+    }
+  };
+  
   const autoSlug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
   return (
@@ -143,8 +155,57 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Content *</label>
-            <textarea required rows={12} value={form.content} onChange={(e) => updateField('content', e.target.value)} placeholder="Write your blog content here... (supports HTML)" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none resize-none font-mono" />
+            <RichTextEditor
+              content={form.content}
+              onChange={(content) => updateField('content', content)}
+              placeholder="Write your blog content here..."
+              className="min-h-[400px]"
+            />
             <FieldError message={getFieldError(validationErrors, 'content')} />
+            
+            {/* Content Validation Feedback */}
+            {contentValidation && (
+              <div className="mt-3 space-y-2">
+                {contentValidation.errors.length > 0 && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <h4 className="text-sm font-semibold text-red-800 mb-2">❌ Content Issues</h4>
+                    <ul className="text-sm text-red-700 space-y-1">
+                      {contentValidation.errors.map((error, i) => (
+                        <li key={i}>• {error}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
+                {contentValidation.warnings.length > 0 && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                    <h4 className="text-sm font-semibold text-amber-800 mb-2">⚠️ Mobile Compatibility Warnings</h4>
+                    <ul className="text-sm text-amber-700 space-y-1">
+                      {contentValidation.warnings.map((warning, i) => (
+                        <li key={i}>• {warning}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
+                {contentValidation.suggestions.length > 0 && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <h4 className="text-sm font-semibold text-blue-800 mb-2">💡 Suggestions for Better Mobile Experience</h4>
+                    <ul className="text-sm text-blue-700 space-y-1">
+                      {contentValidation.suggestions.map((suggestion, i) => (
+                        <li key={i}>• {suggestion}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
+                {contentValidation.isValid && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <p className="text-sm font-semibold text-green-800">✅ Content is mobile-friendly!</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>

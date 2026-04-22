@@ -2,6 +2,8 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { getUniversities } from '@/lib/universities';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { SafeImage } from '@/components/ui/SafeImage';
+import { extractCollectionData, pickUniversityImageSource } from '@/lib/utils';
 
 export const metadata: Metadata = {
   title: 'Top Medical Universities Abroad',
@@ -14,7 +16,14 @@ type Props = {
   searchParams: Promise<{ country?: string }>;
 };
 
-export default async function UniversitiesPage({ searchParams }: Props) {
+const UNIVERSITY_PROMISES = [
+  { id: 'who', icon: '🏆', title: 'WHO Approved', desc: 'All universities are approved by the World Health Organization.' },
+  { id: 'nmc', icon: '✅', title: 'NMC Recognition', desc: 'Degrees recognized by the National Medical Commission (NMC).' },
+  { id: 'facilities', icon: '🔬', title: 'Modern Facilities', desc: 'State-of-the-art laboratories and research facilities.' },
+  { id: 'faculty', icon: '👨‍🏫', title: 'Expert Faculty', desc: 'Experienced professors and international teaching staff.' },
+];
+
+export default async function UniversitiesPage({ searchParams }: Readonly<Props>) {
   const { country } = await searchParams;
   const isIndia = country?.toLowerCase() === 'india';
   let universities: any[] = [];
@@ -22,7 +31,7 @@ export default async function UniversitiesPage({ searchParams }: Props) {
     const params: Record<string, any> = { limit: 50 };
     if (country) params.country = country;
     const res = await getUniversities(params);
-    universities = Array.isArray(res.data) ? res.data : [];
+    universities = extractCollectionData<any>(res, ['universities']);
   } catch { /* API unavailable */ }
 
   return (
@@ -67,7 +76,10 @@ export default async function UniversitiesPage({ searchParams }: Props) {
             />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-              {universities.map((uni: any) => (
+              {universities.map((uni: any) => {
+                const imageSource = pickUniversityImageSource(uni);
+
+                return (
                 <Link
                   key={uni._id}
                   href={`/universities/${uni.slug}`}
@@ -75,13 +87,21 @@ export default async function UniversitiesPage({ searchParams }: Props) {
                 >
                   {/* Image / Gradient header */}
                   <div className="relative h-[180px] sm:h-[200px] overflow-hidden bg-gradient-to-br from-[#0D1B3E] to-[#162550]">
-                    {(uni.heroImage || uni.logo) && (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img
-                        src={uni.heroImage || uni.logo}
+                    {imageSource && (
+                      <SafeImage
+                        src={imageSource}
                         alt={uni.name}
+                        fill
                         className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        fallbackElement={
+                          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0D1B3E] to-[#162550] text-3xl text-white/30">🏫</div>
+                        }
                       />
+                    )}
+                    {!imageSource && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#0D1B3E] to-[#162550] text-4xl text-white/30">
+                        🏫
+                      </div>
                     )}
                     <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 to-transparent" />
                     {uni.country?.name && (
@@ -138,7 +158,8 @@ export default async function UniversitiesPage({ searchParams }: Props) {
                     </div>
                   </div>
                 </Link>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -158,13 +179,8 @@ export default async function UniversitiesPage({ searchParams }: Props) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
-            {[
-              { icon: '🏆', title: 'WHO Approved', desc: 'All universities are approved by the World Health Organization.' },
-              { icon: '✅', title: 'NMC Recognition', desc: 'Degrees recognized by the National Medical Commission (NMC).' },
-              { icon: '🔬', title: 'Modern Facilities', desc: 'State-of-the-art laboratories and research facilities.' },
-              { icon: '👨‍🏫', title: 'Expert Faculty', desc: 'Experienced professors and international teaching staff.' },
-            ].map((f, i) => (
-              <div key={i} className="rounded-xl border border-[#DDD9D2] bg-white p-4 sm:p-5 hover:shadow-md transition-shadow text-center">
+            {UNIVERSITY_PROMISES.map((f) => (
+              <div key={f.id} className="rounded-xl border border-[#DDD9D2] bg-white p-4 sm:p-5 hover:shadow-md transition-shadow text-center">
                 <span className="text-2xl mb-2.5 block">{f.icon}</span>
                 <h3 className="font-heading text-[15px] font-bold text-[#0D1B3E] mb-1.5">{f.title}</h3>
                 <p className="text-[13px] leading-relaxed text-[#4A4742]">{f.desc}</p>

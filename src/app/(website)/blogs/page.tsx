@@ -2,6 +2,8 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { getBlogs, getBlogCategories } from '@/lib/blogs';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { extractCollectionData, formatDate, pickBlogImageSource } from '@/lib/utils';
+import { SafeImage } from '@/components/ui/SafeImage';
 
 export const metadata: Metadata = {
   title: 'Blog - MBBS Abroad Insights',
@@ -14,16 +16,17 @@ export default async function BlogPage() {
   let categories: string[] = [];
   try {
     const res = await getBlogs({ limit: 50 });
-    blogPosts = Array.isArray(res.data) ? res.data : [];
+    blogPosts = extractCollectionData<any>(res, ['blogs']);
   } catch { /* API unavailable */ }
   try {
     const catRes = await getBlogCategories();
-    const catData = Array.isArray(catRes.data) ? catRes.data : catRes || [];
+    const catData = extractCollectionData<any>(catRes, ['categories']);
     categories = Array.isArray(catData) ? catData.map((c: any) => c.name || c) : [];
   } catch { /* no categories */ }
 
   const featured = blogPosts[0] || null;
   const rest = blogPosts.slice(1);
+  const featuredImage = featured ? pickBlogImageSource(featured) : '';
 
   return (
     <div className="bg-white">
@@ -76,9 +79,15 @@ export default async function BlogPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2">
                 {/* Image */}
                 <div className="relative h-[240px] lg:h-auto overflow-hidden bg-gradient-to-br from-[#F9F8F6] to-[#DDD9D2]">
-                  {featured.coverImage ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img src={featured.coverImage} alt={featured.title || 'Featured article'} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  {featuredImage ? (
+                    <SafeImage
+                      src={featuredImage}
+                      alt={featured.title || 'Featured article'}
+                      fill
+                      className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      fallbackSrc="/blogs/russia-universities-nmc.jpg"
+                      fallbackElement={<div className="absolute inset-0 flex items-center justify-center text-5xl">📚</div>}
+                    />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center text-5xl">📚</div>
                   )}
@@ -91,7 +100,7 @@ export default async function BlogPage() {
                       {featured.category?.name || featured.category || 'Blog'}
                     </span>
                     {featured.createdAt && (
-                      <span>{new Date(featured.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
+                      <span>{formatDate(featured.createdAt, 'en-US', { month: 'long', year: 'numeric' })}</span>
                     )}
                   </div>
                   <h3 className="font-heading text-xl sm:text-2xl font-bold text-[#0D1B3E] mb-2 line-clamp-2 group-hover:text-[#F26419] transition-colors">
@@ -133,7 +142,10 @@ export default async function BlogPage() {
             <EmptyState icon="📝" title="No articles yet" description="Check back soon for the latest insights about MBBS abroad." />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-              {rest.map((post: any) => (
+              {rest.map((post: any) => {
+                const postImage = pickBlogImageSource(post);
+
+                return (
                 <Link
                   key={post._id || post.slug}
                   href={`/blogs/${post.slug}`}
@@ -141,9 +153,15 @@ export default async function BlogPage() {
                 >
                   {/* Image */}
                   <div className="relative h-44 sm:h-48 overflow-hidden bg-[#F9F8F6]">
-                    {post.coverImage ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img src={post.coverImage} alt={post.title || 'Blog post'} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    {postImage ? (
+                      <SafeImage
+                        src={postImage}
+                        alt={post.title || 'Blog post'}
+                        fill
+                        className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        fallbackSrc="/blogs/russia-universities-nmc.jpg"
+                        fallbackElement={<div className="absolute inset-0 flex items-center justify-center text-3xl bg-gradient-to-br from-[#F9F8F6] to-[#DDD9D2]">📝</div>}
+                      />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center text-3xl bg-gradient-to-br from-[#F9F8F6] to-[#DDD9D2]">📝</div>
                     )}
@@ -156,7 +174,7 @@ export default async function BlogPage() {
                         {post.category?.name || post.category || 'Blog'}
                       </span>
                       {post.createdAt && (
-                        <span>{new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
+                        <span>{formatDate(post.createdAt, 'en-US', { month: 'short', year: 'numeric' })}</span>
                       )}
                     </div>
 
@@ -188,7 +206,8 @@ export default async function BlogPage() {
                     </div>
                   </div>
                 </Link>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

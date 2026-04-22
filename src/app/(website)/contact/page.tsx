@@ -1,13 +1,17 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { ContactForm } from '@/components/contact/ContactForm';
+import { contactFallbackFaqs, getPublicFaqs } from '@/lib/server/faqs';
+
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'Contact Us',
   description: 'Get in touch with AMW Career Point for expert MBBS abroad consultancy. Contact us for free consultation and guidance.',
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const faqs = await getPublicFaqs('contact', { fallback: contactFallbackFaqs });
   return (
     <div className="min-h-screen bg-white">
       {/* ── Hero ── */}
@@ -123,15 +127,10 @@ export default function ContactPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[
-              { q: 'What is the admission process?', a: 'The admission process typically involves NEET qualification, document submission, university selection, and visa processing. We guide you through each step.' },
-              { q: 'What are the fees involved?', a: 'Tuition fees vary by country and university, typically ranging from $3,000-$8,000 per year. We help you choose affordable options that fit your budget.' },
-              { q: 'Is NEET mandatory?', a: 'Yes, NEET qualification is mandatory for Indian students to study MBBS abroad and to practice medicine in India after graduation.' },
-              { q: 'How long does the process take?', a: 'The complete process from application to visa usually takes 2-4 months. We ensure timely processing of all documents and procedures.' },
-            ].map((faq) => (
-              <div key={faq.q} className="rounded-xl border border-[#DDD9D2] bg-white p-5 hover:shadow-md transition-shadow">
-                <h3 className="font-heading text-base font-bold text-[#0D1B3E] mb-2">{faq.q}</h3>
-                <p className="text-[13px] text-[#4A4742] leading-relaxed">{faq.a}</p>
+            {faqs.map((faq) => (
+              <div key={faq.question} className="rounded-xl border border-[#DDD9D2] bg-white p-5 hover:shadow-md transition-shadow">
+                <h3 className="font-heading text-base font-bold text-[#0D1B3E] mb-2">{faq.question}</h3>
+                <p className="text-[13px] text-[#4A4742] leading-relaxed">{faq.answer}</p>
               </div>
             ))}
           </div>

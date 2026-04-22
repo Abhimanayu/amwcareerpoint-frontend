@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Carousel } from '@/components/ui/Carousel';
+import { SafeImage } from '@/components/ui/SafeImage';
 import { getCountries } from '@/lib/countries';
+import { extractCollectionData, resolveMediaUrl } from '@/lib/utils';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -23,7 +25,7 @@ export function CountriesSection() {
   useEffect(() => {
     getCountries({ limit: 10 })
       .then((res) => {
-        const items = Array.isArray(res.data) ? res.data : [];
+        const items = extractCollectionData<any>(res, ['countries']);
         if (items.length > 0) setCountries(items);
         else setCountries([]);
       })
@@ -52,8 +54,16 @@ export function CountriesSection() {
               <div key={i} className="rounded-xl border border-border bg-white overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
                 <div className="bg-navy px-4 py-3 text-white">
                   <div className="flex items-center gap-2.5">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={`https://flagcdn.com/w40/${c.code}.png`} srcSet={`https://flagcdn.com/w80/${c.code}.png 2x`} alt={`${c.name} flag`} className="w-8 h-6 rounded-sm object-cover" />
+                    <SafeImage 
+                      src={`https://flagcdn.com/w40/${c.code}.png`} 
+                      alt={`${c.name} flag`} 
+                      width={32}
+                      height={24}
+                      className="w-8 h-6 rounded-sm object-cover"
+                      fallbackElement={
+                        <div className="w-8 h-6 rounded-sm bg-white/20 flex items-center justify-center text-xs">🏳️</div>
+                      }
+                    />
                     <div>
                       <h3 className="font-heading text-[15px] font-bold truncate">{c.name}</h3>
                       <span className="text-[11px] opacity-90">{c.unis} Universities</span>
@@ -91,8 +101,16 @@ export function CountriesSection() {
                 <div className="bg-navy px-4 py-3 text-white">
                   <div className="flex items-center gap-2.5">
                     {c.flagImage && (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img src={c.flagImage} alt={`${c.name} flag`} className="w-8 h-6 rounded-sm object-cover" />
+                      <SafeImage 
+                        src={c.flagImage} 
+                        alt={`${c.name} flag`} 
+                        width={32}
+                        height={24}
+                        className="w-8 h-6 rounded-sm object-cover"
+                        fallbackElement={
+                          <div className="w-8 h-6 rounded-sm bg-white/20 flex items-center justify-center text-xs">🏳️</div>
+                        }
+                      />
                     )}
                     <div>
                       <h3 className="font-heading text-[15px] font-bold truncate">{c.name || 'Country'}</h3>

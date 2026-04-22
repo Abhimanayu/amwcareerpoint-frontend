@@ -1,11 +1,16 @@
 'use client';
 
 import Image, { ImageProps } from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { resolveMediaUrl } from '@/lib/utils';
 
 interface SafeImageProps extends Omit<ImageProps, 'onError'> {
   fallbackSrc?: string;
   fallbackElement?: React.ReactNode;
+}
+
+function isStringSource(value: SafeImageProps['src']): value is string {
+  return typeof value === 'string';
 }
 
 const FALLBACK_PLACEHOLDER =
@@ -21,18 +26,39 @@ export function SafeImage({
   fallbackSrc,
   fallbackElement,
   className,
+  unoptimized,
   ...props
-}: SafeImageProps) {
+}: Readonly<SafeImageProps>) {
   const [error, setError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  
+  const normalizedSrc = typeof src === 'string' ? resolveMediaUrl(src) : src;
+  const normalizedFallbackSrc = typeof fallbackSrc === 'string' ? resolveMediaUrl(fallbackSrc) : fallbackSrc;
+  const resolvedSrc = !normalizedSrc || error ? normalizedFallbackSrc || FALLBACK_PLACEHOLDER : normalizedSrc;
+  const stringResolvedSrc = isStringSource(resolvedSrc) ? resolvedSrc : null;
+  const isOptimizableBypassSource = stringResolvedSrc
+    ? /^https?:\/\//i.test(stringResolvedSrc) || stringResolvedSrc.startsWith('data:')
+    : false;
+  const shouldDisableOptimization =
+    typeof unoptimized === 'boolean'
+      ? unoptimized
+      : isOptimizableBypassSource;
 
-  if (!src || error) {
-    if (fallbackElement) return <>{fallbackElement}</>;
+  // Reset error state when src changes
+  useEffect(() => {
+    setError(false);
+    setImageLoaded(false);
+  }, [src]);
+
+  if (!normalizedSrc || error) {
+    if (!normalizedFallbackSrc && fallbackElement) return <>{fallbackElement}</>;
     return (
       <Image
         {...props}
-        src={fallbackSrc || FALLBACK_PLACEHOLDER}
+        src={resolvedSrc}
         alt={alt || 'Image unavailable'}
         className={className}
+        unoptimized={shouldDisableOptimization}
       />
     );
   }
@@ -40,10 +66,18 @@ export function SafeImage({
   return (
     <Image
       {...props}
-      src={src}
+      src={normalizedSrc}
       alt={alt || ''}
       className={className}
-      onError={() => setError(true)}
+      unoptimized={shouldDisableOptimization}
+      onError={() => {
+        console.error('🖼️ Image load failed:', normalizedSrc);
+        setError(true);
+      }}
+      onLoad={() => {
+        console.log('✅ Image loaded successfully:', normalizedSrc);
+        setImageLoaded(true);
+      }}
     />
   );
 }
