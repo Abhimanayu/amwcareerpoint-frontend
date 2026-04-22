@@ -417,8 +417,8 @@ export default async function CountryPage({ params }: Props) {
 
       <section className="border-b border-[#E6DFD3] bg-white px-4 py-4 sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-3 lg:gap-5">
-          {trustPills.map((pill) => (
-            <div key={pill} className="inline-flex items-center gap-2 rounded-full border border-[#E7DECF] bg-[#F8F4EC] px-4 py-2 text-[12px] font-medium text-[#4A4742]">
+          {trustPills.map((pill, idx) => (
+            <div key={`${idx}-${pill}`} className="inline-flex items-center gap-2 rounded-full border border-[#E7DECF] bg-[#F8F4EC] px-4 py-2 text-[12px] font-medium text-[#4A4742]">
               <span className="text-[#F26419]">✦</span>
               <span>{pill}</span>
             </div>
@@ -463,7 +463,7 @@ export default async function CountryPage({ params }: Props) {
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {reasonCards.map((card, index) => (
                 <article
-                  key={`${card.title}-${card.description}`}
+                  key={`${index}-${card.title}`}
                   className="rounded-[28px] border border-[#E7DECF] bg-white p-6 shadow-[0_18px_55px_rgba(13,27,62,0.06)]"
                 >
                   <div className={`mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${CARD_ACCENTS[index % CARD_ACCENTS.length]} text-lg text-[#0D1B3E]`}>
@@ -571,9 +571,9 @@ export default async function CountryPage({ params }: Props) {
                         <div className="mt-5 flex flex-wrap gap-2">
                           {(Array.isArray(university.recognition) ? university.recognition : [])
                             .slice(0, 3)
-                            .map((item) => (
+                            .map((item, recIdx) => (
                               <span
-                                key={`${university.slug}-${item}`}
+                                key={`${university.slug}-${recIdx}-${item}`}
                                 className="rounded-full border border-[#EFE6D8] bg-[#F8F4EC] px-3 py-1 text-[11px] font-medium text-[#4A4742]"
                               >
                                 {item}
@@ -744,7 +744,7 @@ export default async function CountryPage({ params }: Props) {
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {lifeCards.map((card, index) => (
                 <article
-                  key={`${card.title}-${card.description}`}
+                  key={`${index}-${card.title}`}
                   className="overflow-hidden rounded-[24px] border border-[#E7DECF] bg-white shadow-[0_12px_36px_rgba(13,27,62,0.04)]"
                 >
                   <div className={`flex items-center gap-3 px-5 py-4 text-white ${LIFE_CARD_BACKGROUNDS[index % LIFE_CARD_BACKGROUNDS.length]}`}>
@@ -772,8 +772,8 @@ export default async function CountryPage({ params }: Props) {
               {supportExperience.description || `Students choosing ${country.name} usually need more than university names. They need clear selection support, document guidance, fee planning, and dependable follow-through.`}
             </p>
             <div className="mt-6 space-y-4">
-              {resolvedSupportProgressItems.map((item) => (
-                <div key={`${item.label}-${item.value}`}>
+              {resolvedSupportProgressItems.map((item, idx) => (
+                <div key={`${idx}-${item.label}`}>
                   <div className="mb-2 flex items-center justify-between text-sm text-white/75">
                     <span className="pr-4 wrap-break-word">{item.label}</span>
                     <span className="shrink-0 text-right">{item.status || 'Included'}</span>

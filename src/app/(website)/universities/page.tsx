@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { getUniversities } from '@/lib/universities';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SafeImage } from '@/components/ui/SafeImage';
-import { extractCollectionData, pickUniversityImageSource } from '@/lib/utils';
+import { clampText, extractCollectionData, pickUniversityImageSource } from '@/lib/utils';
 
 export const metadata: Metadata = {
   title: 'Top Medical Universities Abroad',
@@ -78,6 +78,22 @@ export default async function UniversitiesPage({ searchParams }: Readonly<Props>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
               {universities.map((uni: any) => {
                 const imageSource = pickUniversityImageSource(uni);
+                const universityName = clampText(uni.name || 'University', 62);
+                const countryName = clampText(uni.country?.name, 24);
+                const accreditation = clampText(uni.accreditation, 38);
+                const description = clampText(uni.description, 120);
+                const annualFees = clampText(uni.annualFees, 18, {
+                  fallback: 'On request',
+                  preserveWords: false,
+                });
+                const duration = clampText(uni.courseDuration, 20, {
+                  fallback: 'See details',
+                  preserveWords: false,
+                });
+                const recognition = clampText(
+                  Array.isArray(uni.recognition) ? uni.recognition.slice(0, 2).join(' · ') : '',
+                  42
+                );
 
                 return (
                 <Link
@@ -104,49 +120,54 @@ export default async function UniversitiesPage({ searchParams }: Readonly<Props>
                       </div>
                     )}
                     <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 to-transparent" />
-                    {uni.country?.name && (
-                      <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-[#0D1B3E]">
-                        🌍 {uni.country.name}
+                    {countryName && (
+                      <span
+                        title={uni.country?.name}
+                        className="absolute top-3 left-3 inline-flex max-w-[calc(100%-1.5rem)] items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-[#0D1B3E]"
+                      >
+                        <span className="shrink-0">🌍</span>
+                        <span className="truncate">{countryName}</span>
                       </span>
                     )}
                   </div>
 
                   {/* Body */}
                   <div className="p-4 flex flex-col flex-1">
-                    <h3 className="font-heading text-[15px] font-bold text-[#0D1B3E] mb-1 line-clamp-2 group-hover:text-[#F26419] transition-colors">
-                      {uni.name || 'University'}
+                    <h3 title={uni.name || 'University'} className="font-heading text-[15px] font-bold text-[#0D1B3E] mb-1 line-clamp-2 group-hover:text-[#F26419] transition-colors">
+                      {universityName}
                     </h3>
 
-                    {uni.accreditation && (
-                      <p className="text-[11px] text-[#4A4742] truncate mb-2">🏆 {uni.accreditation}</p>
+                    {accreditation && (
+                      <p title={uni.accreditation} className="mb-2 truncate text-[11px] text-[#4A4742]">🏆 {accreditation}</p>
                     )}
 
-                    {uni.description && (
-                      <p className="text-[13px] text-[#4A4742] leading-relaxed line-clamp-2 mb-3">
-                        {uni.description}
+                    {description && (
+                      <p title={uni.description} className="mb-3 line-clamp-3 text-[13px] leading-relaxed text-[#4A4742]">
+                        {description}
                       </p>
                     )}
 
                     {/* Quick Stats */}
                     <div className="grid grid-cols-2 gap-2 mb-3">
-                      {uni.annualFees && (
-                        <div className="rounded-lg bg-[#F9F8F6] px-2.5 py-1.5 text-center">
-                          <div className="text-[10px] uppercase text-[#4A4742]">Fees / Year</div>
-                          <div className="text-[13px] font-bold text-[#F26419] truncate">{uni.annualFees}</div>
+                      <div className="min-w-0 rounded-lg bg-[#F9F8F6] px-2.5 py-1.5 text-center">
+                        <div className="text-[10px] uppercase text-[#4A4742]">Fees / Year</div>
+                        <div title={uni.annualFees || annualFees} className="break-words text-[13px] font-bold text-[#F26419] sm:truncate">
+                          {annualFees}
                         </div>
-                      )}
-                      {uni.courseDuration && (
-                        <div className="rounded-lg bg-[#F9F8F6] px-2.5 py-1.5 text-center">
-                          <div className="text-[10px] uppercase text-[#4A4742]">Duration</div>
-                          <div className="text-[13px] font-bold text-[#0D1B3E]">{uni.courseDuration}</div>
+                      </div>
+                      <div className="min-w-0 rounded-lg bg-[#F9F8F6] px-2.5 py-1.5 text-center">
+                        <div className="text-[10px] uppercase text-[#4A4742]">Duration</div>
+                        <div title={uni.courseDuration || duration} className="break-words text-[13px] font-bold text-[#0D1B3E] sm:truncate">
+                          {duration}
                         </div>
-                      )}
+                      </div>
                     </div>
 
                     {/* Recognition */}
-                    {uni.recognition && uni.recognition.length > 0 && (
-                      <p className="text-[11px] text-[#4A4742] mb-3 truncate">
-                        {uni.recognition.slice(0, 2).join(' · ')}{uni.recognition.length > 2 ? ' & more' : ''}
+                    {recognition && (
+                      <p title={Array.isArray(uni.recognition) ? uni.recognition.join(' · ') : undefined} className="mb-3 truncate text-[11px] text-[#4A4742]">
+                        {recognition}
+                        {Array.isArray(uni.recognition) && uni.recognition.length > 2 ? ' & more' : ''}
                       </p>
                     )}
 

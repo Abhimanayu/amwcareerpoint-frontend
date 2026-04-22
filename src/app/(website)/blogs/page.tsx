@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { getBlogs, getBlogCategories } from '@/lib/blogs';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { extractCollectionData, formatDate, pickBlogImageSource } from '@/lib/utils';
+import { clampList, clampText, extractCollectionData, formatDate, pickBlogImageSource } from '@/lib/utils';
 import { SafeImage } from '@/components/ui/SafeImage';
 
 export const metadata: Metadata = {
@@ -54,8 +54,12 @@ export default async function BlogPage() {
                 All Posts ({blogPosts.length})
               </span>
               {categories.slice(0, 10).map((cat) => (
-                <span key={cat} className="inline-flex items-center rounded-full border border-border bg-white px-3.5 py-2 sm:px-3 sm:py-1.5 text-[13px] sm:text-[12px] font-medium text-text-body hover:border-orange hover:text-orange transition-colors cursor-pointer">
-                  {cat}
+                <span
+                  key={cat}
+                  title={typeof cat === 'string' ? cat : undefined}
+                  className="inline-flex max-w-full items-center rounded-full border border-border bg-white px-3.5 py-2 text-[13px] font-medium text-text-body transition-colors hover:border-orange hover:text-orange sm:px-3 sm:py-1.5 sm:max-w-60 sm:text-[12px]"
+                >
+                  <span className="block max-w-full truncate">{clampText(cat, 32)}</span>
                 </span>
               ))}
             </div>
@@ -96,8 +100,13 @@ export default async function BlogPage() {
                 {/* Content */}
                 <div className="p-5 sm:p-8 flex flex-col justify-center">
                   <div className="flex items-center gap-3 text-[12px] text-text-body mb-3">
-                    <span className="rounded-full bg-orange/10 text-orange px-2.5 py-0.5 font-semibold uppercase tracking-wide">
-                      {featured.category?.name || featured.category || 'Blog'}
+                    <span
+                      title={featured.category?.name || featured.category || 'Blog'}
+                      className="max-w-full rounded-full bg-orange/10 px-2.5 py-0.5 font-semibold uppercase tracking-wide text-orange"
+                    >
+                      <span className="block truncate">
+                        {clampText(featured.category?.name || featured.category || 'Blog', 26)}
+                      </span>
                     </span>
                     {featured.createdAt && (
                       <span>{formatDate(featured.createdAt, 'en-US', { month: 'long', year: 'numeric' })}</span>
@@ -112,7 +121,12 @@ export default async function BlogPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-full bg-bg-light flex items-center justify-center text-sm">👩‍⚕️</div>
-                      <span className="text-[13px] font-medium text-[#0D1B3E] truncate max-w-37.5">{featured.author || 'AMW Team'}</span>
+                      <span
+                        title={featured.author || 'AMW Team'}
+                        className="max-w-37.5 truncate text-[13px] font-medium text-[#0D1B3E]"
+                      >
+                        {clampText(featured.author || 'AMW Team', 28)}
+                      </span>
                     </div>
                     <span className="inline-flex items-center gap-1 text-[13px] font-bold text-orange group-hover:gap-2 transition-all">
                       Read Article <span aria-hidden="true">→</span>
@@ -144,6 +158,11 @@ export default async function BlogPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
               {rest.map((post: any) => {
                 const postImage = pickBlogImageSource(post);
+                const categoryLabel = clampText(post.category?.name || post.category || 'Blog', 26);
+                const title = clampText(post.title || 'Untitled Post', 68);
+                const excerpt = clampText(post.excerpt || 'Read more to learn about this topic.', 120);
+                const tagLabels = clampList(post.tags, 2, 18);
+                const author = clampText(post.author || 'AMW Team', 22);
 
                 return (
                 <Link
@@ -170,8 +189,11 @@ export default async function BlogPage() {
                   {/* Content */}
                   <div className="p-4 flex flex-col flex-1">
                     <div className="flex items-center gap-2 text-[11px] text-text-body mb-2">
-                      <span className="rounded-full bg-orange/10 text-orange px-2 py-0.5 font-semibold uppercase tracking-wide">
-                        {post.category?.name || post.category || 'Blog'}
+                      <span
+                        title={post.category?.name || post.category || 'Blog'}
+                        className="max-w-[65%] rounded-full bg-orange/10 px-2 py-0.5 font-semibold uppercase tracking-wide text-orange"
+                      >
+                        <span className="block truncate">{categoryLabel}</span>
                       </span>
                       {post.createdAt && (
                         <span>{formatDate(post.createdAt, 'en-US', { month: 'short', year: 'numeric' })}</span>
@@ -179,18 +201,22 @@ export default async function BlogPage() {
                     </div>
 
                     <h3 className="font-heading text-[15px] font-bold text-[#0D1B3E] leading-snug line-clamp-2 mb-1.5 group-hover:text-orange transition-colors">
-                      {post.title || 'Untitled Post'}
+                      {title}
                     </h3>
 
                     <p className="text-[13px] text-text-body leading-relaxed line-clamp-2 mb-3">
-                      {post.excerpt || 'Read more to learn about this topic.'}
+                      {excerpt}
                     </p>
 
                     {/* Tags */}
-                    {post.tags && post.tags.length > 0 && (
+                    {tagLabels.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mb-3">
-                        {post.tags.slice(0, 2).map((tag: string, idx: number) => (
-                          <span key={`${idx}-${tag}`} className="text-[10px] bg-bg-light text-text-body px-2 py-0.5 rounded-full truncate max-w-25">
+                        {tagLabels.map((tag: string, idx: number) => (
+                          <span
+                            key={`${idx}-${tag}`}
+                            title={typeof post.tags?.[idx] === 'string' ? post.tags[idx] : undefined}
+                            className="max-w-full rounded-full bg-bg-light px-2 py-0.5 text-[10px] text-text-body sm:max-w-25"
+                          >
                             {tag}
                           </span>
                         ))}
@@ -199,7 +225,12 @@ export default async function BlogPage() {
 
                     {/* Footer */}
                     <div className="mt-auto flex items-center justify-between">
-                      <span className="text-[12px] font-medium text-text-body truncate max-w-30">{post.author || 'AMW Team'}</span>
+                      <span
+                        title={post.author || 'AMW Team'}
+                        className="max-w-30 truncate text-[12px] font-medium text-text-body"
+                      >
+                        {author}
+                      </span>
                       <span className="inline-flex items-center gap-1 text-[13px] font-bold text-orange group-hover:gap-2 transition-all">
                         Read <span aria-hidden="true">→</span>
                       </span>

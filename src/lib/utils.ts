@@ -35,6 +35,60 @@ export function getCurrentYear() {
   return new Date().getUTCFullYear();
 }
 
+function normalizeDisplayText(value: unknown) {
+  if (typeof value !== 'string') {
+    return '';
+  }
+
+  return value.replace(/\s+/g, ' ').trim();
+}
+
+type ClampTextOptions = {
+  fallback?: string;
+  preserveWords?: boolean;
+};
+
+export function clampText(
+  value: unknown,
+  maxLength: number,
+  options: ClampTextOptions = {}
+) {
+  const { fallback = '', preserveWords = true } = options;
+  const text = normalizeDisplayText(value);
+
+  if (!text) return fallback;
+  if (text.length <= maxLength) return text;
+  if (maxLength <= 1) return '…';
+
+  const limit = maxLength - 1;
+  let trimmed = text.slice(0, limit);
+
+  if (preserveWords) {
+    const lastSpace = trimmed.lastIndexOf(' ');
+    if (lastSpace >= Math.max(8, Math.floor(limit * 0.4))) {
+      trimmed = trimmed.slice(0, lastSpace);
+    }
+  }
+
+  return `${trimmed.trimEnd()}…`;
+}
+
+export function clampList(
+  values: unknown,
+  maxItems: number,
+  maxLength: number,
+  options: ClampTextOptions = {}
+) {
+  if (!Array.isArray(values)) {
+    return [] as string[];
+  }
+
+  return values
+    .map((item) => clampText(item, maxLength, options))
+    .filter(Boolean)
+    .slice(0, maxItems);
+}
+
 export function isRemoteImageUrl(src: unknown): src is string {
   return typeof src === 'string' && /^https?:\/\//i.test(src);
 }

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { getCountries } from '@/lib/countries';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SafeImage } from '@/components/ui/SafeImage';
-import { extractCollectionData, resolveMediaUrl } from '@/lib/utils';
+import { clampList, clampText, extractCollectionData } from '@/lib/utils';
 
 export const metadata: Metadata = {
   title: 'Countries for MBBS Abroad',
@@ -67,81 +67,110 @@ export default async function CountriesPage() {
             />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-              {countries.map((country: any) => (
-                <Link
-                  key={country._id}
-                  href={`/countries/${country.slug}`}
-                  className="group rounded-xl border border-[#DDD9D2] bg-white overflow-hidden hover:shadow-md transition-shadow flex flex-col h-full"
-                >
-                  {/* Header with flag */}
-                  <div className="bg-[#0D1B3E] px-4 py-3 text-white">
-                    <div className="flex items-center gap-2.5">
-                      {country.flagImage ? (
-                        <SafeImage 
-                          src={country.flagImage} 
-                          alt={`${country.name} flag`} 
-                          width={32}
-                          height={24}
-                          className="w-8 h-6 rounded-sm object-cover"
-                          fallbackElement={
-                            <div className="w-8 h-6 rounded-sm bg-white/20 flex items-center justify-center text-xs">🏳️</div>
-                          }
-                        />
-                      ) : (
-                        <div className="w-8 h-6 rounded-sm bg-white/20 flex items-center justify-center text-xs">🏳️</div>
-                      )}
-                      <div className="min-w-0">
-                        <h3 className="font-heading text-[15px] font-bold truncate">{country.name || 'Country'}</h3>
-                        {country.tagline && <span className="text-[11px] opacity-90 truncate block">{country.tagline}</span>}
+              {countries.map((country: any) => {
+                const countryName = clampText(country.name || 'Country', 42);
+                const tagline = clampText(country.tagline, 40);
+                const description = clampText(country.description, 140);
+                const feeRange = clampText(country.feeRange, 18, {
+                  fallback: 'On request',
+                  preserveWords: false,
+                });
+                const duration = clampText(country.duration, 20, {
+                  fallback: 'See details',
+                  preserveWords: false,
+                });
+                const highlights = clampList(country.highlights, 3, 34);
+
+                return (
+                  <Link
+                    key={country._id}
+                    href={`/countries/${country.slug}`}
+                    className="group rounded-xl border border-[#DDD9D2] bg-white overflow-hidden hover:shadow-md transition-shadow flex flex-col h-full"
+                  >
+                    {/* Header with flag */}
+                    <div className="bg-[#0D1B3E] px-4 py-3 text-white">
+                      <div className="flex items-center gap-2.5">
+                        {country.flagImage ? (
+                          <SafeImage
+                            src={country.flagImage}
+                            alt={`${country.name} flag`}
+                            width={32}
+                            height={24}
+                            className="w-8 h-6 rounded-sm object-cover"
+                            fallbackElement={
+                              <div className="w-8 h-6 rounded-sm bg-white/20 flex items-center justify-center text-xs">🏳️</div>
+                            }
+                          />
+                        ) : (
+                          <div className="w-8 h-6 rounded-sm bg-white/20 flex items-center justify-center text-xs">🏳️</div>
+                        )}
+                        <div className="min-w-0">
+                          <h3 title={country.name || 'Country'} className="font-heading text-[15px] font-bold truncate">
+                            {countryName}
+                          </h3>
+                          {tagline && (
+                            <span title={country.tagline} className="block truncate text-[11px] opacity-90">
+                              {tagline}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Body */}
-                  <div className="p-4 flex flex-col flex-1">
-                    {country.description && (
-                      <p className="text-[13px] text-[#4A4742] leading-relaxed mb-3 line-clamp-2">
-                        {country.description}
-                      </p>
-                    )}
+                    {/* Body */}
+                    <div className="p-4 flex flex-col flex-1">
+                      {description && (
+                        <p title={country.description} className="mb-3 text-[13px] leading-relaxed text-[#4A4742] line-clamp-3">
+                          {description}
+                        </p>
+                      )}
 
-                    {/* Quick Stats */}
-                    <div className="grid grid-cols-2 gap-2.5 mb-3">
-                      {country.feeRange && (
-                        <div className="rounded-lg bg-[#F9F8F6] px-2.5 py-1.5 text-center">
+                      {/* Quick Stats */}
+                      <div className="mb-3 grid grid-cols-2 gap-2.5">
+                        <div className="min-w-0 rounded-lg bg-[#F9F8F6] px-2.5 py-1.5 text-center">
                           <div className="text-[10px] uppercase text-[#4A4742]">Annual Fees</div>
-                          <div className="text-[13px] font-bold text-[#F26419]">{country.feeRange}</div>
+                          <div
+                            title={country.feeRange || feeRange}
+                            className="break-words text-[13px] font-bold text-[#F26419] sm:truncate"
+                          >
+                            {feeRange}
+                          </div>
                         </div>
-                      )}
-                      {country.duration && (
-                        <div className="rounded-lg bg-[#F9F8F6] px-2.5 py-1.5 text-center">
+                        <div className="min-w-0 rounded-lg bg-[#F9F8F6] px-2.5 py-1.5 text-center">
                           <div className="text-[10px] uppercase text-[#4A4742]">Duration</div>
-                          <div className="text-[13px] font-bold text-[#0D1B3E]">{country.duration}</div>
+                          <div
+                            title={country.duration || duration}
+                            className="break-words text-[13px] font-bold text-[#0D1B3E] sm:truncate"
+                          >
+                            {duration}
+                          </div>
                         </div>
+                      </div>
+
+                      {/* Highlights */}
+                      {highlights.length > 0 && (
+                        <ul className="mb-3 space-y-1">
+                          {highlights.map((highlight, idx) => (
+                            <li key={`${idx}-${highlight}`} className="flex items-center gap-2 text-[13px] text-[#4A4742]">
+                              <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#F26419]" />
+                              <span title={typeof country.highlights?.[idx] === 'string' ? country.highlights[idx] : undefined} className="truncate">
+                                {highlight}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
                       )}
-                    </div>
 
-                    {/* Highlights */}
-                    {Array.isArray(country.highlights) && country.highlights.length > 0 && (
-                      <ul className="space-y-1 mb-3">
-                        {country.highlights.slice(0, 3).map((h: string, idx: number) => (
-                          <li key={`${idx}-${h}`} className="flex items-center gap-2 text-[13px] text-[#4A4742]">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#F26419] flex-shrink-0" />
-                            <span className="truncate">{h}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-
-                    {/* CTA */}
-                    <div className="mt-auto">
-                      <span className="block w-full text-center py-2.5 sm:py-2 rounded-full bg-[#F26419] text-white text-sm sm:text-[13px] font-bold group-hover:bg-[#FF8040] transition-colors">
-                        Explore Universities →
-                      </span>
+                      {/* CTA */}
+                      <div className="mt-auto">
+                        <span className="block w-full text-center py-2.5 sm:py-2 rounded-full bg-[#F26419] text-white text-sm sm:text-[13px] font-bold group-hover:bg-[#FF8040] transition-colors">
+                          Explore Universities →
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>
