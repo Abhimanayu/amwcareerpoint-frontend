@@ -9,6 +9,11 @@ export interface ContentValidationResult {
   suggestions: string[];
 }
 
+type ContentValidationCheckResult = Pick<
+  ContentValidationResult,
+  'warnings' | 'errors' | 'suggestions'
+>;
+
 export function validateBlogContent(htmlContent: string): ContentValidationResult {
   const result: ContentValidationResult = {
     isValid: true,
@@ -48,7 +53,7 @@ export function validateBlogContent(htmlContent: string): ContentValidationResul
 }
 
 function checkImageSizes(content: string) {
-  const result = { warnings: [], errors: [], suggestions: [] };
+  const result: ContentValidationCheckResult = { warnings: [], errors: [], suggestions: [] };
   
   // Check for images without proper responsive classes
   const imgRegex = /<img[^>]*>/gi;
@@ -66,7 +71,7 @@ function checkImageSizes(content: string) {
 }
 
 function checkTableWidth(content: string) {
-  const result = { warnings: [], errors: [], suggestions: [] };
+  const result: ContentValidationCheckResult = { warnings: [], errors: [], suggestions: [] };
   
   // Check for tables without responsive wrapper
   if (content.includes('<table') && !content.includes('overflow-x-auto')) {
@@ -78,7 +83,7 @@ function checkTableWidth(content: string) {
 }
 
 function checkLongWords(content: string) {
-  const result = { warnings: [], errors: [], suggestions: [] };
+  const result: ContentValidationCheckResult = { warnings: [], errors: [], suggestions: [] };
   
   // Extract text content
   const textContent = content.replace(/<[^>]*>/g, ' ');
@@ -94,7 +99,7 @@ function checkLongWords(content: string) {
 }
 
 function checkEmbeddedContent(content: string) {
-  const result = { warnings: [], errors: [], suggestions: [] };
+  const result: ContentValidationCheckResult = { warnings: [], errors: [], suggestions: [] };
   
   // Check for iframes (videos, embeds)
   if (content.includes('<iframe')) {
@@ -106,7 +111,7 @@ function checkEmbeddedContent(content: string) {
 }
 
 function checkInlineStyles(content: string) {
-  const result = { warnings: [], errors: [], suggestions: [] };
+  const result: ContentValidationCheckResult = { warnings: [], errors: [], suggestions: [] };
   
   // Check for inline styles that might break responsive design
   if (content.includes('style=')) {
@@ -124,7 +129,7 @@ function checkInlineStyles(content: string) {
 }
 
 function checkAccessibility(content: string) {
-  const result = { warnings: [], errors: [], suggestions: [] };
+  const result: ContentValidationCheckResult = { warnings: [], errors: [], suggestions: [] };
   
   // Check for images without alt text
   const imgRegex = /<img[^>]*>/gi;

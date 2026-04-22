@@ -34,7 +34,24 @@ export default function AdminUniversitiesPage() {
     setLoading(false);
   }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await adminGetUniversities({ page: 1, limit: 10 });
+        if (!active) return;
+        const items = Array.isArray(res.data) ? res.data : res.data?.universities || res.universities || [];
+        setUniversities(items);
+        const total = res.total ?? res.data?.total ?? res.pagination?.total ?? items.length;
+        const limit = res.limit ?? res.data?.limit ?? 10;
+        const pg = res.page ?? res.data?.page ?? res.pagination?.page ?? 1;
+        setPagination({ page: pg, totalPages: Math.ceil(total / limit) || 1, total });
+      } catch { /* silent */ }
+      if (active) setLoading(false);
+    })();
+    return () => { active = false; };
+  }, []);
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -96,7 +113,7 @@ export default function AdminUniversitiesPage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900">Universities</h1>
-          <button onClick={() => router.push('/admin/universities/new')} className="px-4 py-2 bg-[#F26419] hover:bg-[#FF8040] text-white text-sm font-semibold rounded-xl transition-colors">
+          <button onClick={() => router.push('/admin/universities/new')} className="px-4 py-2 bg-orange hover:bg-orange-hover text-white text-sm font-semibold rounded-xl transition-colors">
             + Add University
           </button>
         </div>
@@ -116,7 +133,7 @@ export default function AdminUniversitiesPage() {
       <ConfirmModal
         isOpen={!!deleteTarget}
         title="Delete University"
-        message={`Are you sure you want to delete "${deleteTarget?.name}"?`}
+        message={`Are you sure you want to delete "${typeof deleteTarget?.name === 'string' ? deleteTarget.name : ''}"?`}
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
         loading={deleting}

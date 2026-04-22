@@ -90,7 +90,7 @@ export function CountriesSection() {
                     ))}
                   </ul>
                   <div className="mt-auto">
-                    <Link href={`/countries/${c.name.toLowerCase()}`} className="block w-full text-center py-2 rounded-full bg-orange text-white text-[13px] font-bold hover:bg-orange-hover transition-colors">
+                    <Link href={`/countries/${c.name.toLowerCase()}`} className="block w-full text-center py-2.5 sm:py-2 rounded-full bg-orange text-white text-sm sm:text-[13px] font-bold hover:bg-orange-hover transition-colors">
                       View Universities
                     </Link>
                   </div>
@@ -131,7 +131,7 @@ export function CountriesSection() {
                   </ul>
                   )}
                   <div className="mt-auto">
-                    <Link href={`/countries/${c.slug}`} className="block w-full text-center py-2 rounded-full bg-orange text-white text-[13px] font-bold hover:bg-orange-hover transition-colors">
+                    <Link href={`/countries/${c.slug}`} className="block w-full text-center py-2.5 sm:py-2 rounded-full bg-orange text-white text-sm sm:text-[13px] font-bold hover:bg-orange-hover transition-colors">
                       View Universities
                     </Link>
                   </div>

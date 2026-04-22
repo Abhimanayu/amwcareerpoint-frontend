@@ -161,7 +161,7 @@ type CountryFormState = {
   features: CountryFeatureItem[];
   eligibility: LocalTextItem[];
   admissionProcess: CountryProcessItem[];
-  seo: { metaTitle: string; metaDescription: string; keywords: string };
+  seo: { metaTitle: string; metaDescription: string; keywords: string; canonicalUrl: string; schemaMarkup: string };
 };
 
 function createEmptyForm(): CountryFormState {
@@ -186,7 +186,7 @@ function createEmptyForm(): CountryFormState {
     supportExperience: emptySupportExperience(),
     eligibility: [createEmptyTextItem('eligibility')],
     admissionProcess: [createEmptyProcessItem(1)],
-    seo: { metaTitle: '', metaDescription: '', keywords: '' },
+    seo: { metaTitle: '', metaDescription: '', keywords: '', canonicalUrl: '', schemaMarkup: '' },
   };
 }
 
@@ -383,6 +383,8 @@ function buildCountryForm(initialData?: Record<string, unknown>): CountryFormSta
       metaTitle: ((initialData.seo as Record<string, string>)?.metaTitle) || '',
       metaDescription: ((initialData.seo as Record<string, string>)?.metaDescription) || '',
       keywords: ((initialData.seo as Record<string, string>)?.keywords) || '',
+      canonicalUrl: ((initialData.seo as Record<string, string>)?.canonicalUrl) || '',
+      schemaMarkup: ((initialData.seo as Record<string, string>)?.schemaMarkup) || '',
     },
   };
 }
@@ -1156,6 +1158,16 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
             <label htmlFor="seo-keywords" className="block text-sm font-medium text-gray-700 mb-1">Keywords (comma separated)</label>
             <input id="seo-keywords" maxLength={L.seoKeywords.max} value={form.seo.keywords} onChange={(e) => setForm((p) => ({ ...p, seo: { ...p.seo, keywords: e.target.value } }))} className={textInputClass} />
             <div className="flex justify-end"><CharCount current={form.seo.keywords.length} max={L.seoKeywords.max} /></div>
+          </div>
+          <div>
+            <label htmlFor="seo-canonical" className="block text-sm font-medium text-gray-700 mb-1">Canonical URL</label>
+            <input id="seo-canonical" value={form.seo.canonicalUrl} onChange={(e) => setForm((p) => ({ ...p, seo: { ...p.seo, canonicalUrl: e.target.value } }))} placeholder="https://amwcareerpoint.com/countries/your-slug (leave empty for auto)" className={textInputClass} />
+            <p className="text-xs text-gray-400 mt-1">Leave empty to use the default page URL as canonical</p>
+          </div>
+          <div>
+            <label htmlFor="seo-schema" className="block text-sm font-medium text-gray-700 mb-1">Schema Markup (JSON-LD)</label>
+            <textarea id="seo-schema" rows={6} value={form.seo.schemaMarkup} onChange={(e) => setForm((p) => ({ ...p, seo: { ...p.seo, schemaMarkup: e.target.value } }))} placeholder='{"@context":"https://schema.org","@type":"Country",...}' className={`${textAreaClass} font-mono resize-y`} />
+            <p className="text-xs text-gray-400 mt-1">Optional. Paste valid JSON-LD schema. Leave empty for auto-generated schema.</p>
           </div>
         </section>
 

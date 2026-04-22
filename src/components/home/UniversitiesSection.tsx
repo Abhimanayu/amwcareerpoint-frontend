@@ -58,12 +58,12 @@ export function UniversitiesSection() {
         <div className="px-4 sm:px-5">
           <Carousel slideClass="basis-full sm:basis-1/2 lg:basis-1/4 pl-3 sm:pl-4" dots={false}>
             {useFallback ? fallbackUniversities.map((uni, i) => (
-              <div key={i} className="relative rounded-xl overflow-hidden group cursor-pointer h-[240px] sm:h-[320px] lg:h-[420px]">
+              <div key={i} className="relative rounded-xl overflow-hidden group cursor-pointer aspect-[3/4] sm:aspect-[3/4] lg:aspect-[3/4]">
                 <SafeImage 
                   src={uni.image} 
                   alt={uni.name} 
                   fill
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                   fallbackElement={<div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center text-3xl text-white/30">🏫</div>}
                 />
                 <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/70 to-transparent" />
@@ -76,13 +76,13 @@ export function UniversitiesSection() {
 
               return (
               <Link key={uni._id} href={`/universities/${uni.slug}`} className="block">
-                <div className="relative rounded-xl overflow-hidden group cursor-pointer h-[240px] sm:h-[320px] lg:h-[420px]">
+                <div className="relative rounded-xl overflow-hidden group cursor-pointer aspect-[3/4] sm:aspect-[3/4] lg:aspect-[3/4]">
                   {imageSource ? (
                     <SafeImage
                       src={imageSource}
                       alt={uni.name || 'University'}
                       fill
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
                       fallbackElement={<div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-800" />}
                     />
                   ) : (

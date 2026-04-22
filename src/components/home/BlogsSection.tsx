@@ -58,40 +58,40 @@ export function BlogsSection() {
               <Link
                 key={blog.slug || blog._id}
                 href={`/blogs/${blog.slug}`}
-                className="block rounded-xl border border-[#DDD9D2] bg-white overflow-hidden hover:shadow-lg transition-shadow group h-full"
+                className="block rounded-xl border border-border bg-white overflow-hidden hover:shadow-lg transition-shadow group h-full"
               >
                 {/* Image */}
-                <div className="relative h-48 sm:h-52 overflow-hidden bg-gray-100">
+                <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
                   <SafeImage
                     src={imageSource}
                     alt={blog.title || 'Blog post'}
                     fill
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
                     fallbackSrc="/blogs/russia-universities-nmc.jpg"
-                    fallbackElement={<div className="absolute inset-0 flex items-center justify-center text-3xl bg-gradient-to-br from-[#F9F8F6] to-[#DDD9D2]">📝</div>}
+                    fallbackElement={<div className="absolute inset-0 flex items-center justify-center text-3xl bg-linear-to-br from-bg-light to-border">📝</div>}
                   />
                 </div>
 
                 {/* Content */}
                 <div className="p-4 sm:p-5">
-                  <span className="text-xs font-bold tracking-widest uppercase text-[#F26419] truncate">
+                  <span className="text-xs font-bold tracking-widest uppercase text-orange truncate">
                     {blog.category?.name || blog.category || 'Blog'}
                   </span>
 
-                  <h3 className="mt-2 text-base sm:text-lg font-bold text-[#0D1B3E] leading-snug line-clamp-2 group-hover:text-[#F26419] transition-colors">
+                  <h3 className="mt-2 text-base sm:text-lg font-bold text-[#0D1B3E] leading-snug line-clamp-2 group-hover:text-orange transition-colors">
                     {blog.title || 'Untitled Post'}
                   </h3>
 
-                  <p className="mt-2 text-sm text-[#4A4742]/70 line-clamp-2">
+                  <p className="mt-2 text-sm text-text-body/70 line-clamp-2">
                     {blog.excerpt || 'Read more to learn about this topic.'}
                   </p>
 
-                  <div className="mt-3 flex items-center gap-2 text-xs text-[#4A4742]/60">
+                  <div className="mt-3 flex items-center gap-2 text-xs text-text-body/60">
                     {blog.readTime && <span>• {blog.readTime}</span>}
                     <span>· {blog.createdAt ? formatDate(blog.createdAt, 'en-US', { month: 'long', year: 'numeric' }) : blog.date || ''}</span>
                   </div>
 
-                  <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-[#F26419] group-hover:gap-2 transition-all">
+                  <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-orange group-hover:gap-2 transition-all">
                     Read article <span aria-hidden="true">→</span>
                   </span>
                 </div>

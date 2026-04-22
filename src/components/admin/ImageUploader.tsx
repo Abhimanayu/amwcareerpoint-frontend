@@ -168,7 +168,12 @@ export default function ImageUploader({ folder, currentImage, onUpload, label }:
         throw new Error('Server returned invalid response');
       }
 
-      const normalizedUrl = resolveMediaUrl(result.data.url);
+      // Cloudinary and other absolute URLs are used as-is;
+      // legacy /uploads/... paths are resolved via API origin.
+      const uploadedUrl = result.data.url;
+      const normalizedUrl = /^https?:\/\//i.test(uploadedUrl)
+        ? uploadedUrl
+        : resolveMediaUrl(uploadedUrl);
 
       // 5. Verify uploaded image (warn but don't fail)
       setUploadProgress('Verifying upload...');
@@ -224,10 +229,6 @@ export default function ImageUploader({ folder, currentImage, onUpload, label }:
               width={200}
               height={160}
               className="h-full w-full object-contain"
-              onError={() => {
-                setError('Preview failed to load');
-                setPreview('');
-              }}
               fallbackElement={
                 <div className="h-full w-full bg-gray-100 flex items-center justify-center text-gray-400">
                   <div className="text-center">

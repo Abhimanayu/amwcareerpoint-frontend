@@ -86,13 +86,13 @@ export default async function UniversitiesPage({ searchParams }: Readonly<Props>
                   className="group rounded-xl border border-[#DDD9D2] bg-white overflow-hidden hover:shadow-md transition-shadow flex flex-col h-full"
                 >
                   {/* Image / Gradient header */}
-                  <div className="relative h-[180px] sm:h-[200px] overflow-hidden bg-gradient-to-br from-[#0D1B3E] to-[#162550]">
+                  <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-[#0D1B3E] to-[#162550]">
                     {imageSource && (
                       <SafeImage
                         src={imageSource}
                         alt={uni.name}
                         fill
-                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
                         fallbackElement={
                           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0D1B3E] to-[#162550] text-3xl text-white/30">🏫</div>
                         }
@@ -152,7 +152,7 @@ export default async function UniversitiesPage({ searchParams }: Readonly<Props>
 
                     {/* CTA */}
                     <div className="mt-auto">
-                      <span className="block w-full text-center py-2 rounded-full bg-[#F26419] text-white text-[13px] font-bold group-hover:bg-[#FF8040] transition-colors">
+                      <span className="block w-full text-center py-2.5 sm:py-2 rounded-full bg-[#F26419] text-white text-sm sm:text-[13px] font-bold group-hover:bg-[#FF8040] transition-colors">
                         View Details & Apply →
                       </span>
                     </div>

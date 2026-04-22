@@ -59,21 +59,21 @@ export function Footer() {
             </div>
 
             <div className="flex space-x-4">
-              <a href="#" className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-500 transition-colors">
+              <button type="button" className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-500 transition-colors">
                 <span className="text-white font-bold">f</span>
-              </a>
-              <a href="#" className="w-10 h-10 bg-blue-400 rounded-full flex items-center justify-center hover:bg-blue-300 transition-colors">
+              </button>
+              <button type="button" className="w-10 h-10 bg-blue-400 rounded-full flex items-center justify-center hover:bg-blue-300 transition-colors">
                 <span className="text-white font-bold">t</span>
-              </a>
-              <a href="#" className="w-10 h-10 bg-pink-600 rounded-full flex items-center justify-center hover:bg-pink-500 transition-colors">
+              </button>
+              <button type="button" className="w-10 h-10 bg-pink-600 rounded-full flex items-center justify-center hover:bg-pink-500 transition-colors">
                 <span className="text-white font-bold">i</span>
-              </a>
-              <a href="#" className="w-10 h-10 bg-blue-700 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
+              </button>
+              <button type="button" className="w-10 h-10 bg-blue-700 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
                 <span className="text-white font-bold">in</span>
-              </a>
-              <a href="#" className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center hover:bg-red-500 transition-colors">
+              </button>
+              <button type="button" className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center hover:bg-red-500 transition-colors">
                 <span className="text-white font-bold">yt</span>
-              </a>
+              </button>
             </div>
           </div>
 
@@ -106,14 +106,14 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-300 hover:text-blue-400 transition-colors flex items-center gap-2">
+                <button type="button" className="text-gray-300 hover:text-blue-400 transition-colors flex items-center gap-2">
                   <span>→</span> College Predictor
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="text-gray-300 hover:text-blue-400 transition-colors flex items-center gap-2">
+                <button type="button" className="text-gray-300 hover:text-blue-400 transition-colors flex items-center gap-2">
                   <span>→</span> Free Counselling
-                </a>
+                </button>
               </li>
             </ul>
           </div>
@@ -121,8 +121,8 @@ export function Footer() {
           <div>
             <h3 className="text-xl font-bold mb-6 text-blue-400">MBBS Destinations</h3>
             <ul className="space-y-3">
-              {countries.map((country) => (
-                <li key={country}>
+              {countries.map((country, idx) => (
+                <li key={`${idx}-${country}`}>
                   <Link 
                     href={"/countries/" + country.toLowerCase()} 
                     className="text-gray-300 hover:text-blue-400 transition-colors flex items-center gap-2"
@@ -173,10 +173,10 @@ export function Footer() {
               © {currentYear} AMW Career Point. All rights reserved.
             </div>
             <div className="flex space-x-6 text-gray-400 text-sm">
-              <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-              <a href="#" className="hover:text-white transition-colors">Refund Policy</a>
-              <a href="#" className="hover:text-white transition-colors">Disclaimer</a>
+              <span className="hover:text-white transition-colors cursor-pointer">Privacy Policy</span>
+              <span className="hover:text-white transition-colors cursor-pointer">Terms of Service</span>
+              <span className="hover:text-white transition-colors cursor-pointer">Refund Policy</span>
+              <span className="hover:text-white transition-colors cursor-pointer">Disclaimer</span>
             </div>
           </div>
           <div className="text-center mt-4 text-xs text-gray-500">

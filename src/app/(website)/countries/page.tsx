@@ -124,8 +124,8 @@ export default async function CountriesPage() {
                     {/* Highlights */}
                     {Array.isArray(country.highlights) && country.highlights.length > 0 && (
                       <ul className="space-y-1 mb-3">
-                        {country.highlights.slice(0, 3).map((h: string) => (
-                          <li key={h} className="flex items-center gap-2 text-[13px] text-[#4A4742]">
+                        {country.highlights.slice(0, 3).map((h: string, idx: number) => (
+                          <li key={`${idx}-${h}`} className="flex items-center gap-2 text-[13px] text-[#4A4742]">
                             <span className="w-1.5 h-1.5 rounded-full bg-[#F26419] flex-shrink-0" />
                             <span className="truncate">{h}</span>
                           </li>
@@ -135,7 +135,7 @@ export default async function CountriesPage() {
 
                     {/* CTA */}
                     <div className="mt-auto">
-                      <span className="block w-full text-center py-2 rounded-full bg-[#F26419] text-white text-[13px] font-bold group-hover:bg-[#FF8040] transition-colors">
+                      <span className="block w-full text-center py-2.5 sm:py-2 rounded-full bg-[#F26419] text-white text-sm sm:text-[13px] font-bold group-hover:bg-[#FF8040] transition-colors">
                         Explore Universities →
                       </span>
                     </div>

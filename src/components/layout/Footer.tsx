@@ -13,7 +13,7 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <div className="font-heading text-base font-bold text-white mb-2">
-              <span className="text-[#F26419]">AMW</span> Career Point
+              <span className="text-orange">AMW</span> Career Point
             </div>
             <p className="text-xs leading-relaxed text-gray-400 mb-3">
               India&apos;s most trusted MBBS consultancy since 2009. Helping NEET aspirants secure admissions in top NMC-approved medical colleges.
@@ -27,7 +27,7 @@ export function Footer() {
           {/* Quick Links */}
           <div>
             <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-2.5">Quick Links</h4>
-            <ul className="space-y-1.5 text-xs">
+            <ul className="space-y-0.5 text-xs">
               {[
                 { href: '/', label: 'Home' },
                 { href: '/about', label: 'About Us' },
@@ -36,7 +36,7 @@ export function Footer() {
                 { href: '/contact', label: 'Contact' },
               ].map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="hover:text-white transition-colors">{l.label}</Link>
+                  <Link href={l.href} className="inline-block py-1 hover:text-white transition-colors">{l.label}</Link>
                 </li>
               ))}
             </ul>
@@ -45,10 +45,10 @@ export function Footer() {
           {/* Destinations */}
           <div>
             <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-2.5">MBBS Destinations</h4>
-            <ul className="space-y-1.5 text-xs">
-              {destinations.map((c) => (
-                <li key={c}>
-                  <Link href={`/countries/${c.toLowerCase()}`} className="hover:text-white transition-colors">MBBS in {c}</Link>
+            <ul className="space-y-0.5 text-xs">
+              {destinations.map((c, idx) => (
+                <li key={`${idx}-${c}`}>
+                  <Link href={`/countries/${c.toLowerCase()}`} className="inline-block py-1 hover:text-white transition-colors">MBBS in {c}</Link>
                 </li>
               ))}
             </ul>
@@ -69,12 +69,12 @@ export function Footer() {
 
       {/* Bottom bar */}
       <div className="border-t border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 flex flex-col sm:flex-row items-center justify-between gap-1.5 sm:gap-2 text-[10px] text-gray-500">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs sm:text-[11px] text-gray-500">
           <span>© {year} AMW Career Point. All rights reserved.</span>
-          <div className="flex gap-4">
-            <a href="#" className="hover:text-gray-300 transition-colors">Privacy</a>
-            <a href="#" className="hover:text-gray-300 transition-colors">Terms</a>
-            <a href="#" className="hover:text-gray-300 transition-colors">Refund Policy</a>
+          <div className="flex gap-5">
+            <span className="hover:text-gray-300 transition-colors cursor-pointer py-1">Privacy</span>
+            <span className="hover:text-gray-300 transition-colors cursor-pointer py-1">Terms</span>
+            <span className="hover:text-gray-300 transition-colors cursor-pointer py-1">Refund Policy</span>
           </div>
         </div>
       </div>

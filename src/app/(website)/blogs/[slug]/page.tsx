@@ -56,8 +56,8 @@ export default async function BlogPostPage({ params }: Props) {
 
   const categoryName = post.category?.name || post.category || '';
   const postImage = pickBlogImageSource(post);
-  const postTags = Array.isArray(post.tags)
-    ? post.tags.filter((tag): tag is string => typeof tag === 'string' && tag.trim().length > 0)
+  const postTags: string[] = Array.isArray(post.tags)
+    ? post.tags.filter((tag: unknown): tag is string => typeof tag === 'string' && tag.trim().length > 0)
     : [];
   const postDate = post.createdAt
     ? formatDate(post.createdAt, 'en-IN', {
@@ -126,18 +126,19 @@ export default async function BlogPostPage({ params }: Props) {
       {/* ── Cover Image ── */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
         {postImage ? (
-          <div className="relative h-56 w-full overflow-hidden rounded-xl border border-[#DDD9D2] shadow-sm sm:h-72 md:h-96">
+          <div className="w-full overflow-hidden rounded-xl border border-[#DDD9D2] shadow-sm bg-[#F9F8F6]">
             <SafeImage
               src={postImage}
               alt={post.title || 'Blog post'}
-              fill
-              className="object-cover"
+              width={896}
+              height={504}
+              className="w-full h-auto max-h-[500px] object-contain mx-auto"
               fallbackSrc="/blogs/russia-universities-nmc.jpg"
-              fallbackElement={<div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#F9F8F6] to-[#DDD9D2] text-6xl">📝</div>}
+              fallbackElement={<div className="flex w-full aspect-[2/1] items-center justify-center bg-gradient-to-br from-[#F9F8F6] to-[#DDD9D2] text-6xl">📝</div>}
             />
           </div>
         ) : (
-          <div className="w-full h-56 sm:h-72 md:h-96 bg-gradient-to-br from-[#F9F8F6] to-[#DDD9D2] rounded-xl flex items-center justify-center text-6xl">
+          <div className="w-full aspect-[2/1] bg-gradient-to-br from-[#F9F8F6] to-[#DDD9D2] rounded-xl flex items-center justify-center text-6xl">
             📝
           </div>
         )}
@@ -189,12 +190,12 @@ export default async function BlogPostPage({ params }: Props) {
             </div>
 
             {/* Share */}
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <span className="text-[13px] font-semibold text-[#0D1B3E]">Share:</span>
               {['Facebook', 'Twitter', 'LinkedIn'].map((platform) => (
                 <button
                   key={platform}
-                  className="h-9 px-4 rounded-full border-2 border-[#0D1B3E] text-[#0D1B3E] text-[13px] font-bold hover:bg-[#0D1B3E] hover:text-white transition-colors"
+                  className="h-10 sm:h-9 px-4 rounded-full border-2 border-[#0D1B3E] text-[#0D1B3E] text-[13px] font-bold hover:bg-[#0D1B3E] hover:text-white transition-colors"
                 >
                   {platform}
                 </button>

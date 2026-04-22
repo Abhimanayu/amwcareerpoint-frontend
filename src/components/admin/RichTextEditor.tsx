@@ -43,7 +43,7 @@ const colors = [
   '#1E90FF', '#8A2BE2', '#FF1493', '#00FF7F', '#FF6347', '#4169E1',
 ];
 
-export function RichTextEditor({ content, onChange, placeholder, className = '' }: RichTextEditorProps) {
+export function RichTextEditor({ content, onChange, placeholder, className = '' }: Readonly<RichTextEditorProps>) {
   const [fontSize, setFontSize] = useState('16px');
   const [fontFamily, setFontFamily] = useState('Arial, sans-serif');
   const [showImageDialog, setShowImageDialog] = useState(false);
@@ -234,7 +234,7 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
             />
           ))}
           <details className="relative">
-            <summary className="w-6 h-6 rounded border border-gray-300 bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500 cursor-pointer hover:scale-110 transition-transform"></summary>
+            <summary className="w-6 h-6 rounded border border-gray-300 bg-linear-to-r from-red-500 via-yellow-500 to-blue-500 cursor-pointer hover:scale-110 transition-transform"></summary>
             <div className="absolute top-8 left-0 bg-white border border-gray-300 rounded-lg p-2 grid grid-cols-6 gap-1 z-10 shadow-lg">
               {colors.map((color) => (
                 <button
@@ -301,7 +301,7 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
         <select
           value=""
           onChange={(e) => {
-            const level = parseInt(e.target.value);
+            const level = Number.parseInt(e.target.value);
             if (level) {
               editor.chain().focus().toggleHeading({ level: level as 1 | 2 | 3 | 4 | 5 | 6 }).run();
             } else {

@@ -688,9 +688,9 @@ export default async function CountryPage({ params }: Props) {
             </h2>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               {eligibility.length > 0 ? (
-                eligibility.map((item) => (
+                eligibility.map((item, idx) => (
                   <div
-                    key={item}
+                    key={`${idx}-${item}`}
                     className="rounded-2xl border border-[#EFE6D8] bg-[#FFFDF9] px-4 py-4 text-sm font-medium text-[#0D1B3E]"
                   >
                     <span className="mr-2 text-[#22A06B]">✓</span>
@@ -715,8 +715,8 @@ export default async function CountryPage({ params }: Props) {
             <ul className="mt-6 space-y-3 text-sm leading-7 text-[#4A4742]">
               {(resolvedDocumentsChecklistItems.length > 0
                 ? resolvedDocumentsChecklistItems.map((item) => item.label)
-                : DOCUMENTS_REQUIRED).map((item) => (
-                <li key={item} className="flex items-start gap-3 rounded-2xl border border-[#EFE6D8] bg-[#FFFDF9] px-4 py-3">
+                : DOCUMENTS_REQUIRED).map((item, idx) => (
+                <li key={`${idx}-${item}`} className="flex items-start gap-3 rounded-2xl border border-[#EFE6D8] bg-[#FFFDF9] px-4 py-3">
                   <span className="mt-1 text-[#F26419]">•</span>
                   <span>{item}</span>
                 </li>
@@ -787,8 +787,8 @@ export default async function CountryPage({ params }: Props) {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {resolvedSupportCards.map((item) => (
-              <div key={`${item.title}-${item.subtitle}`} className="rounded-[24px] border border-white/10 bg-white/6 px-5 py-6 backdrop-blur">
+            {resolvedSupportCards.map((item, idx) => (
+              <div key={`${idx}-${item.title}`} className="rounded-[24px] border border-white/10 bg-white/6 px-5 py-6 backdrop-blur">
                 <div className="wrap-break-word text-3xl font-heading font-bold leading-none text-[#F7B37E] sm:text-[2rem]">{item.title}</div>
                 <div className="mt-3 wrap-break-word text-sm leading-6 text-white/72">{item.subtitle || 'Support available'}</div>
               </div>

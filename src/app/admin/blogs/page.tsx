@@ -34,7 +34,24 @@ export default function AdminBlogsPage() {
     setLoading(false);
   }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await adminGetBlogs({ page: 1, limit: 10 });
+        if (!active) return;
+        const items = Array.isArray(res.data) ? res.data : res.data?.blogs || res.blogs || [];
+        setBlogs(items);
+        const total = res.total ?? res.data?.total ?? res.pagination?.total ?? items.length;
+        const limit = res.limit ?? res.data?.limit ?? 10;
+        const pg = res.page ?? res.data?.page ?? res.pagination?.page ?? 1;
+        setPagination({ page: pg, totalPages: Math.ceil(total / limit) || 1, total });
+      } catch { /* silent */ }
+      if (active) setLoading(false);
+    })();
+    return () => { active = false; };
+  }, []);
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -57,13 +74,13 @@ export default function AdminBlogsPage() {
         <div className="flex items-center gap-3">
           <CoverImage 
             src={item.coverImage as string} 
-            alt={`${item.title} cover`} 
+            alt={`${String(item.title)} cover`} 
             width={48}
             height={32}
-            className="w-12 h-8 rounded object-cover flex-shrink-0"
+            className="w-12 h-8 rounded object-cover shrink-0"
           />
           <div className="min-w-0">
-            <div className="font-medium truncate max-w-[300px]">{item.title as string}</div>
+            <div className="font-medium truncate max-w-75">{item.title as string}</div>
             <div className="text-xs text-gray-500">{(item.category as Record<string, unknown>)?.name as string || ''}</div>
           </div>
         </div>
@@ -91,7 +108,7 @@ export default function AdminBlogsPage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900">Blogs</h1>
-          <button onClick={() => router.push('/admin/blogs/new')} className="px-4 py-2 bg-[#F26419] hover:bg-[#FF8040] text-white text-sm font-semibold rounded-xl transition-colors">
+          <button onClick={() => router.push('/admin/blogs/new')} className="px-4 py-2 bg-orange hover:bg-orange-hover text-white text-sm font-semibold rounded-xl transition-colors">
             + Add Blog
           </button>
         </div>
@@ -111,7 +128,7 @@ export default function AdminBlogsPage() {
       <ConfirmModal
         isOpen={!!deleteTarget}
         title="Delete Blog"
-        message={`Delete blog "${deleteTarget?.title}"?`}
+        message={`Delete blog "${typeof deleteTarget?.title === 'string' ? deleteTarget.title : ''}"?`}
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
         loading={deleting}

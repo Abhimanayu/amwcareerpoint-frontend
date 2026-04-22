@@ -43,7 +43,7 @@ export function CounsellingForm() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const inputClass = 'h-9 w-full rounded-lg border border-[#DDD9D2] bg-white px-3 text-[13px] text-[#0D1B3E] outline-none transition-all focus:border-[#F26419] focus:ring-2 focus:ring-orange-100';
+  const inputClass = 'h-10 sm:h-9 w-full rounded-lg border border-[#DDD9D2] bg-white px-3 text-sm sm:text-[13px] text-[#0D1B3E] outline-none transition-all focus:border-[#F26419] focus:ring-2 focus:ring-orange-100';
 
   return (
     <div id="counselling" className="w-full max-w-none sm:max-w-[400px] rounded-2xl border border-[#DDD9D2] bg-white p-4 sm:p-5 shadow-md">
@@ -63,7 +63,7 @@ export function CounsellingForm() {
             <p className="text-sm text-red-700">{error}</p>
           </div>
         )}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
           <div>
             <label className="block text-xs font-medium text-[#0D1B3E] mb-1">Full Name</label>
             <input type="text" name="fullName" placeholder="Your Name" required value={formData.fullName} onChange={handleChange} className={inputClass} />
@@ -79,7 +79,7 @@ export function CounsellingForm() {
           <input type="email" name="emailAddress" placeholder="you@email.com" required value={formData.emailAddress} onChange={handleChange} className={inputClass} />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
           <div>
             <label className="block text-xs font-medium text-[#0D1B3E] mb-1">NEET Score</label>
             <select name="neetScore" required value={formData.neetScore} onChange={handleChange} className={inputClass}>
@@ -111,7 +111,7 @@ export function CounsellingForm() {
           <textarea name="message" placeholder="Tell us about your goals..." rows={2} value={formData.message} onChange={handleChange} className="w-full resize-none rounded-lg border border-[#DDD9D2] bg-white px-3 py-2 text-sm text-[#0D1B3E] outline-none transition-all focus:border-[#F26419] focus:ring-2 focus:ring-orange-100" />
         </div>
 
-        <button type="submit" disabled={submitting} className="w-full h-10 rounded-full bg-[#F26419] text-white text-[13px] font-bold hover:bg-[#FF8040] transition-colors disabled:opacity-50">
+        <button type="submit" disabled={submitting} className="w-full h-11 sm:h-10 rounded-full bg-[#F26419] text-white text-sm sm:text-[13px] font-bold hover:bg-[#FF8040] transition-colors disabled:opacity-50">
           {submitting ? 'Submitting...' : 'Submit & Get Free Guidance →'}
         </button>
 

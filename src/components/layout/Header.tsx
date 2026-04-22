@@ -59,7 +59,7 @@ export function Header() {
             </div>
 
             {/* Mobile hamburger */}
-            <button type="button" onClick={() => setIsMenuOpen(!isMenuOpen)} className="xl:hidden p-2 text-[#0D1B3E]" style={{ touchAction: 'manipulation' }}>
+            <button type="button" onClick={() => setIsMenuOpen(!isMenuOpen)} className="xl:hidden p-2.5 -mr-2 text-[#0D1B3E]" style={{ touchAction: 'manipulation' }}>
               <span className="sr-only">Menu</span>
               <div className="space-y-1.5">
                 <div className={`h-0.5 w-5 bg-current transition-all ${isMenuOpen ? 'translate-y-2 rotate-45' : ''}`} />
@@ -75,15 +75,15 @@ export function Header() {
         <div className="fixed inset-x-0 top-[48px] sm:top-[56px] z-40 bg-white border-b border-gray-200 shadow-md xl:hidden">
           <nav className="max-w-7xl mx-auto px-4 py-3 space-y-0.5">
             {menuItems.map((item, i) => (
-              <Link key={i} href={item.href} onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-[13px] font-medium text-[#0D1B3E] hover:bg-gray-50 rounded-lg">
+              <Link key={i} href={item.href} onClick={() => setIsMenuOpen(false)} className="block px-3 py-2.5 text-sm font-medium text-[#0D1B3E] hover:bg-gray-50 rounded-lg">
                 {item.label}
               </Link>
             ))}
             <div className="pt-2 mt-2 border-t border-gray-100 space-y-1.5">
-              <a href="tel:+919929299268" className="block px-3 py-2 text-[13px] font-medium text-[#0D1B3E]">
+              <a href="tel:+919929299268" className="block px-3 py-2.5 text-sm font-medium text-[#0D1B3E]">
                 <span className="font-bold text-[#F26419]">Call</span> +91-9929299268
               </a>
-              <Link href="#counselling" onClick={() => setIsMenuOpen(false)} className="block text-center py-2 rounded-full bg-[#F26419] text-white text-[13px] font-bold">
+              <Link href="#counselling" onClick={() => setIsMenuOpen(false)} className="block text-center py-3 rounded-full bg-[#F26419] text-white text-sm font-bold">
                 Free Counselling
               </Link>
             </div>

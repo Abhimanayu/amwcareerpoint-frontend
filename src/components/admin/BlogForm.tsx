@@ -27,7 +27,7 @@ const emptyForm = {
   tags: '',
   status: 'published',
   featured: false,
-  seo: { metaTitle: '', metaDescription: '', keywords: '' },
+  seo: { metaTitle: '', metaDescription: '', keywords: '', canonicalUrl: '', schemaMarkup: '' },
 };
 
 export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
@@ -66,6 +66,8 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
           metaTitle: ((initialData.seo as Record<string, string>)?.metaTitle) || '',
           metaDescription: ((initialData.seo as Record<string, string>)?.metaDescription) || '',
           keywords: ((initialData.seo as Record<string, string>)?.keywords) || '',
+          canonicalUrl: ((initialData.seo as Record<string, string>)?.canonicalUrl) || '',
+          schemaMarkup: ((initialData.seo as Record<string, string>)?.schemaMarkup) || '',
         },
       });
     }
@@ -243,6 +245,16 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
           <div>
             <input maxLength={L.seoKeywords.max} value={form.seo.keywords} onChange={(e) => setForm((p) => ({ ...p, seo: { ...p.seo, keywords: e.target.value } }))} placeholder="Keywords (comma separated)" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
             <div className="flex justify-end"><CharCount current={form.seo.keywords.length} max={L.seoKeywords.max} /></div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Canonical URL</label>
+            <input value={form.seo.canonicalUrl} onChange={(e) => setForm((p) => ({ ...p, seo: { ...p.seo, canonicalUrl: e.target.value } }))} placeholder="https://amwcareerpoint.com/blogs/your-post-slug (leave empty for auto)" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
+            <p className="text-xs text-gray-400 mt-1">Leave empty to use the default page URL as canonical</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Schema Markup (JSON-LD)</label>
+            <textarea rows={6} value={form.seo.schemaMarkup} onChange={(e) => setForm((p) => ({ ...p, seo: { ...p.seo, schemaMarkup: e.target.value } }))} placeholder='{"@context":"https://schema.org","@type":"Article",...}' className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm font-mono focus:ring-2 focus:ring-[#F26419] outline-none resize-y" />
+            <p className="text-xs text-gray-400 mt-1">Optional. Paste valid JSON-LD schema. Leave empty for auto-generated Article schema.</p>
           </div>
         </section>
 

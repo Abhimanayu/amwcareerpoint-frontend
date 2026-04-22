@@ -25,7 +25,7 @@ export function CollegeCard({ university }: CollegeCardProps) {
   const content = (
     <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[#DDD9D2] bg-white transition-shadow hover:shadow-lg">
       {/* Image */}
-      <div className="relative h-44 flex-shrink-0 overflow-hidden bg-[#0D1B3E]">
+      <div className="relative aspect-[16/10] flex-shrink-0 overflow-hidden bg-[#0D1B3E]">
         {heroImage ? (
           <SafeImage
             src={heroImage}

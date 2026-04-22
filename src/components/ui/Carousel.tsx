@@ -16,6 +16,7 @@ export function Carousel({ children, slideClass = '', dots = true }: CarouselPro
     align: 'start',
     slidesToScroll: 1,
     containScroll: 'trimSnaps',
+    loop: true,
     breakpoints: {},
   });
 

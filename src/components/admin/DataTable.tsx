@@ -65,9 +65,6 @@ export default function DataTable<T extends Record<string, unknown>>({
     );
   }
 
-  console.log(columns);
-  
-
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
       {/* Search bar */}
@@ -105,12 +102,12 @@ export default function DataTable<T extends Record<string, unknown>>({
             {(onEdit || onDelete) && (
               <div className="flex gap-2 pt-2 border-t border-gray-100">
                 {onEdit && (
-                  <button onClick={() => onEdit(item)} className="flex-1 text-sm py-1.5 px-3 bg-[#F26419]/10 text-[#F26419] rounded-lg font-medium">
+                  <button onClick={() => onEdit(item)} className="flex-1 text-sm py-2.5 px-3 bg-[#F26419]/10 text-[#F26419] rounded-lg font-medium">
                     Edit
                   </button>
                 )}
                 {onDelete && (
-                  <button onClick={() => onDelete(item)} className="flex-1 text-sm py-1.5 px-3 bg-red-50 text-red-600 rounded-lg font-medium">
+                  <button onClick={() => onDelete(item)} className="flex-1 text-sm py-2.5 px-3 bg-red-50 text-red-600 rounded-lg font-medium">
                     Delete
                   </button>
                 )}
@@ -122,16 +119,22 @@ export default function DataTable<T extends Record<string, unknown>>({
 
       {/* Desktop table view */}
       <div className="hidden lg:block overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full table-fixed min-w-[600px]">
+          <colgroup>
+            {columns.map((col, i) => (
+              <col key={col.key} style={{ width: i === 0 ? undefined : '100px' }} />
+            ))}
+            {(onEdit || onDelete) && <col style={{ width: '120px' }} />}
+          </colgroup>
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
               {columns.map((col) => (
-                <th key={col.key} className={`px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider ${col.className || ''}`}>
+                <th key={col.key} className={`px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap ${col.className || ''}`}>
                   {col.label}
                 </th>
               ))}
               {(onEdit || onDelete) && (
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider w-32">
+                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
                   Actions
                 </th>
               )}
@@ -142,18 +145,18 @@ export default function DataTable<T extends Record<string, unknown>>({
               <tr><td colSpan={columns.length + (onEdit || onDelete ? 1 : 0)} className="px-4 py-8 text-center text-sm text-gray-500">No matching results</td></tr>
             ) : filteredData.map((item, i) => (
               <tr key={i} className="hover:bg-gray-50 transition-colors">
-                {columns.map((col) => (
-                  <td key={col.key} className={`px-4 py-3 text-sm text-gray-700 ${col.className || ''}`}>
+                {columns.map((col, colIdx) => (
+                  <td key={col.key} className={`px-4 py-3 text-sm text-gray-700 ${colIdx === 0 ? 'truncate' : 'whitespace-nowrap'} ${col.className || ''}`}>
                     {col.render ? col.render(item) : String(item[col.key] ?? '—')}
                   </td>
                 ))}
                 {(onEdit || onDelete) && (
                   <td className="px-4 py-3 text-right space-x-2">
                     {onEdit && (
-                      <button onClick={() => onEdit(item)} className="text-[#F26419] hover:text-[#FF8040] text-sm font-medium">Edit</button>
+                      <button onClick={() => onEdit(item)} className="text-[#F26419] hover:text-[#FF8040] text-sm font-medium whitespace-nowrap">Edit</button>
                     )}
                     {onDelete && (
-                      <button onClick={() => onDelete(item)} className="text-red-500 hover:text-red-700 text-sm font-medium">Delete</button>
+                      <button onClick={() => onDelete(item)} className="text-red-500 hover:text-red-700 text-sm font-medium whitespace-nowrap">Delete</button>
                     )}
                   </td>
                 )}
@@ -173,14 +176,14 @@ export default function DataTable<T extends Record<string, unknown>>({
             <button
               onClick={() => onPageChange?.(pagination.page - 1)}
               disabled={pagination.page <= 1}
-              className="px-3 py-1.5 text-sm rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
+              className="px-3 py-2 text-sm rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
             >
               Prev
             </button>
             <button
               onClick={() => onPageChange?.(pagination.page + 1)}
               disabled={pagination.page >= pagination.totalPages}
-              className="px-3 py-1.5 text-sm rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
+              className="px-3 py-2 text-sm rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
             >
               Next
             </button>

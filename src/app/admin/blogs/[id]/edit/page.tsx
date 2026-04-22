@@ -25,7 +25,7 @@ export default function EditBlogPage() {
     load();
   }, [id]);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-[#F26419] border-t-transparent rounded-full animate-spin" /></div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-orange border-t-transparent rounded-full animate-spin" /></div>;
   if (!data) return <div className="min-h-screen flex items-center justify-center"><p className="text-gray-500">Blog not found</p></div>;
 
   return <BlogForm initialData={data} isEdit />;

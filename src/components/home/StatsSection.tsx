@@ -59,8 +59,8 @@ export function StatsSection() {
                 {stat.icon}
               </div>
               <div className="font-heading text-xl sm:text-2xl font-bold text-white">{stat.number}</div>
-              <div className="text-[10px] sm:text-[11px] font-semibold text-gray-300 mt-1 uppercase tracking-wider">{stat.label}</div>
-              <p className="text-[10px] sm:text-[11px] text-gray-400 mt-1">{stat.desc}</p>
+              <div className="text-[11px] sm:text-[11px] font-semibold text-gray-300 mt-1 uppercase tracking-wider">{stat.label}</div>
+              <p className="text-[11px] sm:text-[11px] text-gray-400 mt-1">{stat.desc}</p>
             </div>
           ))}
         </div>

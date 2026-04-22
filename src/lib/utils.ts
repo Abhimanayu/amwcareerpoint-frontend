@@ -5,7 +5,9 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-function parseDateInput(value: string | number | Date | null | undefined) {
+type DateInput = string | number | Date | null | undefined;
+
+function parseDateInput(value: DateInput) {
   if (!value) return null;
 
   const date = value instanceof Date ? value : new Date(value);
@@ -13,7 +15,7 @@ function parseDateInput(value: string | number | Date | null | undefined) {
 }
 
 export function formatDate(
-  value: string | number | Date | null | undefined,
+  value: DateInput,
   locale = 'en-US',
   options: Intl.DateTimeFormatOptions = {}
 ) {
@@ -26,19 +28,8 @@ export function formatDate(
   }).format(date);
 }
 
-export function formatDateTime(
-  value: string | number | Date | null | undefined,
-  locale = 'en-US',
-  options: Intl.DateTimeFormatOptions = {}
-) {
-  const date = parseDateInput(value);
-  if (!date) return '';
-
-  return new Intl.DateTimeFormat(locale, {
-    timeZone: 'UTC',
-    ...options,
-  }).format(date);
-}
+/** @deprecated Use formatDate instead */
+export const formatDateTime = formatDate;
 
 export function getCurrentYear() {
   return new Date().getUTCFullYear();
@@ -100,42 +91,37 @@ function isObjectRecord(value: unknown): value is Record<string, unknown> {
 }
 
 export function extractCollectionData<T>(payload: unknown, collectionKeys: string[] = []) {
-  const queue: unknown[] = [payload];
-  const visited = new Set<unknown>();
   const candidateKeys = [...collectionKeys, 'items', 'results', 'rows'];
+  return extractFromPayload<T>(payload, candidateKeys, new Set<unknown>());
+}
+
+function extractFromPayload<T>(payload: unknown, candidateKeys: string[], visited: Set<unknown>): T[] {
+  const queue: unknown[] = [payload];
 
   while (queue.length > 0) {
     const current = queue.shift();
-    if (!current || visited.has(current)) {
-      continue;
-    }
+    if (!current || visited.has(current)) continue;
 
-    if (Array.isArray(current)) {
-      return current as T[];
-    }
-
-    if (!isObjectRecord(current)) {
-      continue;
-    }
+    if (Array.isArray(current)) return current as T[];
+    if (!isObjectRecord(current)) continue;
 
     visited.add(current);
 
-    for (const key of candidateKeys) {
-      const value = current[key];
-      if (Array.isArray(value)) {
-        return value as T[];
-      }
-      if (isObjectRecord(value)) {
-        queue.push(value);
-      }
-    }
-
-    if ('data' in current) {
-      queue.push(current.data);
-    }
+    const found = findArrayInRecord<T>(current, candidateKeys, queue);
+    if (found) return found;
   }
 
   return [] as T[];
+}
+
+function findArrayInRecord<T>(record: Record<string, unknown>, keys: string[], queue: unknown[]): T[] | null {
+  for (const key of keys) {
+    const value = record[key];
+    if (Array.isArray(value)) return value as T[];
+    if (isObjectRecord(value)) queue.push(value);
+  }
+  if ('data' in record) queue.push(record.data);
+  return null;
 }
 
 export function pickUniversityImageSource(university: Record<string, unknown> | null | undefined) {
@@ -167,13 +153,13 @@ export function pickBlogImageSource(post: Record<string, unknown> | null | undef
 /** Sanitize HTML: strip script tags, event handlers, and dangerous elements */
 export function sanitizeHtml(html: string): string {
   return html
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/<iframe\b[^>]*>.*?<\/iframe>/gi, '')
-    .replace(/<object\b[^>]*>.*?<\/object>/gi, '')
-    .replace(/<embed\b[^>]*\/?>/gi, '')
-    .replace(/<link\b[^>]*\/?>/gi, '')
-    .replace(/\son\w+\s*=\s*["'][^"']*["']/gi, '')
-    .replace(/\son\w+\s*=\s*[^\s>]*/gi, '')
-    .replace(/javascript\s*:/gi, '')
-    .replace(/data\s*:\s*text\/html/gi, '');
+    .replaceAll(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replaceAll(/<iframe\b[^>]*>.*?<\/iframe>/gi, '')
+    .replaceAll(/<object\b[^>]*>.*?<\/object>/gi, '')
+    .replaceAll(/<embed\b[^>]*\/?>/gi, '')
+    .replaceAll(/<link\b[^>]*\/?>/gi, '')
+    .replaceAll(/\son\w+\s*=\s*["'][^"']*["']/gi, '')
+    .replaceAll(/\son\w+\s*=\s*[^\s>]*/gi, '')
+    .replaceAll(/javascript\s*:/gi, '')
+    .replaceAll(/data\s*:\s*text\/html/gi, '');
 }
