@@ -124,13 +124,18 @@ const DOCUMENTS_REQUIRED = [
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
   const res = await getCountryBySlug(slug).catch(() => null);
   const country = res?.data || res;
   if (!country) return { title: 'Country not found' };
+  const title = country.seo?.metaTitle || `${country.name} | MBBS Abroad`;
+  const description = country.seo?.metaDescription || country.metaDescription || country.tagline || country.description || '';
+  const canonical = country.seo?.canonicalUrl || `${siteUrl}/countries/${slug}`;
   return {
-    title: `${country.name} | MBBS Abroad`,
-    description:
-      country.metaDescription || country.tagline || country.description || '',
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: { title, description, type: 'website' },
   };
 }
 
@@ -187,6 +192,22 @@ export default async function CountryPage({ params }: Props) {
 
   if (!country) return notFound();
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
+  let schemaJsonLd: object | null = null;
+  if (country.seo?.schemaMarkup) {
+    try { schemaJsonLd = JSON.parse(country.seo.schemaMarkup); } catch { /* invalid JSON */ }
+  }
+  if (!schemaJsonLd) {
+    schemaJsonLd = {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: `MBBS in ${country.name}`,
+      description: country.description || country.tagline || '',
+      url: `${siteUrl}/countries/${slug}`,
+      publisher: { '@type': 'Organization', name: 'AMW Career Point', url: siteUrl },
+    };
+  }
+
   const countryId = typeof country._id === 'string' ? country._id : '';
   const heroImage = resolveMediaUrl(country.heroImage);
   const flagImage = resolveMediaUrl(country.flagImage);
@@ -211,7 +232,7 @@ export default async function CountryPage({ params }: Props) {
   const eligibility = Array.isArray(country.eligibility)
     ? (country.eligibility as string[]).filter(Boolean)
     : [];
-  const process = Array.isArray(country.admissionProcess)
+  const admissionSteps = Array.isArray(country.admissionProcess)
     ? (country.admissionProcess as CountryProcess[]).filter(
         (step) => Boolean(step?.title || step?.description)
       )
@@ -242,7 +263,7 @@ export default async function CountryPage({ params }: Props) {
   const countrySnapshot = [
     { value: `${universities.length || 0}+`, label: 'Partner universities' },
     { value: `${features.length || highlights.length || 0}+`, label: 'Why students choose it' },
-    { value: `${process.length || 0}`, label: 'Admission steps' },
+    { value: `${admissionSteps.length || 0}`, label: 'Admission steps' },
     { value: `${eligibility.length || 0}+`, label: 'Eligibility checkpoints' },
   ];
 
@@ -325,6 +346,10 @@ export default async function CountryPage({ params }: Props) {
 
   return (
     <div className="bg-[#F8F4EC] text-[#0D1B3E]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJsonLd) }}
+      />
       <section className="relative overflow-hidden border-b border-[#E6DFD3] bg-[radial-gradient(circle_at_top_right,_rgba(242,100,25,0.12),_transparent_30%),linear-gradient(180deg,#FFF9F1_0%,#F8F4EC_100%)] px-4 pb-16 pt-8 sm:px-6 lg:px-8 lg:pb-20 lg:pt-12">
         <div className="absolute inset-x-0 top-0 h-24 bg-[#0D1B3E]" />
         <div className="absolute right-[-8rem] top-28 h-72 w-72 rounded-full bg-[#E9D8C3]/70 blur-3xl" />
@@ -644,7 +669,7 @@ export default async function CountryPage({ params }: Props) {
         </section>
       )}
 
-      {process.length > 0 && (
+      {admissionSteps.length > 0 && (
         <section className="bg-white px-4 py-14 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <div className="mb-8 max-w-3xl">
@@ -660,7 +685,7 @@ export default async function CountryPage({ params }: Props) {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-4">
-              {process.map((step) => (
+              {admissionSteps.map((step) => (
                 <article
                   key={`${step.step}-${step.title}`}
                   className="rounded-[26px] border border-[#E7DECF] bg-[#FFFDF9] p-6 shadow-[0_14px_40px_rgba(13,27,62,0.04)]"

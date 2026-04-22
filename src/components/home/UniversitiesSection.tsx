@@ -23,7 +23,7 @@ export function UniversitiesSection() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    getUniversities({ limit: 10, featured: true })
+    getUniversities({ limit: 20 })
       .then((res) => {
         const items = extractCollectionData<any>(res, ['universities']);
         if (items.length > 0) setUniversities(items);

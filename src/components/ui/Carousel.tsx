@@ -15,9 +15,7 @@ export function Carousel({ children, slideClass = '', dots = true }: CarouselPro
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
     slidesToScroll: 1,
-    containScroll: 'trimSnaps',
     loop: true,
-    breakpoints: {},
   });
 
   const [canScrollPrev, setCanScrollPrev] = useState(false);
@@ -48,6 +46,8 @@ export function Carousel({ children, slideClass = '', dots = true }: CarouselPro
     };
   }, [emblaApi, onSelect]);
 
+  const hasMultipleSlides = children.length > 1;
+
   return (
     <div className="relative">
       {/* Viewport */}
@@ -62,28 +62,30 @@ export function Carousel({ children, slideClass = '', dots = true }: CarouselPro
       </div>
 
       {/* Arrows */}
-      <button
-        type="button"
-        onClick={scrollPrev}
-        disabled={!canScrollPrev}
-        aria-label="Previous slide"
-        className="absolute top-1/2 -translate-y-1/2 -left-3 sm:-left-4 z-10 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-[#DDD9D2] shadow-md flex items-center justify-center text-[#0D1B3E] hover:bg-[#F9F8F6] transition-colors disabled:opacity-30 disabled:cursor-default"
-      >
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
-      <button
-        type="button"
-        onClick={scrollNext}
-        disabled={!canScrollNext}
-        aria-label="Next slide"
-        className="absolute top-1/2 -translate-y-1/2 -right-3 sm:-right-4 z-10 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-[#DDD9D2] shadow-md flex items-center justify-center text-[#0D1B3E] hover:bg-[#F9F8F6] transition-colors disabled:opacity-30 disabled:cursor-default"
-      >
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-        </svg>
-      </button>
+      {hasMultipleSlides && (
+        <>
+          <button
+            type="button"
+            onClick={scrollPrev}
+            aria-label="Previous slide"
+            className="absolute top-1/2 -translate-y-1/2 -left-3 sm:-left-4 z-10 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-[#DDD9D2] shadow-md flex items-center justify-center text-[#0D1B3E] hover:bg-[#F9F8F6] transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            onClick={scrollNext}
+            aria-label="Next slide"
+            className="absolute top-1/2 -translate-y-1/2 -right-3 sm:-right-4 z-10 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-[#DDD9D2] shadow-md flex items-center justify-center text-[#0D1B3E] hover:bg-[#F9F8F6] transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </>
+      )}
 
       {/* Dots */}
       {dots && scrollSnaps.length > 1 && (

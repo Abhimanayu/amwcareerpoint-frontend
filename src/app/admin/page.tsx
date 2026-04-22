@@ -36,14 +36,32 @@ export default function AdminDashboard() {
         const getTotal = (r: PromiseSettledResult<Record<string, unknown>>) => {
           if (r.status !== 'fulfilled') return 0;
           const v = r.value as Record<string, unknown>;
-          // Support: { total }, { data: { total } }, { pagination: { total } }, { data: { pagination: { total } } }
-          if (typeof v?.total === 'number') return v.total;
-          const d = v?.data as Record<string, unknown> | undefined;
-          if (typeof d?.total === 'number') return d.total;
-          const p = (v?.pagination ?? d?.pagination) as Record<string, unknown> | undefined;
-          if (typeof p?.total === 'number') return p.total;
-          // If data is an array, use its length as fallback
-          if (Array.isArray(v?.data)) return (v.data as unknown[]).length;
+          // Support many backend response shapes:
+          // { total }, { count }, { totalCount }
+          // { data: { total } }, { data: { count } }
+          // { pagination: { total } }, { data: { pagination: { total } } }
+          // { data: { data: [...], pagination: { total } } }
+          const pickTotal = (obj: Record<string, unknown> | undefined): number | null => {
+            if (!obj) return null;
+            if (typeof obj.total === 'number') return obj.total;
+            if (typeof obj.totalCount === 'number') return obj.totalCount;
+            if (typeof obj.count === 'number') return obj.count;
+            const p = obj.pagination as Record<string, unknown> | undefined;
+            if (typeof p?.total === 'number') return p.total;
+            if (typeof p?.totalCount === 'number') return p.totalCount;
+            return null;
+          };
+          // Try top-level
+          const t1 = pickTotal(v);
+          if (t1 !== null) return t1;
+          // Try v.data
+          const d = v?.data as Record<string, unknown> | unknown[] | undefined;
+          if (Array.isArray(d)) return d.length;
+          const t2 = pickTotal(d as Record<string, unknown>);
+          if (t2 !== null) return t2;
+          // Try v.data.data (double nested)
+          const dd = (d as Record<string, unknown>)?.data;
+          if (Array.isArray(dd)) return (pickTotal(d as Record<string, unknown>) ?? dd.length);
           return 0;
         };
 

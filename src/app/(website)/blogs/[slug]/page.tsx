@@ -14,6 +14,7 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
   try {
     const res = await getBlogBySlug(slug);
     const post = res.data || res;
@@ -21,9 +22,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const title = post.seo?.metaTitle || post.title;
     const description = post.seo?.metaDescription || post.excerpt;
     const ogImage = resolveMediaUrl(pickBlogImageSource(post));
+    const canonical = post.seo?.canonicalUrl || `${siteUrl}/blogs/${slug}`;
     return {
       title,
       description,
+      alternates: { canonical },
       openGraph: { title, description, type: 'article', images: ogImage ? [{ url: ogImage }] : undefined },
     };
   } catch {
@@ -68,8 +71,36 @@ export default async function BlogPostPage({ params }: Props) {
     : '';
   const readTime = post.content ? `${Math.max(1, Math.ceil(post.content.replace(/<[^>]*>/g, '').split(/\s+/).length / 200))} min read` : '';
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
+  const postUrl = `${siteUrl}/blogs/${slug}`;
+  const ogImage = resolveMediaUrl(postImage || '');
+
+  // Schema markup: use admin-provided or generate Article schema
+  let schemaJsonLd: object | null = null;
+  if (post.seo?.schemaMarkup) {
+    try { schemaJsonLd = JSON.parse(post.seo.schemaMarkup); } catch { /* invalid JSON, skip */ }
+  }
+  if (!schemaJsonLd) {
+    schemaJsonLd = {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: post.title || '',
+      description: post.excerpt || '',
+      image: ogImage || undefined,
+      author: { '@type': 'Person', name: post.author || 'AMW Career Point' },
+      publisher: { '@type': 'Organization', name: 'AMW Career Point', url: siteUrl },
+      datePublished: post.createdAt || undefined,
+      dateModified: post.updatedAt || post.createdAt || undefined,
+      mainEntityOfPage: { '@type': 'WebPage', '@id': postUrl },
+    };
+  }
+
   return (
     <div className="min-h-screen bg-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJsonLd) }}
+      />
       {/* ── Hero ── */}
       <section className="bg-[#0D1B3E] py-10 sm:py-14">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

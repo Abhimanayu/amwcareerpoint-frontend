@@ -13,6 +13,7 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
   try {
     const res = await getUniversityBySlug(slug);
     const university = res.data || res;
@@ -20,9 +21,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const title = university.seo?.metaTitle || `${university.name} - MBBS Admission`;
     const description = university.seo?.metaDescription || `Study MBBS at ${university.name}. ${university.description || ''} Get complete admission details, fees, and eligibility.`;
     const ogImage = resolveMediaUrl(pickUniversityImageSource(university));
+    const canonical = university.seo?.canonicalUrl || `${siteUrl}/universities/${slug}`;
     return {
       title,
       description,
+      alternates: { canonical },
       openGraph: { title, description, type: 'article', images: ogImage ? [{ url: ogImage }] : undefined },
     };
   } catch {
@@ -43,6 +46,24 @@ export default async function UniversityDetailPage({ params }: Props) {
 
   if (!university) notFound();
 
+  // Build schema markup
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
+  let schemaJsonLd: object | null = null;
+  if (university.seo?.schemaMarkup) {
+    try { schemaJsonLd = JSON.parse(university.seo.schemaMarkup); } catch { /* invalid JSON */ }
+  }
+  if (!schemaJsonLd) {
+    schemaJsonLd = {
+      '@context': 'https://schema.org',
+      '@type': 'EducationalOrganization',
+      name: university.name || '',
+      description: university.description || '',
+      url: `${siteUrl}/universities/${slug}`,
+      image: resolveMediaUrl(pickUniversityImageSource(university)) || undefined,
+      address: university.country?.name ? { '@type': 'PostalAddress', addressCountry: university.country.name } : undefined,
+    };
+  }
+
   // Fetch country data for admission process
   try {
     if (university.country?.slug) {
@@ -61,10 +82,16 @@ export default async function UniversityDetailPage({ params }: Props) {
   } catch { /* ok */ }
 
   return (
-    <UniversityDetailClient
-      university={university}
-      countryData={countryData}
-      relatedUniversities={relatedUniversities}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJsonLd) }}
+      />
+      <UniversityDetailClient
+        university={university}
+        countryData={countryData}
+        relatedUniversities={relatedUniversities}
+      />
+    </>
   );
 }
