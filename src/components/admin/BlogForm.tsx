@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ImageUploader from '@/components/admin/ImageUploader';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
-import { createBlog, updateBlog, getBlogCategories } from '@/lib/blogs';
+import { createBlog, updateBlog, getBlogCategories, createBlogCategory } from '@/lib/blogs';
 import { handleApiError } from '@/lib/handleApiError';
 import { validateBlogForm, getFieldError, LIMITS, type ValidationError } from '@/lib/validation';
 import { validateBlogContent, type ContentValidationResult } from '@/lib/contentValidation';
@@ -34,6 +34,9 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
   const router = useRouter();
   const [form, setForm] = useState(emptyForm);
   const [categories, setCategories] = useState<{ _id: string; name: string }[]>([]);
+  const [customCategory, setCustomCategory] = useState(false);
+  const [customCategoryName, setCustomCategoryName] = useState('');
+  const [creatingCategory, setCreatingCategory] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
@@ -72,6 +75,23 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
       });
     }
   }, [initialData]);
+
+  const handleCreateCategory = async () => {
+    if (!customCategoryName.trim()) return;
+    setCreatingCategory(true);
+    setError('');
+    try {
+      const res = await createBlogCategory(customCategoryName.trim());
+      const newCat = res.data || res;
+      setCategories((prev) => [...prev, { _id: newCat._id, name: newCat.name }]);
+      updateField('category', newCat._id);
+      setCustomCategory(false);
+      setCustomCategoryName('');
+    } catch (err) {
+      setError(handleApiError(err));
+    }
+    setCreatingCategory(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,10 +163,29 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-              <select value={form.category} onChange={(e) => updateField('category', e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none">
-                <option value="">Select Category</option>
-                {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
-              </select>
+              {customCategory ? (
+                <div className="flex gap-2">
+                  <input
+                    value={customCategoryName}
+                    onChange={(e) => setCustomCategoryName(e.target.value)}
+                    placeholder="Type category name"
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleCreateCategory(); } }}
+                    className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none"
+                  />
+                  <button type="button" onClick={handleCreateCategory} disabled={creatingCategory || !customCategoryName.trim()} className="px-3 py-2 text-xs bg-[#F26419] text-white rounded-lg hover:bg-[#d95715] disabled:opacity-50 whitespace-nowrap">
+                    {creatingCategory ? 'Creating...' : 'Add'}
+                  </button>
+                  <button type="button" onClick={() => { setCustomCategory(false); setCustomCategoryName(''); }} className="px-3 py-2 text-xs text-gray-500 hover:text-gray-700 whitespace-nowrap">
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <select value={form.category} onChange={(e) => { if (e.target.value === '__custom__') { setCustomCategory(true); updateField('category', ''); } else { updateField('category', e.target.value); } }} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none">
+                  <option value="">Select Category</option>
+                  {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
+                  <option value="__custom__">+ Add New Category</option>
+                </select>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Tags (comma separated)</label>
