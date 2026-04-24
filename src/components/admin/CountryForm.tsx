@@ -617,16 +617,6 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
                 <option value="inactive">Inactive</option>
               </select>
             </div>
-            <div>
-              <label htmlFor="country-sort-order" className="block text-sm font-medium text-gray-700 mb-1">Sort Order</label>
-              <input
-                id="country-sort-order"
-                type="number"
-                value={form.sortOrder}
-                onChange={(e) => updateField('sortOrder', Number.parseInt(e.target.value) || 0)}
-                className={textInputClass}
-              />
-            </div>
           </div>
         </section>
 
@@ -640,6 +630,7 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
                 folder="countries"
                 currentImage={form.flagImage}
                 onUpload={(url) => updateField('flagImage', url)}
+                hint="Recommended: 80×60 px (4:3). Small flag icon shown alongside country name."
               />
             </div>
             <div>
@@ -648,6 +639,7 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
                 folder="countries"
                 currentImage={form.heroImage}
                 onUpload={(url) => updateField('heroImage', url)}
+                hint="Recommended: 1200×600 px (2:1). Large cover image used on the country page hero and home section card."
               />
             </div>
           </div>

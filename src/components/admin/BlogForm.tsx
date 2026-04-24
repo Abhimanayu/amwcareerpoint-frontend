@@ -270,7 +270,7 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
 
         <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
           <h2 className="font-semibold text-gray-900">Cover Image</h2>
-          <ImageUploader folder="blogs" currentImage={form.coverImage} onUpload={(url) => updateField('coverImage', url)} />
+          <ImageUploader folder="blogs" currentImage={form.coverImage} onUpload={(url) => updateField('coverImage', url)} hint="Recommended: 1200×630 px (16:9). Used as blog card thumbnail and social share image." />
         </section>
 
         {/* SEO */}

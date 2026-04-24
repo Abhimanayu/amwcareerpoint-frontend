@@ -14,6 +14,10 @@
 .blog-content img {
   @apply max-w-full h-auto rounded-lg border border-gray-200 shadow-sm mx-auto;
   display: block;
+  /* Override inline width/height from editor to keep images responsive on mobile */
+  width: auto !important;
+  max-width: 100% !important;
+  height: auto !important;
 }
 
 /* Responsive Tables */

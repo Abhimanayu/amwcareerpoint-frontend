@@ -4,6 +4,7 @@ import { getBlogs, getBlogCategories } from '@/lib/blogs';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { clampText, extractCollectionData, formatDate, pickBlogImageSource } from '@/lib/utils';
 import { SafeImage } from '@/components/ui/SafeImage';
+import { BlogSearchBar, NeetScoreCheck, SubscribeForm } from '@/components/blog/BlogInteractive';
 
 export const metadata: Metadata = {
   title: 'Blog - MBBS Abroad Insights',
@@ -22,12 +23,22 @@ function estimateReadTime(post: Record<string, unknown>): string {
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export default async function BlogPage() {
+export default async function BlogPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const resolvedParams = await searchParams;
+  const searchQuery = typeof resolvedParams.q === 'string' ? resolvedParams.q.trim() : '';
+
   let blogPosts: any[] = [];
   let categories: string[] = [];
 
+  const blogParams: Record<string, unknown> = { limit: 50 };
+  if (searchQuery) blogParams.q = searchQuery;
+
   const [blogsResult, catResult] = await Promise.all([
-    getBlogs({ limit: 50 }).catch(() => null),
+    getBlogs(blogParams).catch(() => null),
     getBlogCategories().catch(() => null),
   ]);
 
@@ -83,17 +94,7 @@ export default async function BlogPage() {
             </p>
 
             {/* search bar */}
-            <div className="flex max-w-md mb-6 sm:mb-8">
-              <input
-                type="text"
-                readOnly
-                placeholder="Search: FMGE pass rate, Georgia fees, NMC rules..."
-                className="flex-1 min-w-0 h-10 sm:h-11 rounded-l-lg bg-white/10 border border-white/20 px-3 sm:px-4 text-[12px] sm:text-[13px] text-white placeholder:text-white/50 focus:outline-none"
-              />
-              <span className="inline-flex items-center h-10 sm:h-11 px-4 sm:px-5 rounded-r-lg bg-[#F26419] text-white text-[12px] sm:text-[13px] font-bold cursor-default shrink-0">
-                Search
-              </span>
-            </div>
+            <BlogSearchBar initialQuery={searchQuery} />
 
             {/* stats */}
             <div className="flex flex-wrap items-center gap-x-6 gap-y-3 sm:gap-x-10 text-white">
@@ -400,25 +401,7 @@ export default async function BlogPage() {
             )}
 
             {/* — NEET Score Check — */}
-            <div className="rounded-xl border border-[#DDD9D2] bg-[#F9F8F6] p-4 sm:p-5">
-              <h4 className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#4A4742] mb-2 sm:mb-3">
-                NEET Score Check
-              </h4>
-              <p className="text-[11px] sm:text-[12px] text-[#4A4742] mb-2 sm:mb-3">
-                Enter your NEET score to see your options
-              </p>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  readOnly
-                  placeholder="e.g. 520"
-                  className="flex-1 min-w-0 h-9 rounded-lg border border-[#DDD9D2] bg-white px-3 text-[11px] sm:text-[12px] text-[#0D1B3E] placeholder:text-[#4A4742]/50"
-                />
-                <span className="inline-flex items-center h-9 px-3 sm:px-4 rounded-lg bg-[#0D1B3E] text-white text-[10px] sm:text-[11px] font-bold cursor-default shrink-0">
-                  Check
-                </span>
-              </div>
-            </div>
+            <NeetScoreCheck />
 
             {/* — Browse by Topic — */}
             {categories.length > 0 && (
@@ -440,30 +423,7 @@ export default async function BlogPage() {
             )}
 
             {/* — Weekly Digest — */}
-            <div className="rounded-xl border border-[#DDD9D2] bg-white p-4 sm:p-5">
-              <h4 className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#4A4742] mb-2">
-                Weekly Digest
-              </h4>
-              <p className="text-[11px] sm:text-[12px] text-[#4A4742] leading-relaxed mb-2 sm:mb-3">
-                NMC updates, university news, and the best MBBS guides — every Tuesday.
-                3,200+ subscribers. No spam.
-              </p>
-              <input
-                type="email"
-                readOnly
-                placeholder="Your email address"
-                className="w-full h-9 rounded-lg border border-[#DDD9D2] bg-[#F9F8F6] px-3 text-[11px] sm:text-[12px] text-[#0D1B3E] placeholder:text-[#4A4742]/50 mb-2"
-              />
-              <button
-                type="button"
-                className="w-full h-9 rounded-lg bg-[#0D1B3E] text-white text-[11px] sm:text-[12px] font-bold hover:bg-[#162550] transition-colors"
-              >
-                Subscribe Free
-              </button>
-              <p className="text-[9px] sm:text-[10px] text-[#4A4742]/60 text-center mt-1.5">
-                Unsubscribe any time. No spam ever.
-              </p>
-            </div>
+            <SubscribeForm variant="sidebar" />
 
             {/* — Trending Topics — */}
             {trendingTopics.length > 0 && (
@@ -509,22 +469,7 @@ export default async function BlogPage() {
                 NMC updates, university news, honest FMGE analysis. Every Tuesday. 3,200+ subscribers already reading.
               </p>
             </div>
-            <div className="w-full lg:w-auto">
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-0">
-                <input
-                  type="email"
-                  readOnly
-                  placeholder="Your email address"
-                  className="h-10 sm:h-11 flex-1 sm:w-56 lg:w-64 min-w-0 rounded-lg sm:rounded-r-none border border-white/20 bg-white/10 px-3 sm:px-4 text-[12px] sm:text-[13px] text-white placeholder:text-white/50"
-                />
-                <span className="h-10 sm:h-11 inline-flex items-center justify-center px-5 sm:px-6 rounded-lg sm:rounded-l-none bg-[#F26419] text-white text-[12px] sm:text-[13px] font-bold cursor-default whitespace-nowrap hover:bg-[#FF8040] transition-colors">
-                  Subscribe Free
-                </span>
-              </div>
-              <p className="text-[9px] sm:text-[10px] text-blue-100/50 mt-1.5 sm:mt-2 sm:text-right">
-                No spam. Unsubscribe any time.
-              </p>
-            </div>
+            <SubscribeForm variant="hero" />
           </div>
         </div>
       </section>

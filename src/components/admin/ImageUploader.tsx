@@ -10,9 +10,11 @@ interface ImageUploaderProps {
   currentImage?: string;
   onUpload: (url: string) => void;
   label?: string;
+  /** Hint text shown below the upload area (e.g. recommended size / aspect ratio). */
+  hint?: string;
 }
 
-export default function ImageUploader({ folder, currentImage, onUpload, label }: Readonly<ImageUploaderProps>) {
+export default function ImageUploader({ folder, currentImage, onUpload, label, hint }: Readonly<ImageUploaderProps>) {
   const [loading, setLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState('');
   const [preview, setPreview] = useState(resolveMediaUrl(currentImage));
@@ -271,6 +273,12 @@ export default function ImageUploader({ folder, currentImage, onUpload, label }:
             </button>
           )}
         </div>
+      )}
+      
+      {hint && (
+        <p className="text-xs text-gray-400 mt-1.5 flex items-center gap-1">
+          <span>ℹ️</span> {hint}
+        </p>
       )}
       
       {preview && !loading && !error && (

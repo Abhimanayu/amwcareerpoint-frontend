@@ -12,9 +12,21 @@ export default function AdminLoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const validate = () => {
+    const errors: Record<string, string> = {};
+    if (!email.trim()) errors.email = 'Email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) errors.email = 'Enter a valid email address';
+    if (!password) errors.password = 'Password is required';
+    else if (password.length < 4) errors.password = 'Password must be at least 4 characters';
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
     setLoading(true);
     setError('');
     try {
@@ -46,11 +58,11 @@ export default function AdminLoginPage() {
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); setFieldErrors((p) => ({ ...p, email: '' })); }}
               placeholder="admin@amwcareerpoint.com"
-              required
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] focus:border-transparent outline-none transition-shadow"
+              className={`w-full px-4 py-3 rounded-xl border text-sm focus:ring-2 focus:ring-[#F26419] focus:border-transparent outline-none transition-shadow ${fieldErrors.email ? 'border-red-400' : 'border-gray-200'}`}
             />
+            {fieldErrors.email && <p className="mt-1 text-xs text-red-600">{fieldErrors.email}</p>}
           </div>
 
           <div>
@@ -59,10 +71,9 @@ export default function AdminLoginPage() {
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => { setPassword(e.target.value); setFieldErrors((p) => ({ ...p, password: '' })); }}
                 placeholder="Enter your password"
-                required
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] focus:border-transparent outline-none transition-shadow pr-12"
+                className={`w-full px-4 py-3 rounded-xl border text-sm focus:ring-2 focus:ring-[#F26419] focus:border-transparent outline-none transition-shadow pr-12 ${fieldErrors.password ? 'border-red-400' : 'border-gray-200'}`}
               />
               <button
                 type="button"
@@ -78,6 +89,7 @@ export default function AdminLoginPage() {
                 </svg>
               </button>
             </div>
+            {fieldErrors.password && <p className="mt-1 text-xs text-red-600">{fieldErrors.password}</p>}
           </div>
 
           {error && (

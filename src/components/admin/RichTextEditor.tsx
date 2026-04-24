@@ -27,6 +27,7 @@ interface RichTextEditorProps {
 
 const fontSizes = ['12px', '14px', '16px', '18px', '20px', '24px', '28px', '32px', '36px', '48px'];
 const fontFamilies = [
+  'Calibri, sans-serif',
   'Arial, sans-serif',
   'Georgia, serif',
   'Times New Roman, serif',
@@ -45,7 +46,7 @@ const colors = [
 
 export function RichTextEditor({ content, onChange, placeholder, className = '' }: Readonly<RichTextEditorProps>) {
   const [fontSize, setFontSize] = useState('16px');
-  const [fontFamily, setFontFamily] = useState('Arial, sans-serif');
+  const [fontFamily, setFontFamily] = useState('Calibri, sans-serif');
   const [showImageDialog, setShowImageDialog] = useState(false);
 
   const editor = useEditor({
@@ -74,6 +75,7 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
       Image.configure({
         HTMLAttributes: {
           class: 'max-w-full h-auto rounded',
+          loading: 'lazy',
         },
       }),
       Link.configure({
@@ -109,6 +111,7 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
           'prose-a:text-blue-600 prose-a:break-words',
           className
         ].filter(Boolean).join(' '),
+        style: "font-family: 'Calibri', sans-serif;",
       },
     },
   });

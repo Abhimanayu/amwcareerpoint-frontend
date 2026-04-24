@@ -15,9 +15,25 @@ export function CounsellingForm() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const validate = () => {
+    const errors: Record<string, string> = {};
+    if (!formData.fullName.trim()) errors.fullName = 'Name is required';
+    else if (formData.fullName.trim().length < 2) errors.fullName = 'Name must be at least 2 characters';
+    if (!formData.phoneNo.trim()) errors.phoneNo = 'Phone number is required';
+    else if (!/^[\d+\-\s()]{7,15}$/.test(formData.phoneNo.trim())) errors.phoneNo = 'Enter a valid phone number';
+    if (!formData.emailAddress.trim()) errors.emailAddress = 'Email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.emailAddress.trim())) errors.emailAddress = 'Enter a valid email';
+    if (!formData.neetScore) errors.neetScore = 'Select NEET score range';
+    if (!formData.preference) errors.preference = 'Select study destination';
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
     setSubmitting(true);
     setError('');
     try {
@@ -42,9 +58,11 @@ export function CounsellingForm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFieldErrors((p) => ({ ...p, [e.target.name]: '' }));
   };
 
   const inputClass = 'h-10 sm:h-9 w-full rounded-lg border border-[#DDD9D2] bg-white px-3 text-sm sm:text-[13px] text-[#0D1B3E] outline-none transition-all focus:border-[#F26419] focus:ring-2 focus:ring-orange-100';
+  const errorInputClass = 'h-10 sm:h-9 w-full rounded-lg border border-red-400 bg-white px-3 text-sm sm:text-[13px] text-[#0D1B3E] outline-none transition-all focus:border-[#F26419] focus:ring-2 focus:ring-orange-100';
 
   return (
     <div id="counselling" className="w-full max-w-none sm:max-w-[400px] rounded-2xl border border-[#DDD9D2] bg-white p-4 sm:p-5 shadow-md">
@@ -67,23 +85,26 @@ export function CounsellingForm() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
           <div>
             <label className="block text-xs font-medium text-[#0D1B3E] mb-1">Full Name</label>
-            <input type="text" name="fullName" placeholder="Your Name" required value={formData.fullName} onChange={handleChange} className={inputClass} />
+            <input type="text" name="fullName" placeholder="Your Name" value={formData.fullName} onChange={handleChange} className={fieldErrors.fullName ? errorInputClass : inputClass} />
+            {fieldErrors.fullName && <p className="mt-0.5 text-[10px] text-red-600">{fieldErrors.fullName}</p>}
           </div>
           <div>
             <label className="block text-xs font-medium text-[#0D1B3E] mb-1">Phone No.</label>
-            <input type="tel" name="phoneNo" placeholder="+91 XXXXX XXXXX" required value={formData.phoneNo} onChange={handleChange} className={inputClass} />
+            <input type="tel" name="phoneNo" placeholder="+91 XXXXX XXXXX" value={formData.phoneNo} onChange={handleChange} className={fieldErrors.phoneNo ? errorInputClass : inputClass} />
+            {fieldErrors.phoneNo && <p className="mt-0.5 text-[10px] text-red-600">{fieldErrors.phoneNo}</p>}
           </div>
         </div>
 
         <div>
           <label className="block text-xs font-medium text-[#0D1B3E] mb-1">Email Address</label>
-          <input type="email" name="emailAddress" placeholder="you@email.com" required value={formData.emailAddress} onChange={handleChange} className={inputClass} />
+          <input type="email" name="emailAddress" placeholder="you@email.com" value={formData.emailAddress} onChange={handleChange} className={fieldErrors.emailAddress ? errorInputClass : inputClass} />
+          {fieldErrors.emailAddress && <p className="mt-0.5 text-[10px] text-red-600">{fieldErrors.emailAddress}</p>}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
           <div>
             <label className="block text-xs font-medium text-[#0D1B3E] mb-1">NEET Score</label>
-            <select name="neetScore" required value={formData.neetScore} onChange={handleChange} className={inputClass}>
+            <select name="neetScore" value={formData.neetScore} onChange={handleChange} className={fieldErrors.neetScore ? errorInputClass : inputClass}>
               <option value="">Select Range</option>
               <option value="600+">600+</option>
               <option value="500-599">500-599</option>
@@ -92,10 +113,11 @@ export function CounsellingForm() {
               <option value="200-299">200-299</option>
               <option value="Below 200">Below 200</option>
             </select>
+            {fieldErrors.neetScore && <p className="mt-0.5 text-[10px] text-red-600">{fieldErrors.neetScore}</p>}
           </div>
           <div>
             <label className="block text-xs font-medium text-[#0D1B3E] mb-1">Preference</label>
-            <select name="preference" required value={formData.preference} onChange={handleChange} className={inputClass}>
+            <select name="preference" value={formData.preference} onChange={handleChange} className={fieldErrors.preference ? errorInputClass : inputClass}>
               <option value="">Study Destination</option>
               <option value="India">MBBS in India</option>
               <option value="Russia">MBBS in Russia</option>
@@ -104,6 +126,7 @@ export function CounsellingForm() {
               <option value="Kazakhstan">MBBS in Kazakhstan</option>
               <option value="Uzbekistan">MBBS in Uzbekistan</option>
             </select>
+            {fieldErrors.preference && <p className="mt-0.5 text-[10px] text-red-600">{fieldErrors.preference}</p>}
           </div>
         </div>
 

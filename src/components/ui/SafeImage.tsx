@@ -71,11 +71,12 @@ export function SafeImage({
       className={className}
       unoptimized={shouldDisableOptimization}
       onError={() => {
-        console.error('🖼️ Image load failed:', normalizedSrc);
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('SafeImage fallback for:', typeof normalizedSrc === 'string' ? normalizedSrc.slice(0, 80) : 'non-string src');
+        }
         setError(true);
       }}
       onLoad={() => {
-        console.log('✅ Image loaded successfully:', normalizedSrc);
         setImageLoaded(true);
       }}
     />

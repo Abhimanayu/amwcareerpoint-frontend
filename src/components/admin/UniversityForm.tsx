@@ -227,11 +227,11 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Logo</label>
-              <ImageUploader folder="universities" currentImage={form.logo} onUpload={(url) => updateField('logo', url)} />
+              <ImageUploader folder="universities" currentImage={form.logo} onUpload={(url) => updateField('logo', url)} hint="Recommended: 200×200 px (1:1 square). University crest or badge." />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Hero Image</label>
-              <ImageUploader folder="universities" currentImage={form.heroImage} onUpload={(url) => updateField('heroImage', url)} />
+              <ImageUploader folder="universities" currentImage={form.heroImage} onUpload={(url) => updateField('heroImage', url)} hint="Recommended: 1200×800 px (3:2). Main campus photo shown on listings and detail page." />
             </div>
           </div>
           <div>

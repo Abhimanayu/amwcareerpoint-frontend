@@ -1,12 +1,11 @@
 import { Metadata } from 'next';
-import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { getCountryBySlug, getCountries } from '@/lib/countries';
 import { getUniversities } from '@/lib/universities';
 import { CounsellingForm } from '@/components/home/CounsellingForm';
-import { extractCollectionData, isRemoteImageUrl, resolveMediaUrl } from '@/lib/utils';
+import { extractCollectionData, resolveMediaUrl } from '@/lib/utils';
 import { CountryFAQSection } from './CountryFAQSection';
 import { getPublicFaqs } from '@/lib/server/faqs';
 
@@ -357,22 +356,29 @@ export default async function CountryPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJsonLd) }}
       />
-      <section className="relative overflow-hidden border-b border-[#E6DFD3] bg-[radial-gradient(circle_at_top_right,_rgba(242,100,25,0.12),_transparent_30%),linear-gradient(180deg,#FFF9F1_0%,#F8F4EC_100%)] px-4 pb-16 pt-8 sm:px-6 lg:px-8 lg:pb-20 lg:pt-12">
-        <div className="absolute inset-x-0 top-0 h-24 bg-[#0D1B3E]" />
-        <div className="absolute right-[-8rem] top-28 h-72 w-72 rounded-full bg-[#E9D8C3]/70 blur-3xl" />
-        <div className="absolute left-[-6rem] top-44 h-60 w-60 rounded-full bg-white/60 blur-3xl" />
+      <section className="relative overflow-hidden border-b border-[#E6DFD3] px-4 pb-16 pt-8 sm:px-6 lg:px-8 lg:pb-20 lg:pt-12">
+        {/* Base background — visible when no hero image */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(242,100,25,0.12),_transparent_30%),linear-gradient(180deg,#FFF9F1_0%,#F8F4EC_100%)]" />
+        {/* Hero image — prominent but softened */}
         {heroImage && (
-          <div className="pointer-events-none absolute inset-0 opacity-[0.08]">
+          <div className="pointer-events-none absolute inset-0">
             <SafeImage
               src={heroImage}
               alt={country.name}
               fill
               priority
-              className="object-cover object-center"
+              className="object-cover object-center opacity-[0.42] sm:opacity-[0.48]"
               fallbackElement={<div className="absolute inset-0 bg-gradient-to-br from-[#0D1B3E]/10 to-[#F26419]/5" />}
             />
+            {/* Single subtle overlay for text readability */}
+            <div className="absolute inset-0 bg-gradient-to-b from-[#FFF9F1]/40 via-transparent to-[#F8F4EC]/50" />
+            <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#0D1B3E]/18 to-transparent" />
           </div>
         )}
+
+        {/* Decorative blurs */}
+        <div className="absolute right-[-8rem] top-28 h-72 w-72 rounded-full bg-[#E9D8C3]/40 blur-3xl" />
+        <div className="absolute left-[-6rem] top-44 h-60 w-60 rounded-full bg-white/30 blur-3xl" />
 
         <div className="relative mx-auto max-w-7xl">
           <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_370px] lg:items-start">
@@ -549,12 +555,14 @@ export default async function CountryPage({ params }: Props) {
                     <div className="grid gap-0 md:grid-cols-[180px_minmax(0,1fr)]">
                       <div className="relative min-h-[170px] bg-[#10244B]">
                         {imageSrc ? (
-                          <Image
+                          <SafeImage
                             src={imageSrc}
                             alt={university.name || 'University'}
                             fill
-                            unoptimized={isRemoteImageUrl(imageSrc)}
                             className="object-cover"
+                            fallbackElement={
+                              <div className="flex h-full items-center justify-center text-5xl text-white/20">🏫</div>
+                            }
                           />
                         ) : (
                           <div className="flex h-full items-center justify-center text-5xl text-white/20">🏫</div>
