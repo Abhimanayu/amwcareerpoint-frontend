@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import UniversityForm from '@/components/admin/UniversityForm';
-import { adminGetUniversities } from '@/lib/universities';
+import { adminGetUniversities, getUniversityBySlug } from '@/lib/universities';
 
 export default function EditUniversityPage() {
   const { id } = useParams();
@@ -13,10 +13,16 @@ export default function EditUniversityPage() {
   useEffect(() => {
     const load = async () => {
       try {
+        // Step 1: Lightweight list fetch to find the slug for this _id
         const res = await adminGetUniversities({ limit: 200 });
         const list = Array.isArray(res.data) ? res.data : res.data?.universities || res.universities || [];
         const item = list.find((u: Record<string, unknown>) => u._id === id);
-        if (item) setData(item);
+        if (item?.slug) {
+          // Step 2: Full detail fetch by slug (returns ALL fields)
+          const detail = await getUniversityBySlug(item.slug as string);
+          const full = detail.data || detail;
+          setData(full);
+        }
       } catch {
         // silent
       }

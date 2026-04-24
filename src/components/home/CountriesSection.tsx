@@ -36,6 +36,7 @@ export function CountriesSection() {
   // Use API data if available, otherwise show fallback
   const useFallback = loaded && countries.length === 0;
   const displayCountries = useFallback ? fallbackCountries : [];
+  const countLabel = !useFallback ? countries.length : fallbackCountries.length;
 
   if (!loaded) return null; // or skeleton
 
@@ -43,9 +44,9 @@ export function CountriesSection() {
     <section className="bg-white py-10 sm:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8 sm:mb-10">
-          <span className="inline-block text-xs font-semibold text-orange uppercase tracking-wider mb-2">16+ Countries Available</span>
+          <span className="inline-block text-xs font-semibold text-orange uppercase tracking-wider mb-2">{countLabel}+ Countries Available</span>
           <h2 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-navy">Study MBBS in Top Countries</h2>
-          <p className="mt-3 text-[15px] text-text-body max-w-2xl mx-auto">World-class medical education at affordable costs across 16+ countries.</p>
+          <p className="mt-3 text-[15px] text-text-body max-w-2xl mx-auto">World-class medical education at affordable costs across {countLabel}+ countries.</p>
         </div>
 
         <div className="px-4 sm:px-5">
@@ -112,13 +113,34 @@ export function CountriesSection() {
                         }
                       />
                     )}
-                    <div>
+                    <div className="min-w-0">
                       <h3 className="font-heading text-[15px] font-bold truncate">{c.name || 'Country'}</h3>
-                      {c.tagline && <span className="text-[11px] opacity-90">{c.tagline}</span>}
+                      {c.tagline && <span className="block truncate text-[11px] opacity-90">{c.tagline}</span>}
                     </div>
                   </div>
                 </div>
                 <div className="p-4 flex flex-col flex-1">
+                  {/* Fee & Duration */}
+                  {(c.feeRange || c.duration) && (
+                    <div className="grid grid-cols-2 gap-2.5 mb-3">
+                      {c.feeRange && (
+                        <div className="min-w-0 rounded-lg bg-bg-light px-2.5 py-1.5 text-center">
+                          <div className="text-[10px] uppercase text-text-body">Annual Fees</div>
+                          <div className="text-[13px] font-bold text-orange truncate" title={c.feeRange}>{c.feeRange}</div>
+                        </div>
+                      )}
+                      {c.duration && (
+                        <div className="min-w-0 rounded-lg bg-bg-light px-2.5 py-1.5 text-center">
+                          <div className="text-[10px] uppercase text-text-body">Duration</div>
+                          <div className="text-[13px] font-bold text-navy truncate" title={c.duration}>{c.duration}</div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {/* Description snippet */}
+                  {c.description && (
+                    <p className="text-[13px] text-text-body leading-relaxed line-clamp-2 mb-3">{c.description}</p>
+                  )}
                   {/* Highlights */}
                   {c.highlights && c.highlights.length > 0 && (
                   <ul className="space-y-1 mb-3">
@@ -143,7 +165,7 @@ export function CountriesSection() {
 
         <div className="text-center mt-8 sm:mt-10">
           <Link href="/countries" className="w-full sm:w-auto inline-flex items-center justify-center h-10 sm:h-11 px-7 rounded-full border-2 border-navy text-navy text-[13px] sm:text-sm font-bold hover:bg-navy hover:text-white transition-colors">
-            View All 16 Countries →
+            View All {countLabel} Countries →
           </Link>
         </div>
       </div>
