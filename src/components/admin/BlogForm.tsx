@@ -81,10 +81,13 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
     setSaving(true);
     setError('');
     try {
-      const payload = {
+      const payload: Record<string, unknown> = {
         ...form,
         tags: form.tags.split(',').map((t) => t.trim()).filter(Boolean),
       };
+      if (!form.category) {
+        delete payload.category;
+      }
       if (isEdit && initialData?._id) {
         await updateBlog(initialData._id as string, payload);
       } else {

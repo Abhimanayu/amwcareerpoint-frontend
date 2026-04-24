@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'About Us',
   description: 'Learn about AMW Career Point - Your trusted partner for MBBS abroad consultancy with 10+ years of experience in medical education.',
+  alternates: { canonical: '/about' },
 };
 
 export default function AboutPage() {

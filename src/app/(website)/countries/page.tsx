@@ -8,7 +8,10 @@ import { clampList, clampText, extractCollectionData } from '@/lib/utils';
 export const metadata: Metadata = {
   title: 'Countries for MBBS Abroad',
   description: 'Explore top countries for MBBS abroad with AMW Career Point including Russia, Ukraine, Georgia, Kazakhstan and more. Find the best destination for your medical education.',
+  alternates: { canonical: '/countries' },
 };
+
+export const revalidate = 60;
 
 const COUNTRY_PAGE_FEATURES = [
   { id: 'fees', icon: '💰', title: 'Affordable Fees', desc: 'Much lower tuition fees compared to private medical colleges in India.' },

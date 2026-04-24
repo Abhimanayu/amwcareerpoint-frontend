@@ -19,7 +19,9 @@
 /* Responsive Tables */
 .blog-content table {
   @apply w-full border-collapse border border-gray-300 text-sm;
-  min-width: 100%;
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   table-layout: auto;
 }
 
@@ -78,7 +80,6 @@
 
 .blog-content p {
   @apply text-sm sm:text-base leading-relaxed text-gray-700 mb-4;
-  text-align: justify;
 }
 
 /* Lists */
@@ -102,7 +103,8 @@
 /* Links */
 .blog-content a {
   @apply text-orange-600 hover:text-orange-700 underline;
-  word-break: break-all;
+  overflow-wrap: break-word;
+  word-break: break-word;
   text-decoration-skip-ink: auto;
 }
 
@@ -192,32 +194,32 @@
     font-size: 14px;
     line-height: 1.6;
   }
-  
+
   .blog-content h1 {
     font-size: 1.5rem;
     scroll-margin-top: 1rem;
   }
-  
+
   .blog-content h2 {
     font-size: 1.25rem;
     scroll-margin-top: 1rem;
   }
-  
+
   .blog-content h3 {
     font-size: 1.125rem;
     scroll-margin-top: 1rem;
   }
-  
+
   .blog-content table {
     font-size: 0.75rem;
   }
-  
+
   .blog-content th,
   .blog-content td {
     padding: 0.5rem;
     min-width: 50px;
   }
-  
+
   /* Force horizontal scroll for wide tables */
   .blog-content .table-wrapper {
     margin-left: -1rem;
@@ -225,18 +227,18 @@
     padding-left: 1rem;
     padding-right: 1rem;
   }
-  
+
   /* Adjust code block font size */
   .blog-content pre {
     font-size: 0.75rem;
     padding: 0.75rem;
   }
-  
+
   /* Better spacing for mobile */
   .blog-content p {
     margin-bottom: 1rem;
   }
-  
+
   .blog-content ul,
   .blog-content ol {
     padding-left: 1.25rem;

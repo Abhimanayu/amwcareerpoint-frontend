@@ -191,6 +191,7 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
         {/* Text Formatting */}
         <div className="flex gap-1">
           <button
+            type="button"
             onClick={() => editor.chain().focus().toggleBold().run()}
             className={`p-1.5 text-xs rounded hover:bg-gray-200 ${editor.isActive('bold') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'}`}
             title="Bold"
@@ -198,6 +199,7 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
             <span className="font-bold">B</span>
           </button>
           <button
+            type="button"
             onClick={() => editor.chain().focus().toggleItalic().run()}
             className={`p-1.5 text-xs rounded hover:bg-gray-200 ${editor.isActive('italic') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'}`}
             title="Italic"
@@ -205,6 +207,7 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
             <span className="italic">I</span>
           </button>
           <button
+            type="button"
             onClick={() => editor.chain().focus().toggleUnderline().run()}
             className={`p-1.5 text-xs rounded hover:bg-gray-200 ${editor.isActive('underline') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'}`}
             title="Underline"
@@ -212,6 +215,7 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
             <span className="underline">U</span>
           </button>
           <button
+            type="button"
             onClick={() => editor.chain().focus().toggleStrike().run()}
             className={`p-1.5 text-xs rounded hover:bg-gray-200 ${editor.isActive('strike') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'}`}
             title="Strikethrough"
@@ -226,6 +230,7 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
         <div className="flex gap-1">
           {colors.slice(0, 6).map((color) => (
             <button
+              type="button"
               key={color}
               onClick={() => setTextColor(color)}
               className="w-6 h-6 rounded border border-gray-300 hover:scale-110 transition-transform"
@@ -238,6 +243,7 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
             <div className="absolute top-8 left-0 bg-white border border-gray-300 rounded-lg p-2 grid grid-cols-6 gap-1 z-10 shadow-lg">
               {colors.map((color) => (
                 <button
+                  type="button"
                   key={color}
                   onClick={() => setTextColor(color)}
                   className="w-6 h-6 rounded border border-gray-300 hover:scale-110 transition-transform"
@@ -253,6 +259,7 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
         {/* Alignment */}
         <div className="flex gap-1">
           <button
+            type="button"
             onClick={() => editor.chain().focus().setTextAlign('left').run()}
             className={`p-1.5 text-xs rounded hover:bg-gray-200 ${editor.isActive({ textAlign: 'left' }) ? 'bg-blue-100 text-blue-600' : 'text-gray-700'}`}
             title="Align Left"
@@ -260,6 +267,7 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
             ⬅️
           </button>
           <button
+            type="button"
             onClick={() => editor.chain().focus().setTextAlign('center').run()}
             className={`p-1.5 text-xs rounded hover:bg-gray-200 ${editor.isActive({ textAlign: 'center' }) ? 'bg-blue-100 text-blue-600' : 'text-gray-700'}`}
             title="Align Center"
@@ -267,6 +275,7 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
             ⬆️
           </button>
           <button
+            type="button"
             onClick={() => editor.chain().focus().setTextAlign('right').run()}
             className={`p-1.5 text-xs rounded hover:bg-gray-200 ${editor.isActive({ textAlign: 'right' }) ? 'bg-blue-100 text-blue-600' : 'text-gray-700'}`}
             title="Align Right"
@@ -280,6 +289,7 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
         {/* Lists */}
         <div className="flex gap-1">
           <button
+            type="button"
             onClick={() => editor.chain().focus().toggleBulletList().run()}
             className={`p-1.5 text-xs rounded hover:bg-gray-200 ${editor.isActive('bulletList') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'}`}
             title="Bullet List"
@@ -287,6 +297,7 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
             📝
           </button>
           <button
+            type="button"
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
             className={`p-1.5 text-xs rounded hover:bg-gray-200 ${editor.isActive('orderedList') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'}`}
             title="Numbered List"
@@ -325,6 +336,7 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
         {/* Advanced Features */}
         <div className="flex gap-1">
           <button
+            type="button"
             onClick={() => editor.chain().focus().toggleBlockquote().run()}
             className={`p-1.5 text-xs rounded hover:bg-gray-200 ${editor.isActive('blockquote') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'}`}
             title="Quote"
@@ -332,6 +344,7 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
             💬
           </button>
           <button
+            type="button"
             onClick={() => editor.chain().focus().toggleCode().run()}
             className={`p-1.5 text-xs rounded hover:bg-gray-200 ${editor.isActive('code') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'}`}
             title="Inline Code"
@@ -339,6 +352,7 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
             &lt;/&gt;
           </button>
           <button
+            type="button"
             onClick={() => editor.chain().focus().toggleCodeBlock().run()}
             className={`p-1.5 text-xs rounded hover:bg-gray-200 ${editor.isActive('codeBlock') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'}`}
             title="Code Block"
@@ -352,6 +366,7 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
         {/* Media & Table */}
         <div className="flex gap-1">
           <button
+            type="button"
             onClick={() => setShowImageDialog(true)}
             className="p-1.5 text-xs rounded hover:bg-gray-200 text-gray-700"
             title="Insert Image"
@@ -359,6 +374,7 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
             🖼️
           </button>
           <button
+            type="button"
             onClick={insertTable}
             className="p-1.5 text-xs rounded hover:bg-gray-200 text-gray-700"
             title="Insert Table"

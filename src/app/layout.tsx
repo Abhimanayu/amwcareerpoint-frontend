@@ -5,8 +5,8 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com'
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | AMW Career Point - MBBS Abroad Consultancy",
-    default: "AMW Career Point - MBBS Abroad Consultancy | Study Medicine Overseas",
+    template: "%s | AMW Career Point",
+    default: "AMW Career Point - MBBS Abroad Consultancy",
   },
   description: "Expert consultancy for MBBS abroad. We help students achieve their dream of becoming doctors through quality education in top international medical universities.",
   keywords: ['MBBS abroad', 'MBBS consultancy', 'study medicine abroad', 'NEET counselling', 'medical education', 'AMW Career Point', 'MBBS in Russia', 'MBBS in Georgia', 'MBBS in Kazakhstan'],
@@ -18,11 +18,13 @@ export const metadata: Metadata = {
     title: 'AMW Career Point - MBBS Abroad Consultancy',
     description: 'Expert consultancy for MBBS abroad. Trusted by 20,000+ students since 2009.',
     url: siteUrl,
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'AMW Career Point - MBBS Abroad Consultancy' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'AMW Career Point - MBBS Abroad Consultancy',
     description: 'Expert consultancy for MBBS abroad. Trusted by 20,000+ students since 2009.',
+    images: ['/og-image.png'],
   },
   robots: {
     index: true,
@@ -36,7 +38,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: siteUrl,
+    canonical: '/',
   },
 };
 

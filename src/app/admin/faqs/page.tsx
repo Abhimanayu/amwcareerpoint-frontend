@@ -7,12 +7,15 @@ import DataTable from '@/components/admin/DataTable';
 import ConfirmModal from '@/components/admin/ConfirmModal';
 import StatusBadge from '@/components/admin/StatusBadge';
 import { adminGetFaqs, deleteFaq } from '@/lib/faqs';
+import { revalidateFaqPages } from '@/lib/server/revalidate';
 import { handleApiError } from '@/lib/handleApiError';
 
 const PAGE_LABELS: Record<string, string> = {
   home: 'Home',
   contact: 'Contact',
   general: 'General',
+  country: 'Country',
+  university: 'University',
 };
 
 interface AdminFaqItem extends Record<string, unknown> {
@@ -21,8 +24,8 @@ interface AdminFaqItem extends Record<string, unknown> {
   answer: string;
   page: string;
   pageSlug?: string | null;
-  order?: number;
-  isActive?: boolean;
+  sortOrder?: number;
+  status?: string;
 }
 
 function normalizeFaqItems(payload: unknown): AdminFaqItem[] {
@@ -48,8 +51,8 @@ function normalizeFaqItems(payload: unknown): AdminFaqItem[] {
       answer: faq.answer,
       page: faq.page,
       pageSlug: typeof faq.pageSlug === 'string' ? faq.pageSlug : null,
-      order: typeof faq.order === 'number' ? faq.order : 0,
-      isActive: typeof faq.isActive === 'boolean' ? faq.isActive : false,
+      sortOrder: typeof faq.sortOrder === 'number' ? faq.sortOrder : (typeof faq.order === 'number' ? faq.order : 0),
+      status: typeof faq.status === 'string' ? faq.status : (faq.isActive === false ? 'inactive' : 'active'),
     }];
   });
 }
@@ -83,6 +86,7 @@ export default function AdminFaqsPage() {
     setDeleting(true);
     try {
       await deleteFaq(deleteTarget._id as string);
+      await revalidateFaqPages(deleteTarget.page, deleteTarget.pageSlug || undefined).catch(() => {});
       setDeleteTarget(null);
       fetchFaqs();
     } catch (err) {
@@ -111,12 +115,12 @@ export default function AdminFaqsPage() {
         </div>
       ),
     },
-    { key: 'order', label: 'Order' },
+    { key: 'sortOrder', label: 'Order' },
     {
-      key: 'isActive',
+      key: 'status',
       label: 'Status',
       render: (item: AdminFaqItem) => (
-        <StatusBadge status={item.isActive ? 'active' : 'inactive'} />
+        <StatusBadge status={item.status === 'active' ? 'active' : 'inactive'} />
       ),
     },
   ];
@@ -136,6 +140,8 @@ export default function AdminFaqsPage() {
               <option value="home">Home</option>
               <option value="contact">Contact</option>
               <option value="general">General</option>
+              <option value="country">Country</option>
+              <option value="university">University</option>
             </select>
             <button
               onClick={() => router.push('/admin/faqs/new')}

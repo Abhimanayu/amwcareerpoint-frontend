@@ -22,7 +22,7 @@ export function CollegeGallery({ images, universityName = 'Campus', fallbackSrc 
   const safeIndex = Math.min(index, gallery.length - 1);
 
   return (
-    <div>
+    <div className="max-w-full overflow-hidden">
       {/* Main image */}
       <div className="relative mb-4 aspect-[16/7] overflow-hidden rounded-2xl bg-[#DDD9D2]">
         <SafeImage

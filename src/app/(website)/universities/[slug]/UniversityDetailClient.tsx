@@ -42,10 +42,12 @@ export default function UniversityDetailClient({
   university,
   countryData,
   relatedUniversities,
+  apiFaqs,
 }: {
   university: any;
   countryData: any;
   relatedUniversities: any[];
+  apiFaqs?: { question: string; answer: string }[];
 }) {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [currTab, setCurrTab] = useState(0);
@@ -53,7 +55,11 @@ export default function UniversityDetailClient({
   const countryName = university.country?.name || '';
   const admissionProcess = Array.isArray(countryData?.admissionProcess) ? countryData.admissionProcess.slice(0, 10) : [];
   const highlights = Array.isArray(university.highlights) ? university.highlights.slice(0, 20) : [];
-  const faqs = Array.isArray(university.faqs) ? university.faqs.slice(0, 15) : [];
+  const universityFaqs = Array.isArray(university.faqs) ? university.faqs.slice(0, 15) : [];
+  const mergedApiFaqs = Array.isArray(apiFaqs) ? apiFaqs : [];
+  const faqs = mergedApiFaqs.length > 0
+    ? [...mergedApiFaqs, ...universityFaqs.filter((uf: any) => !mergedApiFaqs.some((af) => af.question === uf.question))].slice(0, 15)
+    : universityFaqs;
   const gallery = Array.isArray(university.gallery) ? university.gallery.slice(0, 12) : [];
   const recognition = Array.isArray(university.recognition) ? university.recognition.slice(0, 10) : [];
 
@@ -64,7 +70,7 @@ export default function UniversityDetailClient({
   const [activeNav, setActiveNav] = useState('overview');
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen overflow-x-hidden bg-white">
 
       {/* ═══════════════ HERO — reusable protected component ═══════════════ */}
       <CollegeHero
@@ -82,21 +88,25 @@ export default function UniversityDetailClient({
 
       {/* ═══════════════ STICKY NAV ═══════════════ */}
       <nav className="sticky top-0 z-30 border-b border-[#DDD9D2] bg-white shadow-sm">
-        <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
-          <div className="flex gap-0 overflow-x-auto py-0 scrollbar-hide">
-            {NAV_ITEMS.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => { setActiveNav(item.id); scrollTo(item.id); }}
-                className={`cursor-pointer whitespace-nowrap border-b-2 px-4 py-3.5 text-sm font-medium transition-colors sm:px-5 ${
-                  activeNav === item.id
-                    ? 'border-[#F26419] text-[#F26419]'
-                    : 'border-transparent text-[#4A4742] hover:border-[#F26419] hover:text-[#F26419]'
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
+        <div className="mx-auto max-w-[1200px] px-0 sm:px-8">
+          <div className="relative flex gap-0 overflow-x-auto py-0 scrollbar-hide">
+            <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-4 bg-gradient-to-r from-white to-transparent sm:hidden" />
+            <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-4 bg-gradient-to-l from-white to-transparent sm:hidden" />
+            <div className="flex pl-4 pr-4 sm:pl-0 sm:pr-0">
+              {NAV_ITEMS.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => { setActiveNav(item.id); scrollTo(item.id); }}
+                  className={`cursor-pointer whitespace-nowrap border-b-2 px-3 py-3.5 text-[13px] font-medium transition-colors sm:px-5 sm:text-sm ${
+                    activeNav === item.id
+                      ? 'border-[#F26419] text-[#F26419]'
+                      : 'border-transparent text-[#4A4742] hover:border-[#F26419] hover:text-[#F26419]'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </nav>
@@ -128,9 +138,9 @@ export default function UniversityDetailClient({
               {highlights.length > 0 && (
                 <div className="mt-8 flex flex-wrap gap-2">
                   {highlights.map((h: any, i: number) => (
-                    <span key={`hl-${i}`} className="inline-flex items-center gap-1.5 rounded-full border border-[#DDD9D2] bg-white px-4 py-2 text-sm text-[#0D1B3E]">
-                      <span className="font-semibold text-[#F26419]">{h.label}</span>
-                      {h.value && <span className="text-[#4A4742]">— {h.value}</span>}
+                    <span key={`hl-${i}`} className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-[#DDD9D2] bg-white px-4 py-2 text-sm text-[#0D1B3E]">
+                      <span className="shrink-0 font-semibold text-[#F26419]">{h.label}</span>
+                      {h.value && <span className="min-w-0 truncate text-[#4A4742]">— {h.value}</span>}
                     </span>
                   ))}
                 </div>
@@ -153,8 +163,8 @@ export default function UniversityDetailClient({
                     university.eligibility && { label: 'Eligibility', value: university.eligibility },
                   ].filter(Boolean).map((item: any, i: number) => (
                     <div key={`qf-${i}`} className="flex items-start justify-between border-b border-[#DDD9D2]/50 py-3 last:border-0">
-                      <span className="text-sm text-[#4A4742]">{item.label}</span>
-                      <span className="max-w-[55%] break-words text-right text-sm font-semibold text-[#0D1B3E]">{item.value}</span>
+                      <span className="min-w-0 text-sm text-[#4A4742]">{item.label}</span>
+                      <span className="min-w-0 max-w-[55%] break-words text-right text-sm font-semibold text-[#0D1B3E]">{item.value}</span>
                     </div>
                   ))}
                   {recognition.length > 0 && (
@@ -189,7 +199,7 @@ export default function UniversityDetailClient({
             No hidden charges, no donation. The full picture of costs at {university.name}.
           </p>
 
-          <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+          <div className="mt-10 grid grid-cols-1 gap-3 min-[360px]:grid-cols-2 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6">
             <FeeCard label="Tuition Fee" value={university.annualFees || 'Contact Us'} sub="/year" accent />
             <FeeCard label="Hostel Fee" value={university.hostelFees || 'Contact Us'} sub="/year" />
             <FeeCard label="Food & Meals" value="$100–1L" sub="/month" />
@@ -248,12 +258,12 @@ export default function UniversityDetailClient({
           </p>
 
           {/* Year tabs */}
-          <div className="mt-10 flex gap-2 overflow-x-auto pb-2">
+          <div className="mt-10 flex flex-wrap gap-2 sm:flex-nowrap sm:overflow-x-auto sm:pb-2">
             {CURRICULUM.map((c, i) => (
               <button
                 key={`ct-${i}`}
                 onClick={() => setCurrTab(i)}
-                className={`cursor-pointer whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${
+                className={`cursor-pointer whitespace-nowrap rounded-full px-4 py-2 text-[13px] font-medium transition-colors sm:px-5 sm:py-2.5 sm:text-sm ${
                   currTab === i
                     ? 'bg-[#0D1B3E] text-white'
                     : 'border border-[#DDD9D2] bg-[#F9F8F6] text-[#4A4742] hover:border-[#0D1B3E]'
@@ -340,15 +350,15 @@ export default function UniversityDetailClient({
             Students get hands-on clinical training in government and private hospitals affiliated with the university.
           </p>
 
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
             {[
               { number: 'Yr 3', label: 'Clinical rotations start' },
               { number: '10+', label: 'Affiliated hospitals' },
               { number: countryName || 'Capital', label: 'City-based training' },
               { number: '1 Yr', label: 'Full internship' },
             ].map((s, i) => (
-              <div key={`hosp-${i}`} className="rounded-xl border border-[#DDD9D2] bg-white p-5 text-center sm:p-6">
-                <div className="font-heading text-2xl font-bold text-[#0D1B3E] sm:text-3xl">{s.number}</div>
+              <div key={`hosp-${i}`} className="rounded-xl border border-[#DDD9D2] bg-white p-3 text-center sm:p-6">
+                <div className="font-heading text-xl font-bold text-[#0D1B3E] sm:text-3xl truncate">{s.number}</div>
                 <div className="mt-1 text-xs text-[#4A4742]">{s.label}</div>
               </div>
             ))}

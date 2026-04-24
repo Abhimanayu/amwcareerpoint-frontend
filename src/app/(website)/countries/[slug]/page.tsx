@@ -8,6 +8,7 @@ import { getUniversities } from '@/lib/universities';
 import { CounsellingForm } from '@/components/home/CounsellingForm';
 import { extractCollectionData, isRemoteImageUrl, resolveMediaUrl } from '@/lib/utils';
 import { CountryFAQSection } from './CountryFAQSection';
+import { getPublicFaqs } from '@/lib/server/faqs';
 
 export const revalidate = 60;
 
@@ -211,10 +212,13 @@ export default async function CountryPage({ params }: Props) {
   const countryId = typeof country._id === 'string' ? country._id : '';
   const heroImage = resolveMediaUrl(country.heroImage);
   const flagImage = resolveMediaUrl(country.flagImage);
-  const universityRes = countryId
-    ? await getUniversities({ country: countryId, limit: 12 }).catch(() => null)
-    : null;
-  const countriesRes = await getCountries({ limit: 12 }).catch(() => null);
+
+  // Parallelize independent data fetches
+  const [universityRes, countriesRes, apiFaqs] = await Promise.all([
+    countryId ? getUniversities({ country: countryId, limit: 12 }).catch(() => null) : null,
+    getCountries({ limit: 12 }).catch(() => null),
+    getPublicFaqs('country', { pageSlug: slug }).catch(() => []),
+  ]);
 
   const universities = extractCollectionData<UniversitySummary>(universityRes, ['universities']);
   const otherCountries = extractCollectionData<CountrySummary>(countriesRes, ['countries'])
@@ -237,9 +241,12 @@ export default async function CountryPage({ params }: Props) {
         (step) => Boolean(step?.title || step?.description)
       )
     : [];
-  const faqs = (Array.isArray(country.faqs) ? country.faqs : []).filter(
+  const countryFaqs = (Array.isArray(country.faqs) ? country.faqs : []).filter(
     (faq: CountryFaq): faq is Required<CountryFaq> => Boolean(faq?.question && faq?.answer)
   );
+  const faqs = apiFaqs.length > 0
+    ? [...apiFaqs, ...countryFaqs.filter((cf: { question: string }) => !apiFaqs.some((af) => af.question === cf.question))]
+    : countryFaqs;
   const studentLife =
     country.studentLife && typeof country.studentLife === 'object'
       ? (country.studentLife as StudentLife)
@@ -345,7 +352,7 @@ export default async function CountryPage({ params }: Props) {
         ];
 
   return (
-    <div className="bg-[#F8F4EC] text-[#0D1B3E]">
+    <div className="overflow-x-hidden bg-[#F8F4EC] text-[#0D1B3E]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJsonLd) }}
@@ -396,12 +403,16 @@ export default async function CountryPage({ params }: Props) {
                   </div>
                 )}
 
-                <h1 className="font-heading text-[2.4rem] font-bold leading-[1.02] text-[#0D1B3E] sm:text-[3rem] lg:text-[4rem]">
+                <h1 className="font-heading text-[1.75rem] font-bold leading-[1.02] text-[#0D1B3E] sm:text-[3rem] lg:text-[4rem]">
                   MBBS in {country.name}
                 </h1>
-                <p className="mt-5 max-w-3xl text-[15px] leading-7 text-[#4A4742] sm:text-[16px]">
+                {country.tagline && (
+                  <p className="mt-3 max-w-3xl text-[17px] font-medium leading-snug text-[#0D1B3E]/80">
+                    {country.tagline}
+                  </p>
+                )}
+                <p className="mt-4 max-w-3xl text-[15px] leading-7 text-[#4A4742] sm:text-[16px]">
                   {country.description ||
-                    country.tagline ||
                     `${country.name} offers international medical education with practical guidance on fees, admission, documentation, and university selection.`}
                 </p>
               </div>
@@ -457,12 +468,12 @@ export default async function CountryPage({ params }: Props) {
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F7B37E]">
               Country Snapshot
             </span>
-            <h2 className="mt-3 font-heading text-3xl font-bold">AMW&apos;s {country.name} MBBS overview</h2>
+            <h2 className="mt-3 font-heading text-2xl sm:text-3xl font-bold">AMW&apos;s {country.name} MBBS overview</h2>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {countrySnapshot.map((item) => (
               <div key={item.label} className="rounded-2xl border border-white/10 bg-white/6 px-5 py-6 backdrop-blur">
-                <div className="text-3xl font-heading font-bold text-[#F7B37E]">{item.value}</div>
+                <div className="text-2xl sm:text-3xl font-heading font-bold text-[#F7B37E]">{item.value}</div>
                 <div className="mt-2 text-sm text-white/72">{item.label}</div>
               </div>
             ))}
@@ -477,7 +488,7 @@ export default async function CountryPage({ params }: Props) {
               <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F26419]">
                 Why Students Choose {country.name}
               </span>
-              <h2 className="mt-3 font-heading text-3xl font-bold text-[#0D1B3E]">
+              <h2 className="mt-3 font-heading text-2xl sm:text-3xl font-bold text-[#0D1B3E]">
                 Why Indian students are considering {country.name} for MBBS
               </h2>
               <p className="mt-3 text-[15px] leading-7 text-[#4A4742]">
@@ -511,7 +522,7 @@ export default async function CountryPage({ params }: Props) {
                 <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F26419]">
                   Partner Universities
                 </span>
-                <h2 className="mt-3 font-heading text-3xl font-bold text-[#0D1B3E]">
+                <h2 className="mt-3 font-heading text-2xl sm:text-3xl font-bold text-[#0D1B3E]">
                   Top medical universities in {country.name}
                 </h2>
                 <p className="mt-3 text-[15px] leading-7 text-[#4A4742]">
@@ -606,7 +617,7 @@ export default async function CountryPage({ params }: Props) {
                             ))}
                         </div>
 
-                        <div className="mt-6 flex gap-3">
+                        <div className="mt-6 flex flex-wrap gap-3">
                           <Link
                             href={`/universities/${university.slug}`}
                             className="inline-flex flex-1 items-center justify-center rounded-full border border-[#0D1B3E] px-4 py-2.5 text-sm font-semibold text-[#0D1B3E] transition-colors hover:bg-[#0D1B3E] hover:text-white"
@@ -637,12 +648,12 @@ export default async function CountryPage({ params }: Props) {
               <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F26419]">
                 Fee Comparison
               </span>
-              <h2 className="mt-2 font-heading text-3xl font-bold text-[#0D1B3E]">
+              <h2 className="mt-2 font-heading text-2xl sm:text-3xl font-bold text-[#0D1B3E]">
                 MBBS {country.name} fee structure
               </h2>
             </div>
             <div className="overflow-x-auto">
-              <table className="min-w-full text-left text-sm">
+              <table className="min-w-[600px] w-full text-left text-sm">
                 <thead className="bg-[#10244B] text-white">
                   <tr>
                     <th className="px-5 py-3 font-semibold">University</th>
@@ -676,7 +687,7 @@ export default async function CountryPage({ params }: Props) {
               <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F26419]">
                 Admission Process
               </span>
-              <h2 className="mt-3 font-heading text-3xl font-bold text-[#0D1B3E]">
+              <h2 className="mt-3 font-heading text-2xl sm:text-3xl font-bold text-[#0D1B3E]">
                 {country.name} MBBS admission process
               </h2>
               <p className="mt-3 text-[15px] leading-7 text-[#4A4742]">
@@ -708,7 +719,7 @@ export default async function CountryPage({ params }: Props) {
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F26419]">
               Eligibility and Entry Basics
             </span>
-            <h2 className="mt-3 font-heading text-3xl font-bold text-[#0D1B3E]">
+            <h2 className="mt-3 font-heading text-2xl sm:text-3xl font-bold text-[#0D1B3E]">
               {country.name} MBBS eligibility at a glance
             </h2>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -734,7 +745,7 @@ export default async function CountryPage({ params }: Props) {
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F26419]">
               {documentsChecklist.eyebrow || 'Documents Checklist'}
             </span>
-            <h2 className="mt-3 font-heading text-3xl font-bold text-[#0D1B3E]">
+            <h2 className="mt-3 font-heading text-2xl sm:text-3xl font-bold text-[#0D1B3E]">
               {documentsChecklist.title || 'Documents commonly needed'}
             </h2>
             <ul className="mt-6 space-y-3 text-sm leading-7 text-[#4A4742]">
@@ -758,7 +769,7 @@ export default async function CountryPage({ params }: Props) {
               <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F26419]">
                 {studentLife.eyebrow || 'Student Life'}
               </span>
-              <h2 className="mt-3 font-heading text-3xl font-bold text-[#0D1B3E]">
+              <h2 className="mt-3 font-heading text-2xl sm:text-3xl font-bold text-[#0D1B3E]">
                 {studentLife.title || `What is life like in ${country.name} for Indian students?`}
               </h2>
               <p className="mt-3 text-[15px] leading-7 text-[#4A4742]">
@@ -790,7 +801,7 @@ export default async function CountryPage({ params }: Props) {
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F7B37E]">
               {supportExperience.eyebrow || 'AMW Support Experience'}
             </span>
-            <h2 className="mt-3 font-heading text-3xl font-bold">
+            <h2 className="mt-3 font-heading text-2xl sm:text-3xl font-bold">
               {supportExperience.title || 'We prepare students from counselling to campus arrival'}
             </h2>
             <p className="mt-4 max-w-2xl text-[15px] leading-7 text-white/72">
@@ -799,9 +810,9 @@ export default async function CountryPage({ params }: Props) {
             <div className="mt-6 space-y-4">
               {resolvedSupportProgressItems.map((item, idx) => (
                 <div key={`${idx}-${item.label}`}>
-                  <div className="mb-2 flex items-center justify-between text-sm text-white/75">
-                    <span className="pr-4 wrap-break-word">{item.label}</span>
-                    <span className="shrink-0 text-right">{item.status || 'Included'}</span>
+                  <div className="mb-2 flex flex-col gap-0.5 text-sm text-white/75 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                    <span className="min-w-0 break-words">{item.label}</span>
+                    <span className="break-words text-right text-white/90 sm:text-white/75">{item.status || 'Included'}</span>
                   </div>
                   <div className="h-2 rounded-full bg-white/10">
                     <div className="h-2 rounded-full bg-[#F26419]" style={{ width: `${Math.min(100, Math.max(0, item.value))}%` }} />
@@ -814,8 +825,8 @@ export default async function CountryPage({ params }: Props) {
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {resolvedSupportCards.map((item, idx) => (
               <div key={`${idx}-${item.title}`} className="rounded-[24px] border border-white/10 bg-white/6 px-5 py-6 backdrop-blur">
-                <div className="wrap-break-word text-3xl font-heading font-bold leading-none text-[#F7B37E] sm:text-[2rem]">{item.title}</div>
-                <div className="mt-3 wrap-break-word text-sm leading-6 text-white/72">{item.subtitle || 'Support available'}</div>
+                <div className="break-words text-2xl sm:text-3xl font-heading font-bold leading-none text-[#F7B37E] sm:text-[2rem]">{item.title}</div>
+                <div className="mt-3 break-words text-sm leading-6 text-white/72">{item.subtitle || 'Support available'}</div>
               </div>
             ))}
           </div>
@@ -823,11 +834,11 @@ export default async function CountryPage({ params }: Props) {
       </section>
 
       <section className="px-4 py-14 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-6xl rounded-[30px] border border-[#E7DECF] bg-[linear-gradient(135deg,#FFFFFF_0%,#F4FBFF_52%,#FFF6EC_100%)] px-6 py-10 text-center shadow-[0_18px_55px_rgba(13,27,62,0.05)] sm:px-10">
+        <div className="mx-auto max-w-6xl rounded-[30px] border border-[#E7DECF] bg-[linear-gradient(135deg,#FFFFFF_0%,#F4FBFF_52%,#FFF6EC_100%)] px-4 py-8 text-center shadow-[0_18px_55px_rgba(13,27,62,0.05)] sm:px-10 sm:py-10">
           <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F26419]">
             Free Career Guidance Session
           </span>
-          <h2 className="mt-3 font-heading text-3xl font-bold text-[#0D1B3E]">
+          <h2 className="mt-3 font-heading text-2xl sm:text-3xl font-bold text-[#0D1B3E]">
             Book a free career guidance session today
           </h2>
           <p className="mx-auto mt-4 max-w-3xl text-[15px] leading-7 text-[#4A4742]">
@@ -849,7 +860,7 @@ export default async function CountryPage({ params }: Props) {
               <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F26419]">
                 Explore More Destinations
               </span>
-              <h2 className="mt-3 font-heading text-3xl font-bold text-[#0D1B3E]">
+              <h2 className="mt-3 font-heading text-2xl sm:text-3xl font-bold text-[#0D1B3E]">
                 Also consider these countries for MBBS
               </h2>
             </div>

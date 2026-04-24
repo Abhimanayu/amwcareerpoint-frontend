@@ -2,24 +2,24 @@ import Link from 'next/link';
 
 export function DecisionGuideSection() {
   return (
-    <section className="bg-gradient-to-br from-blue-50 to-white py-16">
+    <section className="bg-gradient-to-br from-blue-50 to-white py-10 sm:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
             India or Abroad — Which Is Right for You?
           </h2>
-          <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
             The honest breakdown most consultancies won't give you. Neither option is 
             universally better; it depends on your score, budget, and goals.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12">
           {/* MBBS in India */}
-          <div className="bg-white rounded-xl shadow-lg border border-blue-100 p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <span className="text-4xl">🇮🇳</span>
-              <h3 className="text-2xl font-bold text-blue-600">MBBS in India</h3>
+          <div className="bg-white rounded-xl shadow-lg border border-blue-100 p-4 sm:p-6 lg:p-8">
+            <div className="flex items-center gap-3 mb-4 sm:mb-6">
+              <span className="text-2xl sm:text-4xl">🇮🇳</span>
+              <h3 className="text-xl sm:text-2xl font-bold text-blue-600">MBBS in India</h3>
             </div>
             
             <div className="mb-6">
@@ -66,10 +66,10 @@ export function DecisionGuideSection() {
           </div>
 
           {/* MBBS Abroad */}
-          <div className="bg-white rounded-xl shadow-lg border border-green-100 p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <span className="text-4xl">🌍</span>
-              <h3 className="text-2xl font-bold text-green-600">MBBS Abroad</h3>
+          <div className="bg-white rounded-xl shadow-lg border border-green-100 p-4 sm:p-6 lg:p-8">
+            <div className="flex items-center gap-3 mb-4 sm:mb-6">
+              <span className="text-2xl sm:text-4xl">🌍</span>
+              <h3 className="text-xl sm:text-2xl font-bold text-green-600">MBBS Abroad</h3>
             </div>
             
             <div className="mb-6">
@@ -119,7 +119,7 @@ export function DecisionGuideSection() {
         <div className="text-center">
           <Link 
             href="/contact" 
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl"
+            className="w-full sm:w-auto inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl"
           >
             Get a Personalised Recommendation →
           </Link>

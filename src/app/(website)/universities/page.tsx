@@ -8,7 +8,10 @@ import { clampText, extractCollectionData, pickUniversityImageSource } from '@/l
 export const metadata: Metadata = {
   title: 'Top Medical Universities Abroad',
   description: 'Explore top medical universities for MBBS abroad with AMW Career Point. Find WHO and MCI approved universities in Russia, Ukraine, Georgia, and more countries.',
+  alternates: { canonical: '/universities' },
 };
+
+export const revalidate = 60;
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -222,7 +225,38 @@ export default async function UniversitiesPage({ searchParams }: Readonly<Props>
               </h2>
             </div>
 
-            <div className="overflow-x-auto rounded-xl border border-[#DDD9D2]">
+            {/* Mobile: Card layout */}
+            <div className="space-y-3 sm:hidden">
+              {universities.slice(0, 8).map((uni: any) => (
+                <div key={`m-${uni._id}`} className="rounded-xl border border-[#DDD9D2] bg-white p-4">
+                  <div className="font-semibold text-[#0D1B3E] text-sm mb-1 line-clamp-2">{uni.name}</div>
+                  {uni.accreditation && <div className="text-[11px] text-[#4A4742] truncate mb-2">{uni.accreditation}</div>}
+                  <div className="grid grid-cols-3 gap-2 text-center mb-3">
+                    <div className="rounded-lg bg-[#F9F8F6] px-2 py-1.5">
+                      <div className="text-[10px] uppercase text-[#4A4742]">Country</div>
+                      <div className="text-[12px] font-semibold text-[#0D1B3E] truncate">{uni.country?.name || '—'}</div>
+                    </div>
+                    <div className="rounded-lg bg-[#F9F8F6] px-2 py-1.5">
+                      <div className="text-[10px] uppercase text-[#4A4742]">Fees/Yr</div>
+                      <div className="text-[12px] font-semibold text-[#F26419] truncate">{uni.annualFees || '—'}</div>
+                    </div>
+                    <div className="rounded-lg bg-[#F9F8F6] px-2 py-1.5">
+                      <div className="text-[10px] uppercase text-[#4A4742]">Duration</div>
+                      <div className="text-[12px] font-semibold text-[#0D1B3E] truncate">{uni.courseDuration || '—'}</div>
+                    </div>
+                  </div>
+                  <Link
+                    href={`/universities/${uni.slug}`}
+                    className="block w-full text-center rounded-full border border-[#F26419] text-[#F26419] py-2 text-[12px] font-semibold hover:bg-[#F26419] hover:text-white transition-colors"
+                  >
+                    View →
+                  </Link>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop: Table layout */}
+            <div className="hidden sm:block overflow-x-auto rounded-xl border border-[#DDD9D2]">
               <table className="w-full bg-white text-[13px]">
                 <thead>
                   <tr className="bg-[#0D1B3E] text-white">

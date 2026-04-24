@@ -44,23 +44,23 @@ export function FeeComparisonSection() {
   ];
 
   return (
-    <section className="py-20 bg-white">
+    <section className="py-10 sm:py-16 lg:py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
+        <div className="text-center mb-8 sm:mb-12 lg:mb-16">
           <div className="inline-flex items-center gap-2 bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full font-semibold mb-4">
             <span>💰</span>
             Fee Comparison
           </div>
-          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+          <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
             Compare MBBS Fees Worldwide
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-3xl mx-auto">
             Make an informed decision by comparing total fees, living costs, and other factors 
             across different countries for MBBS education.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {feeComparison.map((item, index) => (
             <div key={index} className={`relative bg-white rounded-2xl shadow-lg border-2 hover:shadow-xl transition-shadow ${item.recommended ? 'border-blue-500' : 'border-gray-200'}`}>
               
@@ -74,14 +74,14 @@ export function FeeComparisonSection() {
               )}
 
               {/* Header */}
-              <div className={`bg-gradient-to-r ${item.color} p-6 text-white rounded-t-2xl`}>
-                <h3 className="text-2xl font-bold mb-2">{item.country}</h3>
-                <div className="text-3xl font-bold">{item.totalFees}</div>
+              <div className={`bg-gradient-to-r ${item.color} p-4 sm:p-6 text-white rounded-t-2xl`}>
+                <h3 className="text-lg sm:text-2xl font-bold mb-1 sm:mb-2">{item.country}</h3>
+                <div className="text-xl sm:text-3xl font-bold">{item.totalFees}</div>
                 <div className="text-sm opacity-90">Total Cost ({item.duration})</div>
               </div>
 
               {/* Content */}
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 {/* Fee Breakdown */}
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between items-center py-2 border-b border-gray-100">
@@ -134,9 +134,9 @@ export function FeeComparisonSection() {
         </div>
 
         {/* Bottom Section */}
-        <div className="mt-16 text-center">
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 border border-blue-100">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
+        <div className="mt-10 sm:mt-16 text-center">
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-4 sm:p-6 lg:p-8 border border-blue-100">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">
               Need Help Choosing the Right Option?
             </h3>
             <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
@@ -144,11 +144,11 @@ export function FeeComparisonSection() {
               to recommend the most suitable country and university for your MBBS journey.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-6 sm:mb-8">
+              <button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3 rounded-xl font-semibold">
                 Get Personalized Fee Analysis
               </button>
-              <button className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-8 py-3 rounded-xl font-semibold transition-colors">
+              <button className="w-full sm:w-auto border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-6 sm:px-8 py-3 rounded-xl font-semibold transition-colors">
                 Call: +91 98765 43210
               </button>
             </div>

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { api, adminApi } from "./api";
 
 // ─── FRONTEND ─────────────────────────────────────────────────
@@ -6,10 +7,10 @@ export const getUniversities = async (params = {}) => {
   return res.data;
 };
 
-export const getUniversityBySlug = async (slug: string) => {
+export const getUniversityBySlug = cache(async (slug: string) => {
   const res = await api.get(`/universities/${slug}`);
   return res.data;
-};
+});
 
 // ─── ADMIN PANEL ──────────────────────────────────────────────
 export const adminGetUniversities = async (params = {}) => {

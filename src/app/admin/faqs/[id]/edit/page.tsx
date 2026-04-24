@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import FaqForm from '@/components/admin/FaqForm';
-import { adminGetFaqs } from '@/lib/faqs';
+import { getFaqById } from '@/lib/faqs';
 
 export default function EditFaqPage() {
   const { id } = useParams();
@@ -13,10 +13,9 @@ export default function EditFaqPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await adminGetFaqs();
-        const items = Array.isArray(res.data) ? res.data : res.data?.faqs || res.faqs || [];
-        const faq = items.find((f: Record<string, unknown>) => f._id === id);
-        if (faq) setData(faq);
+        const res = await getFaqById(id as string);
+        const faq = res.data || res;
+        if (faq?._id) setData(faq);
       } catch {
         // silent
       }

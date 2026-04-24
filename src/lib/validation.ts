@@ -142,7 +142,7 @@ export function validateCountryForm(form: {
   if (form.medium.length > L.medium.max) errors.push({ field: 'medium', message: `Medium must not exceed ${L.medium.max} characters` });
   if (form.livingCost.length > L.livingCost.max) errors.push({ field: 'livingCost', message: `Living cost must not exceed ${L.livingCost.max} characters` });
 
-  const activeFeatures = form.features.filter((item) => item.title.trim() || item.description.trim() || item.icon.trim());
+  const activeFeatures = form.features.filter((item) => item.title.trim() || item.description.trim());
   if (activeFeatures.length > L.features.maxItems) {
     errors.push({ field: 'features', message: `Maximum ${L.features.maxItems} feature cards allowed` });
   }
@@ -170,7 +170,7 @@ export function validateCountryForm(form: {
   }
 
   const activeStudentLifeCards = form.studentLife.cards.filter(
-    (item) => item.title.trim() || item.description.trim() || item.icon.trim()
+    (item) => item.title.trim() || item.description.trim()
   );
   if (activeStudentLifeCards.length > L.studentLife.cardsMax) {
     errors.push({ field: 'studentLife.cards', message: `Maximum ${L.studentLife.cardsMax} student life cards allowed` });
@@ -214,7 +214,7 @@ export function validateCountryForm(form: {
   }
 
   const activeProgressItems = form.supportExperience.progressItems.filter(
-    (item) => item.label.trim() || item.status.trim()
+    (item) => item.label.trim()
   );
   if (activeProgressItems.length > L.supportExperience.progressItemsMax) {
     errors.push({ field: 'supportExperience.progressItems', message: `Maximum ${L.supportExperience.progressItemsMax} support progress items allowed` });

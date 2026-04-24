@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { createFaq, updateFaq } from '@/lib/faqs';
 import { handleApiError } from '@/lib/handleApiError';
+import { revalidateFaqPages } from '@/lib/server/revalidate';
 
 interface FaqFormProps {
   initialData?: Record<string, unknown>;
@@ -15,8 +16,9 @@ const emptyForm = {
   question: '',
   answer: '',
   page: 'home',
-  order: 0,
-  isActive: true,
+  pageSlug: '',
+  sortOrder: 0,
+  status: 'active' as 'active' | 'inactive',
 };
 
 export default function FaqForm({ initialData, isEdit }: FaqFormProps) {
@@ -27,14 +29,16 @@ export default function FaqForm({ initialData, isEdit }: FaqFormProps) {
 
   useEffect(() => {
     if (initialData) {
+      const validPages = ['home', 'contact', 'general', 'country', 'university'];
       setForm({
         question: (initialData.question as string) || '',
         answer: (initialData.answer as string) || '',
-        page: ['home', 'contact', 'general'].includes((initialData.page as string) || '')
+        page: validPages.includes((initialData.page as string) || '')
           ? (initialData.page as string)
           : 'general',
-        order: (initialData.order as number) ?? 0,
-        isActive: initialData.isActive !== false,
+        pageSlug: (initialData.pageSlug as string) || '',
+        sortOrder: (initialData.sortOrder as number) ?? (initialData.order as number) ?? 0,
+        status: initialData.status === 'inactive' ? 'inactive' : 'active',
       });
     }
   }, [initialData]);
@@ -56,9 +60,9 @@ export default function FaqForm({ initialData, isEdit }: FaqFormProps) {
         question: form.question.trim(),
         answer: form.answer.trim(),
         page: form.page,
-        order: form.order,
-        isActive: form.isActive,
-        pageSlug: null,
+        pageSlug: (form.page === 'country' || form.page === 'university') ? form.pageSlug.trim() || null : null,
+        sortOrder: form.sortOrder,
+        status: form.status,
       };
 
       if (isEdit && initialData?._id) {
@@ -66,6 +70,7 @@ export default function FaqForm({ initialData, isEdit }: FaqFormProps) {
       } else {
         await createFaq(payload);
       }
+      await revalidateFaqPages(form.page, form.pageSlug || undefined).catch(() => {});
       router.push('/admin/faqs');
     } catch (err) {
       setError(handleApiError(err));
@@ -135,32 +140,53 @@ export default function FaqForm({ initialData, isEdit }: FaqFormProps) {
               </label>
               <select
                 value={form.page}
-                onChange={(e) => updateField('page', e.target.value)}
+                onChange={(e) => { updateField('page', e.target.value); if (e.target.value !== 'country' && e.target.value !== 'university') updateField('pageSlug', ''); }}
                 className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419]/30 focus:border-[#F26419] outline-none"
               >
                 <option value="home">Home</option>
                 <option value="contact">Contact</option>
                 <option value="general">General</option>
+                <option value="country">Country</option>
+                <option value="university">University</option>
               </select>
             </div>
+
+            {/* Page Slug — shown for country/university */}
+            {(form.page === 'country' || form.page === 'university') && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Page Slug <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={form.pageSlug}
+                  onChange={(e) => updateField('pageSlug', e.target.value)}
+                  placeholder={form.page === 'country' ? 'e.g., russia' : 'e.g., kazan-federal-university'}
+                  className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419]/30 focus:border-[#F26419] outline-none"
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  Enter the slug of the {form.page} this FAQ belongs to
+                </p>
+              </div>
+            )}
 
             {/* Order + Status */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Order</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Sort Order</label>
                 <input
                   type="number"
                   min={0}
-                  value={form.order}
-                  onChange={(e) => updateField('order', parseInt(e.target.value) || 0)}
+                  value={form.sortOrder}
+                  onChange={(e) => updateField('sortOrder', parseInt(e.target.value) || 0)}
                   className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419]/30 focus:border-[#F26419] outline-none"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                 <select
-                  value={form.isActive ? 'active' : 'inactive'}
-                  onChange={(e) => updateField('isActive', e.target.value === 'active')}
+                  value={form.status}
+                  onChange={(e) => updateField('status', e.target.value)}
                   className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419]/30 focus:border-[#F26419] outline-none"
                 >
                   <option value="active">Active</option>

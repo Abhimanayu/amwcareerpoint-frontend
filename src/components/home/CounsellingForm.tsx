@@ -25,9 +25,10 @@ export function CounsellingForm() {
         name: formData.fullName,
         email: formData.emailAddress,
         phone: formData.phoneNo,
-        neetScore: formData.neetScore,
-        preferredCountry: formData.preference,
-        message: formData.message,
+        interestedCountry: formData.preference,
+        message: formData.neetScore
+          ? `NEET Score: ${formData.neetScore}. ${formData.message}`.trim()
+          : formData.message,
         source: 'counselling-form',
       });
       setSubmitted(true);

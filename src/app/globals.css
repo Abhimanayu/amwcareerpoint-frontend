@@ -31,6 +31,11 @@ body {
   overflow-x: hidden;
 }
 
+/* Root overflow guard — prevents any child from widening the viewport */
+html {
+  overflow-x: hidden;
+}
+
 .font-heading {
   font-family: var(--font-heading);
 }
@@ -38,12 +43,25 @@ body {
 /* ══════════ GLOBAL UI PROTECTION ══════════ */
 
 /* Prevent images from busting layout */
-img, video {
+img,
+video {
   max-width: 100%;
 }
 
 /* Prevent long words / URLs from overflowing containers */
-h1, h2, h3, h4, h5, h6, p, li, td, th, span, a, label {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+li,
+td,
+th,
+span,
+a,
+label {
   overflow-wrap: break-word;
   word-break: break-word;
 }
@@ -53,6 +71,7 @@ h1, h2, h3, h4, h5, h6, p, li, td, th, span, a, label {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }

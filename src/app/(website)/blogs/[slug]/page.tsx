@@ -12,6 +12,8 @@ type Props = {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+export const revalidate = 60;
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
@@ -253,7 +255,7 @@ export default async function BlogPostPage({ params }: Props) {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
               {relatedPosts.map((rp: any) => {
                 const rpCategory = rp.category?.name || rp.category || '';
                 const rpDate = rp.createdAt

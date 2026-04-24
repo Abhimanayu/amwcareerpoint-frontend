@@ -96,7 +96,7 @@ function normalizeFaqs(payload: unknown): PublicFaqItem[] {
 }
 
 const fetchFaqs = cache(async (page: string, pageSlug?: string) => {
-  const searchParams = new URLSearchParams({ page });
+  const searchParams = new URLSearchParams({ faqPage: page });
 
   if (pageSlug) {
     searchParams.set('pageSlug', pageSlug);

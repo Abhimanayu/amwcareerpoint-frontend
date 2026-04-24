@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { api, adminApi } from "./api";
 
 // ─── FRONTEND ─────────────────────────────────────────────────
@@ -6,10 +7,10 @@ export const getBlogs = async (params = {}) => {
   return res.data;
 };
 
-export const getBlogBySlug = async (slug: string) => {
+export const getBlogBySlug = cache(async (slug: string) => {
   const res = await api.get(`/blogs/${slug}`);
   return res.data;
-};
+});
 
 export const getBlogCategories = async () => {
   const res = await api.get("/blog-categories");

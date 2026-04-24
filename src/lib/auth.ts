@@ -27,6 +27,9 @@ export const refreshToken = async () => {
   const rt = localStorage.getItem("amw_refresh_token");
   const res = await api.post("/auth/refresh", { refreshToken: rt });
   localStorage.setItem("amw_token", res.data.data.token);
+  if (res.data.data.refreshToken) {
+    localStorage.setItem("amw_refresh_token", res.data.data.refreshToken);
+  }
   return res.data.data.token;
 };
 

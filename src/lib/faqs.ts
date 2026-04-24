@@ -2,12 +2,13 @@ import { api, adminApi } from "./api";
 
 // ─── FRONTEND ─────────────────────────────────────────────────
 export const getFaqs = async (params: { page: string; pageSlug?: string }) => {
-  const res = await api.get("/faqs", { params });
+  const { page, ...rest } = params;
+  const res = await api.get("/faqs", { params: { faqPage: page, ...rest } });
   return res.data;
 };
 
 export const getFaqById = async (id: string) => {
-  const res = await api.get(`/faqs/${id}`);
+  const res = await adminApi.get(`/faqs/${id}`);
   return res.data;
 };
 
@@ -32,7 +33,7 @@ export const deleteFaq = async (id: string) => {
   return res.data;
 };
 
-export const reorderFaqs = async (items: { id: string; order: number }[]) => {
+export const reorderFaqs = async (items: { id: string; sortOrder: number }[]) => {
   const res = await adminApi.put("/faqs/reorder", { items });
   return res.data;
 };

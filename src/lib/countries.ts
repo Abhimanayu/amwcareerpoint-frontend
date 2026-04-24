@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { api, adminApi } from "./api";
 
 // ─── FRONTEND ─────────────────────────────────────────────────
@@ -6,10 +7,10 @@ export const getCountries = async (params = {}) => {
   return res.data;
 };
 
-export const getCountryBySlug = async (slug: string) => {
+export const getCountryBySlug = cache(async (slug: string) => {
   const res = await api.get(`/countries/${slug}`);
   return res.data;
-};
+});
 
 // ─── ADMIN PANEL ──────────────────────────────────────────────
 export const adminGetCountries = async (params = {}) => {

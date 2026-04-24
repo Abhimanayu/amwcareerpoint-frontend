@@ -8,6 +8,7 @@ export const revalidate = 60;
 export const metadata: Metadata = {
   title: 'Contact Us',
   description: 'Get in touch with AMW Career Point for expert MBBS abroad consultancy. Contact us for free consultation and guidance.',
+  alternates: { canonical: '/contact' },
 };
 
 export default async function ContactPage() {

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getUniversityBySlug, getUniversities } from '@/lib/universities';
 import { getCountryBySlug } from '@/lib/countries';
 import { extractCollectionData, pickUniversityImageSource, resolveMediaUrl } from '@/lib/utils';
+import { getPublicFaqs } from '@/lib/server/faqs';
 import UniversityDetailClient from './UniversityDetailClient';
 
 type Props = {
@@ -10,6 +11,8 @@ type Props = {
 };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
+export const revalidate = 60;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -64,22 +67,24 @@ export default async function UniversityDetailPage({ params }: Props) {
     };
   }
 
-  // Fetch country data for admission process
-  try {
-    if (university.country?.slug) {
-      const cRes = await getCountryBySlug(university.country.slug);
-      countryData = cRes.data || cRes;
-    }
-  } catch { /* ok */ }
+  // Parallelize independent data fetches
+  const [countryResult, relatedResult, apiFaqs] = await Promise.all([
+    university.country?.slug
+      ? getCountryBySlug(university.country.slug).then((r) => r.data || r).catch(() => null)
+      : null,
+    university.country?._id
+      ? getUniversities({ country: university.country._id, limit: 6 })
+          .then((r) => {
+            const all = extractCollectionData<any>(r, ['universities']);
+            return all.filter((u: any) => u._id !== university._id).slice(0, 3);
+          })
+          .catch(() => [])
+      : [],
+    getPublicFaqs('university', { pageSlug: slug }).catch(() => []),
+  ]);
 
-  // Fetch related universities from same country
-  try {
-    if (university.country?._id) {
-      const uRes = await getUniversities({ country: university.country._id, limit: 6 });
-      const all = extractCollectionData<any>(uRes, ['universities']);
-      relatedUniversities = all.filter((u: any) => u._id !== university._id).slice(0, 3);
-    }
-  } catch { /* ok */ }
+  countryData = countryResult;
+  relatedUniversities = relatedResult;
 
   return (
     <>
@@ -91,6 +96,7 @@ export default async function UniversityDetailPage({ params }: Props) {
         university={university}
         countryData={countryData}
         relatedUniversities={relatedUniversities}
+        apiFaqs={apiFaqs}
       />
     </>
   );
