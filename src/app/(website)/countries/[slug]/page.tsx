@@ -3,11 +3,10 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { getCountryBySlug, getCountries } from '@/lib/countries';
-import { getUniversities } from '@/lib/universities';
+import { getUniversities, getUniversityBySlug } from '@/lib/universities';
 import { CounsellingForm } from '@/components/home/CounsellingForm';
 import { extractCollectionData, resolveMediaUrl } from '@/lib/utils';
 import { CountryFAQSection } from './CountryFAQSection';
-import { getPublicFaqs } from '@/lib/server/faqs';
 
 export const revalidate = 60;
 
@@ -86,12 +85,67 @@ type UniversitySummary = {
   logo?: string;
   annualFees?: string;
   hostelFees?: string;
+  hostelFee?: string;
   courseDuration?: string;
   medium?: string;
   accreditation?: string;
   description?: string;
   recognition?: string[];
 };
+
+function getUniversityHostelFee(university: UniversitySummary) {
+  return university.hostelFees || university.hostelFee || '';
+}
+
+function getHostelFeeLabel(university: UniversitySummary) {
+  const fee = getUniversityHostelFee(university);
+  if (fee) {
+    return { value: fee, isMissing: false };
+  }
+
+  return { value: 'Ask counsellor', isMissing: true };
+}
+
+async function enrichUniversityHostelFees(universities: UniversitySummary[]) {
+  const needsLookup = universities.filter(
+    (university) => !getUniversityHostelFee(university) && Boolean(university.slug)
+  );
+
+  if (needsLookup.length === 0) {
+    return universities;
+  }
+
+  const detailBySlug = new Map<string, string>();
+
+  await Promise.all(
+    needsLookup.map(async (university) => {
+      const slug = university.slug;
+      if (!slug) return;
+
+      const response = await getUniversityBySlug(slug).catch(() => null);
+      const detail = response?.data || response;
+      if (!detail || typeof detail !== 'object') return;
+
+      const hostelFee =
+        (detail as { hostelFees?: string; hostelFee?: string }).hostelFees ||
+        (detail as { hostelFees?: string; hostelFee?: string }).hostelFee ||
+        '';
+
+      if (hostelFee) {
+        detailBySlug.set(slug, hostelFee);
+      }
+    })
+  );
+
+  return universities.map((university) => {
+    if (getUniversityHostelFee(university) || !university.slug) {
+      return university;
+    }
+
+    const hostelFee = detailBySlug.get(university.slug);
+    return hostelFee ? { ...university, hostelFees: hostelFee } : university;
+  });
+}
 
 const CARD_ACCENTS = [
   'from-[#F26419]/16 to-[#F26419]/6',
@@ -213,13 +267,14 @@ export default async function CountryPage({ params }: Props) {
   const flagImage = resolveMediaUrl(country.flagImage);
 
   // Parallelize independent data fetches
-  const [universityRes, countriesRes, apiFaqs] = await Promise.all([
+  const [universityRes, countriesRes] = await Promise.all([
     countryId ? getUniversities({ country: countryId, limit: 12 }).catch(() => null) : null,
     getCountries({ limit: 12 }).catch(() => null),
-    getPublicFaqs('country', { pageSlug: slug }).catch(() => []),
   ]);
 
-  const universities = extractCollectionData<UniversitySummary>(universityRes, ['universities']);
+  const universities = await enrichUniversityHostelFees(
+    extractCollectionData<UniversitySummary>(universityRes, ['universities'])
+  );
   const otherCountries = extractCollectionData<CountrySummary>(countriesRes, ['countries'])
     .filter((item) => item.slug !== slug)
     .slice(0, 5);
@@ -243,9 +298,7 @@ export default async function CountryPage({ params }: Props) {
   const countryFaqs = (Array.isArray(country.faqs) ? country.faqs : []).filter(
     (faq: CountryFaq): faq is Required<CountryFaq> => Boolean(faq?.question && faq?.answer)
   );
-  const faqs = apiFaqs.length > 0
-    ? [...apiFaqs, ...countryFaqs.filter((cf: { question: string }) => !apiFaqs.some((af) => af.question === cf.question))]
-    : countryFaqs;
+  const faqs = countryFaqs;
   const studentLife =
     country.studentLife && typeof country.studentLife === 'object'
       ? (country.studentLife as StudentLife)
@@ -367,12 +420,13 @@ export default async function CountryPage({ params }: Props) {
               alt={country.name}
               fill
               priority
-              className="object-cover object-center opacity-[0.42] sm:opacity-[0.48]"
+              className="object-cover object-center scale-[1.03] opacity-[0.62] saturate-110 contrast-110 sm:opacity-[0.68]"
               fallbackElement={<div className="absolute inset-0 bg-gradient-to-br from-[#0D1B3E]/10 to-[#F26419]/5" />}
             />
-            {/* Single subtle overlay for text readability */}
-            <div className="absolute inset-0 bg-gradient-to-b from-[#FFF9F1]/40 via-transparent to-[#F8F4EC]/50" />
-            <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#0D1B3E]/18 to-transparent" />
+            {/* Keep left side clearer for text while preserving richer image detail */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#FFF9F1]/88 via-[#FFF9F1]/46 to-[#F8F4EC]/14" />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#FFF9F1]/28 via-transparent to-[#F8F4EC]/36" />
+            <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#0D1B3E]/14 to-transparent" />
           </div>
         )}
 
@@ -546,6 +600,7 @@ export default async function CountryPage({ params }: Props) {
             <div className="grid gap-5 lg:grid-cols-2">
               {universities.slice(0, 6).map((university) => {
                 const imageSrc = pickImageSource(university);
+                const hostelFee = getHostelFeeLabel(university);
 
                 return (
                   <article
@@ -600,8 +655,8 @@ export default async function CountryPage({ params }: Props) {
                           </div>
                           <div className="rounded-xl border border-[#EFE6D8] bg-white px-3 py-2.5">
                             <div className="text-[10px] uppercase tracking-[0.16em] text-[#8A8175]">Hostel</div>
-                            <div className="mt-1 font-semibold text-[#0D1B3E]">
-                              {university.hostelFees || 'Ask counsellor'}
+                            <div className={`mt-1 font-semibold ${hostelFee.isMissing ? 'text-[#B45309]' : 'text-[#0D1B3E]'}`}>
+                              {hostelFee.value}
                             </div>
                           </div>
                           <div className="rounded-xl border border-[#EFE6D8] bg-white px-3 py-2.5">
@@ -672,15 +727,29 @@ export default async function CountryPage({ params }: Props) {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#EFE6D8] bg-white">
-                  {universities.slice(0, 8).map((university) => (
-                    <tr key={university._id || university.slug || university.name} className="hover:bg-[#F8F4EC]">
-                      <td className="px-5 py-4 font-medium text-[#0D1B3E]">{university.name || 'University'}</td>
-                      <td className="px-5 py-4 text-[#4A4742]">{university.annualFees || country.feeRange || 'On request'}</td>
-                      <td className="px-5 py-4 text-[#4A4742]">{university.hostelFees || 'Ask counsellor'}</td>
-                      <td className="px-5 py-4 text-[#4A4742]">{university.courseDuration || country.duration || '6 years'}</td>
-                      <td className="px-5 py-4 text-[#4A4742]">{university.medium || 'English'}</td>
-                    </tr>
-                  ))}
+                  {universities.slice(0, 8).map((university) => {
+                    const hostelFee = getHostelFeeLabel(university);
+
+                    return (
+                      <tr key={university._id || university.slug || university.name} className="hover:bg-[#F8F4EC]">
+                        <td className="px-5 py-4 font-medium text-[#0D1B3E]">{university.name || 'University'}</td>
+                        <td className="px-5 py-4 text-[#4A4742]">{university.annualFees || country.feeRange || 'On request'}</td>
+                        <td className="px-5 py-4">
+                          <span
+                            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
+                              hostelFee.isMissing
+                                ? 'bg-[#FFF7ED] text-[#B45309] border border-[#FDE68A]'
+                                : 'bg-[#ECFDF3] text-[#047857] border border-[#A7F3D0]'
+                            }`}
+                          >
+                            {hostelFee.value}
+                          </span>
+                        </td>
+                        <td className="px-5 py-4 text-[#4A4742]">{university.courseDuration || country.duration || '6 years'}</td>
+                        <td className="px-5 py-4 text-[#4A4742]">{university.medium || 'English'}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

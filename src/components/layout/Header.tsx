@@ -29,6 +29,8 @@ const staticMenuItems: MenuItem[] = [
   { href: '#', label: 'Login' },
 ];
 
+const HEADER_COUNTRY_LIMIT = 5;
+
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -39,12 +41,13 @@ export function Header() {
 
   // Fetch countries for MBBS Abroad dropdown
   useEffect(() => {
-    getCountries({ limit: 20 })
+    getCountries({ limit: HEADER_COUNTRY_LIMIT })
       .then((res) => {
         const countries = extractCollectionData<any>(res, ['countries']);
         if (countries.length > 0) {
           const countryLinks: DropdownItem[] = countries
             .filter((c: any) => c.slug && c.name)
+            .slice(0, HEADER_COUNTRY_LIMIT)
             .map((c: any) => ({ href: `/countries/${c.slug}`, label: c.name }));
           setMenuItems((prev) =>
             prev.map((item) =>
@@ -118,27 +121,28 @@ export function Header() {
                     {openDropdown === item.label && (
                       <div className="absolute left-0 top-full pt-2 z-50">
                         <div className="bg-white rounded-xl border border-gray-200 shadow-lg py-2 min-w-[200px] max-h-[70vh] overflow-y-auto">
-                          <Link
-                            href={item.href}
-                            onClick={() => setOpenDropdown(null)}
-                            className="block px-4 py-2 text-[13px] font-semibold text-[#F26419] hover:bg-gray-50 border-b border-gray-100 mb-1"
-                          >
-                            View All Countries →
-                          </Link>
                           {item.dropdown.length > 0 ? (
                             item.dropdown.map((sub) => (
                               <Link
                                 key={sub.href}
                                 href={sub.href}
                                 onClick={() => setOpenDropdown(null)}
-                                className="block px-4 py-2 text-[13px] font-medium text-[#0D1B3E] hover:bg-gray-50 hover:text-[#F26419] transition-colors"
+                                className="flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-[#0D1B3E] hover:bg-gray-50 hover:text-[#F26419] transition-colors"
                               >
-                                {sub.label}
+                                <span aria-hidden="true" className="h-1.5 w-1.5 flex-shrink-0 bg-current" />
+                                <span>{sub.label}</span>
                               </Link>
                             ))
                           ) : (
                             <div className="px-4 py-2 text-xs text-gray-400">Loading countries…</div>
                           )}
+                          <Link
+                            href={item.href}
+                            onClick={() => setOpenDropdown(null)}
+                            className="block px-4 py-2 text-[13px] font-semibold text-[#F26419] hover:bg-gray-50 border-t border-gray-100 mt-1"
+                          >
+                            View All Countries →
+                          </Link>
                         </div>
                       </div>
                     )}
@@ -189,23 +193,24 @@ export function Header() {
                   </button>
                   {mobileExpanded === item.label && (
                     <div className="ml-3 border-l-2 border-[#F26419]/20 pl-3 space-y-0.5 mb-1">
-                      <Link
-                        href={item.href}
-                        onClick={() => { setIsMenuOpen(false); setMobileExpanded(null); }}
-                        className="block px-3 py-2 text-[13px] font-semibold text-[#F26419] hover:bg-gray-50 rounded-lg"
-                      >
-                        View All Countries →
-                      </Link>
                       {item.dropdown.map((sub) => (
                         <Link
                           key={sub.href}
                           href={sub.href}
                           onClick={() => { setIsMenuOpen(false); setMobileExpanded(null); }}
-                          className="block px-3 py-2 text-[13px] font-medium text-[#0D1B3E] hover:bg-gray-50 hover:text-[#F26419] rounded-lg"
+                          className="flex items-center gap-2 px-3 py-2 text-[13px] font-medium text-[#0D1B3E] hover:bg-gray-50 hover:text-[#F26419] rounded-lg"
                         >
-                          {sub.label}
+                          <span aria-hidden="true" className="h-1.5 w-1.5 flex-shrink-0 bg-current" />
+                          <span>{sub.label}</span>
                         </Link>
                       ))}
+                      <Link
+                        href={item.href}
+                        onClick={() => { setIsMenuOpen(false); setMobileExpanded(null); }}
+                        className="block px-3 py-2 text-[13px] font-semibold text-[#F26419] hover:bg-gray-50 rounded-lg border-t border-gray-100 mt-1"
+                      >
+                        View All Countries →
+                      </Link>
                     </div>
                   )}
                 </div>

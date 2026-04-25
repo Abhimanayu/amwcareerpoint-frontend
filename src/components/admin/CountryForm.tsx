@@ -429,7 +429,12 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
         medium: form.medium.trim(),
         livingCost: form.livingCost.trim(),
         highlights: form.highlights.map((item) => item.value).filter(Boolean),
-        faqs: form.faqs.filter((f) => f.question.trim()).map(({ question, answer }) => ({ question, answer })),
+        faqs: form.faqs
+          .map(({ question, answer }) => ({
+            question: question.trim(),
+            answer: answer.trim(),
+          }))
+          .filter((faq) => faq.question && faq.answer),
         studentLife: {
           eyebrow: form.studentLife.eyebrow.trim(),
           title: form.studentLife.title.trim(),

@@ -46,7 +46,7 @@ export const LIMITS = {
       supportCardSubtitleMax: 55,
     },
     highlights: { maxItems: 12, maxLen: 120 },
-    faqs: { maxItems: 12, questionMax: 200, answerMax: 1000 },
+    faqs: { maxItems: 12, questionMax: 300, answerMax: 2000 },
     eligibility: { maxItems: 15, maxLen: 200 },
     admissionProcess: { maxItems: 10, titleMax: 80, descMax: 450 },
     seoTitle: { max: 70 },
