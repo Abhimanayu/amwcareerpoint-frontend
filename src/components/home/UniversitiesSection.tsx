@@ -19,22 +19,27 @@ const fallbackUniversities = [
 ];
 
 export function UniversitiesSection() {
-  const [universities, setUniversities] = useState<any[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const [universities, setUniversities] = useState<any[]>(fallbackUniversities);
+  const [usingFallback, setUsingFallback] = useState(true);
 
   useEffect(() => {
     getUniversities({ limit: 20 })
       .then((res) => {
         const items = extractCollectionData<any>(res, ['universities']);
-        if (items.length > 0) setUniversities(items);
+        if (items.length > 0) {
+          setUniversities(items);
+          setUsingFallback(false);
+        } else {
+          setUniversities(fallbackUniversities);
+          setUsingFallback(true);
+        }
       })
-      .catch(() => {})
-      .finally(() => setLoaded(true));
+      .catch(() => {
+        setUniversities(fallbackUniversities);
+        setUsingFallback(true);
+      });
   }, []);
 
-  const useFallback = loaded && universities.length === 0;
-
-  if (!loaded) return null;
   return (
     <section className="bg-[#F9F8F6] py-10 sm:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -57,8 +62,8 @@ export function UniversitiesSection() {
         {/* Image carousel */}
         <div className="px-4 sm:px-5">
           <Carousel slideClass="basis-full sm:basis-1/2 lg:basis-1/4 pl-3 sm:pl-4" dots={false}>
-            {useFallback ? fallbackUniversities.map((uni, i) => (
-              <div key={i} className="relative rounded-xl overflow-hidden group cursor-pointer aspect-[3/4] sm:aspect-[3/4] lg:aspect-[3/4]">
+            {usingFallback ? universities.map((uni) => (
+              <div key={`${uni.name}-${uni.country}`} className="relative rounded-xl overflow-hidden group cursor-pointer aspect-[3/4] sm:aspect-[3/4] lg:aspect-[3/4]">
                 <SafeImage 
                   src={uni.image} 
                   alt={uni.name} 

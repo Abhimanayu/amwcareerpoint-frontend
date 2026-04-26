@@ -3,27 +3,41 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import CountryForm from '@/components/admin/CountryForm';
-import { adminGetCountries } from '@/lib/countries';
+import { adminGetCountryById } from '@/lib/countries';
 
 export default function EditCountryPage() {
   const { id } = useParams();
+  const countryId = Array.isArray(id) ? id[0] : id;
   const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!countryId) {
+      return;
+    }
+
     const load = async () => {
       try {
-        const res = await adminGetCountries({ limit: 200 });
-        const countries = Array.isArray(res.data) ? res.data : res.data?.countries || res.countries || [];
-        const country = countries.find((c: Record<string, unknown>) => c._id === id);
-        if (country) setData(country);
+        const res = await adminGetCountryById(countryId);
+        const country = (res?.data || res) as Record<string, unknown> | null;
+        if (country && typeof country === 'object') {
+          setData(country);
+        }
       } catch {
         // silent
       }
       setLoading(false);
     };
     load();
-  }, [id]);
+  }, [countryId]);
+
+  if (!countryId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">Country not found</p>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

@@ -16,22 +16,27 @@ const fallbackBlogs = [
 ];
 
 export function BlogsSection() {
-  const [blogs, setBlogs] = useState<any[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const [blogs, setBlogs] = useState<any[]>(fallbackBlogs);
+  const [usingFallback, setUsingFallback] = useState(true);
 
   useEffect(() => {
     getBlogs({ limit: 6 })
       .then((res) => {
         const items = extractCollectionData<any>(res, ['blogs']);
-        if (items.length > 0) setBlogs(items);
+        if (items.length > 0) {
+          setBlogs(items);
+          setUsingFallback(false);
+        } else {
+          setBlogs(fallbackBlogs);
+          setUsingFallback(true);
+        }
       })
-      .catch(() => {})
-      .finally(() => setLoaded(true));
+      .catch(() => {
+        setBlogs(fallbackBlogs);
+        setUsingFallback(true);
+      });
   }, []);
 
-  const useFallback = loaded && blogs.length === 0;
-
-  if (!loaded) return null;
   return (
     <section className="py-16 sm:py-20 bg-bg-light">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -51,8 +56,8 @@ export function BlogsSection() {
         {/* Blog Carousel */}
         <div className="px-4 sm:px-5">
           <Carousel slideClass="basis-full sm:basis-1/2 lg:basis-1/3 pl-4 sm:pl-5">
-            {(useFallback ? fallbackBlogs : blogs).map((blog: any) => {
-              const imageSource = useFallback ? (blog.image || '/blogs/russia-universities-nmc.jpg') : (pickBlogImageSource(blog) || '/blogs/russia-universities-nmc.jpg');
+            {blogs.map((blog: any) => {
+              const imageSource = usingFallback ? (blog.image || '/blogs/russia-universities-nmc.jpg') : (pickBlogImageSource(blog) || '/blogs/russia-universities-nmc.jpg');
 
               return (
               <Link

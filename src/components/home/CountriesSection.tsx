@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Carousel } from '@/components/ui/Carousel';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { getCountries } from '@/lib/countries';
-import { extractCollectionData, resolveMediaUrl } from '@/lib/utils';
+import { extractCollectionData } from '@/lib/utils';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -19,26 +19,28 @@ const fallbackCountries = [
 ];
 
 export function CountriesSection() {
-  const [countries, setCountries] = useState<any[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const [countries, setCountries] = useState<any[]>(fallbackCountries);
+  const [usingFallback, setUsingFallback] = useState(true);
 
   useEffect(() => {
     getCountries({ limit: 10 })
       .then((res) => {
         const items = extractCollectionData<any>(res, ['countries']);
-        if (items.length > 0) setCountries(items);
-        else setCountries([]);
+        if (items.length > 0) {
+          setCountries(items);
+          setUsingFallback(false);
+        } else {
+          setCountries(fallbackCountries);
+          setUsingFallback(true);
+        }
       })
-      .catch(() => setCountries([]))
-      .finally(() => setLoaded(true));
+      .catch(() => {
+        setCountries(fallbackCountries);
+        setUsingFallback(true);
+      });
   }, []);
 
-  // Use API data if available, otherwise show fallback
-  const useFallback = loaded && countries.length === 0;
-  const displayCountries = useFallback ? fallbackCountries : [];
-  const countLabel = !useFallback ? countries.length : fallbackCountries.length;
-
-  if (!loaded) return null; // or skeleton
+  const countLabel = countries.length;
 
   return (
     <section className="bg-white py-10 sm:py-14">
@@ -51,8 +53,8 @@ export function CountriesSection() {
 
         <div className="px-4 sm:px-5">
           <Carousel slideClass="basis-full sm:basis-1/2 lg:basis-1/3 pl-4 sm:pl-5">
-            {useFallback ? displayCountries.map((c: any, i: number) => (
-              <div key={i} className="rounded-xl border border-border bg-white overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
+            {usingFallback ? countries.map((c: any) => (
+              <div key={`${c.code}-${c.name}`} className="rounded-xl border border-border bg-white overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
                 <div className="bg-navy px-4 py-3 text-white">
                   <div className="flex items-center gap-2.5">
                     <SafeImage 
@@ -83,8 +85,8 @@ export function CountriesSection() {
                     </div>
                   </div>
                   <ul className="space-y-1 mb-3">
-                    {c.highlights.map((h: string, j: number) => (
-                      <li key={j} className="flex items-center gap-2 text-[13px] text-text-body">
+                    {c.highlights.map((h: string) => (
+                      <li key={`${c.code}-${h}`} className="flex items-center gap-2 text-[13px] text-text-body">
                         <span className="w-1.5 h-1.5 rounded-full bg-orange flex-shrink-0" />
                         {h}
                       </li>
@@ -177,8 +179,8 @@ export function CountriesSection() {
                   {/* Highlights */}
                   {c.highlights && c.highlights.length > 0 && (
                   <ul className="space-y-1 mb-3">
-                    {c.highlights.slice(0, 4).map((h: string, j: number) => (
-                      <li key={j} className="flex items-center gap-2 text-[13px] text-text-body">
+                    {c.highlights.slice(0, 4).map((h: string) => (
+                      <li key={`${c.slug || c.name}-${h}`} className="flex items-center gap-2 text-[13px] text-text-body">
                         <span className="w-1.5 h-1.5 rounded-full bg-orange flex-shrink-0" />
                         {h}
                       </li>
