@@ -135,15 +135,17 @@ export const getCountries = async (params = {}) => {
     return requestPromise;
   }
 
+  const inflightLimit = networkLimit ?? requestedLimit ?? CLIENT_COUNTRIES_SHARED_MIN_LIMIT;
+
   clientCountriesInflight = {
-    limit: networkLimit,
+    limit: inflightLimit,
     promise: requestPromise,
   };
 
   try {
     const payload = await requestPromise;
     const countryCount = readCountriesArray(payload).length;
-    const storedLimit = Math.max(networkLimit ?? requestedLimit, countryCount);
+    const storedLimit = Math.max(inflightLimit, countryCount);
 
     clientCountriesCache = {
       limit: storedLimit,
