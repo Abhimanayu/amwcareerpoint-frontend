@@ -3,7 +3,71 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import CountryForm from '@/components/admin/CountryForm';
-import { adminGetCountryById } from '@/lib/countries';
+import { adminGetCountryById, getCountryBySlugFresh } from '@/lib/countries';
+
+const COUNTRY_NESTED_KEYS = [
+  'studentLife',
+  'documentsChecklist',
+  'supportExperience',
+  'features',
+  'eligibility',
+  'admissionProcess',
+  'faqs',
+  'seo',
+] as const;
+
+function extractCountryRecord(payload: unknown): Record<string, unknown> | null {
+  if (!payload || typeof payload !== 'object') {
+    return null;
+  }
+
+  const root = payload as Record<string, unknown>;
+
+  if (root.data && typeof root.data === 'object') {
+    const data = root.data as Record<string, unknown>;
+    if (data.country && typeof data.country === 'object') {
+      return data.country as Record<string, unknown>;
+    }
+
+    return data;
+  }
+
+  if (root.country && typeof root.country === 'object') {
+    return root.country as Record<string, unknown>;
+  }
+
+  return root;
+}
+
+function hasMeaningfulNestedValue(value: unknown) {
+  if (Array.isArray(value)) {
+    return value.length > 0;
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.keys(value as Record<string, unknown>).length > 0;
+  }
+
+  return false;
+}
+
+function mergeCountryForEdit(
+  adminCountry: Record<string, unknown>,
+  detailCountry: Record<string, unknown>
+) {
+  const merged = {
+    ...detailCountry,
+    ...adminCountry,
+  } as Record<string, unknown>;
+
+  for (const key of COUNTRY_NESTED_KEYS) {
+    if (!hasMeaningfulNestedValue(adminCountry[key]) && hasMeaningfulNestedValue(detailCountry[key])) {
+      merged[key] = detailCountry[key];
+    }
+  }
+
+  return merged;
+}
 
 export default function EditCountryPage() {
   const { id } = useParams();
@@ -19,9 +83,20 @@ export default function EditCountryPage() {
     const load = async () => {
       try {
         const res = await adminGetCountryById(countryId);
-        const country = (res?.data || res) as Record<string, unknown> | null;
+        const country = extractCountryRecord(res);
         if (country && typeof country === 'object') {
-          setData(country);
+          const slug = typeof country.slug === 'string' ? country.slug : '';
+          if (slug) {
+            const detailRes = await getCountryBySlugFresh(slug).catch(() => null);
+            const detailCountry = extractCountryRecord(detailRes);
+            if (detailCountry) {
+              setData(mergeCountryForEdit(country, detailCountry));
+            } else {
+              setData(country);
+            }
+          } else {
+            setData(country);
+          }
         }
       } catch {
         // silent

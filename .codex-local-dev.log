@@ -1,0 +1,19 @@
+
+> amw-career-point-frontend@0.1.0 dev
+> next dev --webpack
+
+⚠ Port 3000 is in use by process 16980, using available port 3001 instead.
+▲ Next.js 16.2.2 (webpack)
+- Local:         http://localhost:3001
+- Network:       http://10.171.112.138:3001
+- Environments: .env.local
+✓ Ready in 621ms
+⨯ Another next dev server is already running.
+
+- Local:        http://localhost:3000
+- PID:          16980
+- Dir:          C:\Users\Abhimanyu Singh\Desktop\amwcareerpoint-frontend
+- Log:          .next\dev\logs\next-development.log
+
+Run taskkill /PID 16980 /F to stop it.
+[?25h

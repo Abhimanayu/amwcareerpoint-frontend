@@ -164,6 +164,11 @@ export const getCountryBySlug = cache(async (slug: string) => {
   return res.data;
 });
 
+export const getCountryBySlugFresh = async (slug: string) => {
+  const res = await api.get(`/countries/${slug}`);
+  return res.data;
+};
+
 // ─── ADMIN PANEL ──────────────────────────────────────────────
 export const adminGetCountries = async (params = {}) => {
   const res = await adminApi.get("/countries", { params: { status: "all", ...params } });
