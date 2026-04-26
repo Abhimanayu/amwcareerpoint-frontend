@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getCurrentYear } from '@/lib/utils';
+import { getCountrySlug } from '@/lib/slugUtils';
 
 export function Footer() {
   const year = getCurrentYear();
@@ -46,9 +47,9 @@ export function Footer() {
           <div>
             <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-2.5">MBBS Destinations</h4>
             <ul className="space-y-0.5 text-xs">
-              {destinations.map((c, idx) => (
-                <li key={`${idx}-${c}`}>
-                  <Link href={`/countries/${c.toLowerCase()}`} className="inline-block py-1 hover:text-white transition-colors">MBBS in {c}</Link>
+              {destinations.map((country) => (
+                <li key={country}>
+                  <Link href={`/countries/${getCountrySlug(country)}`} className="inline-block py-1 hover:text-white transition-colors">MBBS in {country}</Link>
                 </li>
               ))}
             </ul>

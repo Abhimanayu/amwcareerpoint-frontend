@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { AxiosError } from 'axios';
 import AdminLayout from '@/components/admin/AdminLayout';
 import DataTable from '@/components/admin/DataTable';
 import ConfirmModal from '@/components/admin/ConfirmModal';
@@ -29,11 +30,15 @@ interface AdminFaqItem extends Record<string, unknown> {
 }
 
 function normalizeFaqItems(payload: unknown): AdminFaqItem[] {
-  const items = Array.isArray(payload)
-    ? payload
-    : payload && typeof payload === 'object' && Array.isArray((payload as { data?: unknown }).data)
-      ? (payload as { data: unknown[] }).data
-      : [];
+  let items: unknown[] = [];
+  if (Array.isArray(payload)) {
+    items = payload;
+  } else if (payload && typeof payload === 'object') {
+    const payloadData = (payload as { data?: unknown }).data;
+    if (Array.isArray(payloadData)) {
+      items = payloadData;
+    }
+  }
 
   return items.flatMap((item) => {
     if (!item || typeof item !== 'object') {
@@ -45,14 +50,28 @@ function normalizeFaqItems(payload: unknown): AdminFaqItem[] {
       return [];
     }
 
+    let sortOrder = 0;
+    if (typeof faq.sortOrder === 'number') {
+      sortOrder = faq.sortOrder;
+    } else if (typeof faq.order === 'number') {
+      sortOrder = faq.order;
+    }
+
+    let status = 'active';
+    if (typeof faq.status === 'string') {
+      status = faq.status;
+    } else if (faq.isActive === false) {
+      status = 'inactive';
+    }
+
     return [{
       _id: faq._id,
       question: faq.question,
       answer: faq.answer,
       page: faq.page,
       pageSlug: typeof faq.pageSlug === 'string' ? faq.pageSlug : null,
-      sortOrder: typeof faq.sortOrder === 'number' ? faq.sortOrder : (typeof faq.order === 'number' ? faq.order : 0),
-      status: typeof faq.status === 'string' ? faq.status : (faq.isActive === false ? 'inactive' : 'active'),
+      sortOrder,
+      status,
     }];
   });
 }
@@ -64,6 +83,7 @@ export default function AdminFaqsPage() {
   const [pageFilter, setPageFilter] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<AdminFaqItem | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [notice, setNotice] = useState<string>('');
 
   const fetchFaqs = useCallback(async () => {
     setLoading(true);
@@ -81,15 +101,31 @@ export default function AdminFaqsPage() {
 
   useEffect(() => { fetchFaqs(); }, [fetchFaqs]);
 
+  useEffect(() => {
+    if (!notice) return;
+    const timeoutId = globalThis.setTimeout(() => setNotice(''), 3000);
+    return () => globalThis.clearTimeout(timeoutId);
+  }, [notice]);
+
   const handleDelete = async () => {
     if (!deleteTarget) return;
     setDeleting(true);
+    const target = deleteTarget;
     try {
-      await deleteFaq(deleteTarget._id as string);
-      await revalidateFaqPages(deleteTarget.page, deleteTarget.pageSlug || undefined).catch(() => {});
+      await deleteFaq(target._id);
+      await revalidateFaqPages(target.page, target.pageSlug || undefined).catch(() => {});
+      setNotice('FAQ deleted successfully.');
       setDeleteTarget(null);
-      fetchFaqs();
+      await fetchFaqs();
     } catch (err) {
+      if (err instanceof AxiosError && err.response?.status === 404) {
+        // Treat stale entries as already deleted to keep admin UX unblocked.
+        setNotice('FAQ was already removed. List refreshed.');
+        setDeleteTarget(null);
+        await fetchFaqs();
+        setDeleting(false);
+        return;
+      }
       alert(handleApiError(err));
     }
     setDeleting(false);
@@ -151,6 +187,12 @@ export default function AdminFaqsPage() {
             </button>
           </div>
         </div>
+
+        {notice && (
+          <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+            {notice}
+          </div>
+        )}
 
         <DataTable
           columns={columns}

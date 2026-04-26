@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ImageUploader from '@/components/admin/ImageUploader';
@@ -153,6 +153,16 @@ type CountryFormState = {
   livingCost: string;
   status: string;
   sortOrder: number;
+    countryCode: string;
+    language: string;
+    currency: string;
+    climate: string;
+    bannerImage: string;
+    cardImage: string;
+    feeRangeUSD: string;
+    headerColor: string;
+    visaInfo: string;
+    isFeatured: boolean;
   highlights: LocalTextItem[];
   faqs: CountryFaqItem[];
   studentLife: StudentLifeForm;
@@ -178,6 +188,16 @@ function createEmptyForm(): CountryFormState {
     livingCost: '',
     status: 'active',
     sortOrder: 0,
+      countryCode: '',
+      language: '',
+      currency: '',
+      climate: '',
+      bannerImage: '',
+      cardImage: '',
+      feeRangeUSD: '',
+      headerColor: '#F26419',
+      visaInfo: '',
+      isFeatured: false,
     highlights: [createEmptyTextItem('highlight')],
     faqs: [createEmptyFaqItem()],
     features: [createEmptyFeatureItem()],
@@ -187,6 +207,73 @@ function createEmptyForm(): CountryFormState {
     eligibility: [createEmptyTextItem('eligibility')],
     admissionProcess: [createEmptyProcessItem(1)],
     seo: { metaTitle: '', metaDescription: '', keywords: '', canonicalUrl: '', schemaMarkup: '' },
+  };
+}
+
+// Normalize country data from backend to ensure all expected fields exist
+function normalizeCountryData(data: Record<string, unknown>): Record<string, unknown> {
+  if (!data || typeof data !== 'object') {
+    return {};
+  }
+
+  return {
+    ...data,
+    // Ensure all string fields exist
+    name: typeof data.name === 'string' ? data.name : '',
+    slug: typeof data.slug === 'string' ? data.slug : '',
+    tagline: typeof data.tagline === 'string' ? data.tagline : '',
+    description: typeof data.description === 'string' ? data.description : '',
+    flagImage: typeof data.flagImage === 'string' ? data.flagImage : '',
+    heroImage: typeof data.heroImage === 'string' ? data.heroImage : '',
+    feeRange: typeof data.feeRange === 'string' ? data.feeRange : '',
+      bannerImage: typeof data.bannerImage === 'string' ? data.bannerImage : '',
+      cardImage: typeof data.cardImage === 'string' ? data.cardImage : '',
+      countryCode: typeof data.countryCode === 'string' ? data.countryCode : '',
+      language: typeof data.language === 'string' ? data.language : '',
+      currency: typeof data.currency === 'string' ? data.currency : '',
+      climate: typeof data.climate === 'string' ? data.climate : '',
+      feeRangeUSD: typeof data.feeRangeUSD === 'string' ? data.feeRangeUSD : '',
+      headerColor: typeof data.headerColor === 'string' ? data.headerColor : '#F26419',
+      visaInfo: typeof data.visaInfo === 'string' ? data.visaInfo : '',
+      isFeatured: typeof data.isFeatured === 'boolean' ? data.isFeatured : false,
+    duration: typeof data.duration === 'string' ? data.duration : '',
+    medium: typeof data.medium === 'string' ? data.medium : '',
+    livingCost: typeof data.livingCost === 'string' ? data.livingCost : '',
+    // Ensure nested objects exist
+    studentLife: data.studentLife && typeof data.studentLife === 'object'
+      ? {
+          eyebrow: typeof (data.studentLife as Record<string, unknown>).eyebrow === 'string' ? (data.studentLife as Record<string, unknown>).eyebrow : '',
+          title: typeof (data.studentLife as Record<string, unknown>).title === 'string' ? (data.studentLife as Record<string, unknown>).title : '',
+          description: typeof (data.studentLife as Record<string, unknown>).description === 'string' ? (data.studentLife as Record<string, unknown>).description : '',
+          cards: Array.isArray((data.studentLife as Record<string, unknown>).cards) ? (data.studentLife as Record<string, unknown>).cards : [],
+        }
+      : { eyebrow: '', title: '', description: '', cards: [] },
+    documentsChecklist: data.documentsChecklist && typeof data.documentsChecklist === 'object'
+      ? {
+          eyebrow: typeof (data.documentsChecklist as Record<string, unknown>).eyebrow === 'string' ? (data.documentsChecklist as Record<string, unknown>).eyebrow : '',
+          title: typeof (data.documentsChecklist as Record<string, unknown>).title === 'string' ? (data.documentsChecklist as Record<string, unknown>).title : '',
+          items: Array.isArray((data.documentsChecklist as Record<string, unknown>).items) ? (data.documentsChecklist as Record<string, unknown>).items : [],
+        }
+      : { eyebrow: '', title: '', items: [] },
+    supportExperience: data.supportExperience && typeof data.supportExperience === 'object'
+      ? {
+          eyebrow: typeof (data.supportExperience as Record<string, unknown>).eyebrow === 'string' ? (data.supportExperience as Record<string, unknown>).eyebrow : '',
+          title: typeof (data.supportExperience as Record<string, unknown>).title === 'string' ? (data.supportExperience as Record<string, unknown>).title : '',
+          description: typeof (data.supportExperience as Record<string, unknown>).description === 'string' ? (data.supportExperience as Record<string, unknown>).description : '',
+          progressItems: Array.isArray((data.supportExperience as Record<string, unknown>).progressItems) ? (data.supportExperience as Record<string, unknown>).progressItems : [],
+          supportCards: Array.isArray((data.supportExperience as Record<string, unknown>).supportCards) ? (data.supportExperience as Record<string, unknown>).supportCards : [],
+        }
+      : { eyebrow: '', title: '', description: '', progressItems: [], supportCards: [] },
+    // Ensure arrays exist
+    highlights: Array.isArray(data.highlights) ? data.highlights : [],
+    features: Array.isArray(data.features) ? data.features : [],
+    eligibility: Array.isArray(data.eligibility) ? data.eligibility : [],
+    faqs: Array.isArray(data.faqs) ? data.faqs : [],
+    admissionProcess: Array.isArray(data.admissionProcess) ? data.admissionProcess : [],
+    // Ensure SEO exists
+    seo: data.seo && typeof data.seo === 'object'
+      ? data.seo
+      : { metaTitle: '', metaDescription: '', keywords: '', canonicalUrl: '', schemaMarkup: '' },
   };
 }
 
@@ -259,10 +346,12 @@ function buildCountryForm(initialData?: Record<string, unknown>): CountryFormSta
     return createEmptyForm();
   }
 
-  const supportExperienceData =
-    initialData.supportExperience && typeof initialData.supportExperience === 'object'
-      ? (initialData.supportExperience as Record<string, unknown>)
-      : undefined;
+  // Normalize data to ensure all fields exist with proper structure
+  const normalized = normalizeCountryData(initialData);
+
+  const supportExperienceData = normalized.supportExperience && typeof normalized.supportExperience === 'object'
+    ? (normalized.supportExperience as Record<string, unknown>)
+    : undefined;
 
   const progressItemsRaw = Array.isArray(supportExperienceData?.progressItems)
     ? (supportExperienceData.progressItems as Array<{ label?: string; value?: number; status?: string }>)
@@ -273,8 +362,8 @@ function buildCountryForm(initialData?: Record<string, unknown>): CountryFormSta
     : [];
 
   const studentLifeData =
-    initialData.studentLife && typeof initialData.studentLife === 'object'
-      ? (initialData.studentLife as Record<string, unknown>)
+    normalized.studentLife && typeof normalized.studentLife === 'object'
+      ? (normalized.studentLife as Record<string, unknown>)
       : undefined;
 
   const studentLifeCardsRaw = Array.isArray(studentLifeData?.cards)
@@ -282,36 +371,46 @@ function buildCountryForm(initialData?: Record<string, unknown>): CountryFormSta
     : [];
 
   const documentsChecklistData =
-    initialData.documentsChecklist && typeof initialData.documentsChecklist === 'object'
-      ? (initialData.documentsChecklist as Record<string, unknown>)
+    normalized.documentsChecklist && typeof normalized.documentsChecklist === 'object'
+      ? (normalized.documentsChecklist as Record<string, unknown>)
       : undefined;
 
   const documentsChecklistItemsRaw = Array.isArray(documentsChecklistData?.items)
     ? (documentsChecklistData.items as Array<{ label?: string }>)
     : [];
 
-  const featuresRaw = Array.isArray(initialData.features)
-    ? (initialData.features as Array<{ icon?: string; title?: string; description?: string }>)
+  const featuresRaw = Array.isArray(normalized.features)
+    ? (normalized.features as Array<{ icon?: string; title?: string; description?: string }>)
     : [];
 
   return {
-    name: (initialData.name as string) || '',
-    slug: (initialData.slug as string) || '',
-    tagline: (initialData.tagline as string) || '',
-    description: (initialData.description as string) || '',
-    flagImage: (initialData.flagImage as string) || '',
-    heroImage: (initialData.heroImage as string) || '',
-    feeRange: (initialData.feeRange as string) || '',
-    duration: (initialData.duration as string) || '',
-    medium: (initialData.medium as string) || '',
-    livingCost: (initialData.livingCost as string) || '',
-    status: (initialData.status as string) || 'active',
-    sortOrder: (initialData.sortOrder as number) || 0,
-    highlights: (initialData.highlights as string[])?.length
-      ? (initialData.highlights as string[]).map((value) => ({ id: createLocalId('highlight'), value }))
+    name: (normalized.name as string) || '',
+    slug: (normalized.slug as string) || '',
+    tagline: (normalized.tagline as string) || '',
+    description: (normalized.description as string) || '',
+    flagImage: (normalized.flagImage as string) || '',
+    heroImage: (normalized.heroImage as string) || '',
+    feeRange: (normalized.feeRange as string) || '',
+    duration: (normalized.duration as string) || '',
+    medium: (normalized.medium as string) || '',
+    livingCost: (normalized.livingCost as string) || '',
+      countryCode: (normalized.countryCode as string) || '',
+      language: (normalized.language as string) || '',
+      currency: (normalized.currency as string) || '',
+      climate: (normalized.climate as string) || '',
+      bannerImage: (normalized.bannerImage as string) || '',
+      cardImage: (normalized.cardImage as string) || '',
+      feeRangeUSD: (normalized.feeRangeUSD as string) || '',
+      headerColor: (normalized.headerColor as string) || '#F26419',
+      visaInfo: (normalized.visaInfo as string) || '',
+      isFeatured: (normalized.isFeatured as boolean) || false,
+    status: (normalized.status as string) || 'active',
+    sortOrder: (normalized.sortOrder as number) || 0,
+    highlights: (normalized.highlights as string[])?.length
+      ? (normalized.highlights as string[]).map((value) => ({ id: createLocalId('highlight'), value }))
       : [createEmptyTextItem('highlight')],
-    faqs: (initialData.faqs as CountryFaqItem[])?.length
-      ? (initialData.faqs as Array<{ question?: string; answer?: string }>).map((item) => ({
+    faqs: (normalized.faqs as CountryFaqItem[])?.length
+      ? (normalized.faqs as Array<{ question?: string; answer?: string }>).map((item) => ({
           id: createLocalId('faq'),
           question: item.question || '',
           answer: item.answer || '',
@@ -368,11 +467,11 @@ function buildCountryForm(initialData?: Record<string, unknown>): CountryFormSta
           }))
         : [createEmptySupportCardItem()],
     },
-    eligibility: (initialData.eligibility as string[])?.length
-      ? (initialData.eligibility as string[]).map((value) => ({ id: createLocalId('eligibility'), value }))
+    eligibility: (normalized.eligibility as string[])?.length
+      ? (normalized.eligibility as string[]).map((value) => ({ id: createLocalId('eligibility'), value }))
       : [createEmptyTextItem('eligibility')],
-    admissionProcess: (initialData.admissionProcess as CountryProcessItem[])?.length
-      ? (initialData.admissionProcess as Array<{ step?: number; title?: string; description?: string }>).map((item, index) => ({
+    admissionProcess: (normalized.admissionProcess as CountryProcessItem[])?.length
+      ? (normalized.admissionProcess as Array<{ step?: number; title?: string; description?: string }>).map((item, index) => ({
           id: createLocalId('process'),
           step: typeof item.step === 'number' ? item.step : index + 1,
           title: item.title || '',
@@ -380,11 +479,11 @@ function buildCountryForm(initialData?: Record<string, unknown>): CountryFormSta
         }))
       : [createEmptyProcessItem(1)],
     seo: {
-      metaTitle: ((initialData.seo as Record<string, string>)?.metaTitle) || '',
-      metaDescription: ((initialData.seo as Record<string, string>)?.metaDescription) || '',
-      keywords: ((initialData.seo as Record<string, string>)?.keywords) || '',
-      canonicalUrl: ((initialData.seo as Record<string, string>)?.canonicalUrl) || '',
-      schemaMarkup: ((initialData.seo as Record<string, string>)?.schemaMarkup) || '',
+      metaTitle: ((normalized.seo as Record<string, string>)?.metaTitle) || '',
+      metaDescription: ((normalized.seo as Record<string, string>)?.metaDescription) || '',
+      keywords: ((normalized.seo as Record<string, string>)?.keywords) || '',
+      canonicalUrl: ((normalized.seo as Record<string, string>)?.canonicalUrl) || '',
+      schemaMarkup: ((normalized.seo as Record<string, string>)?.schemaMarkup) || '',
     },
   };
 }
@@ -401,6 +500,12 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
   const compactInputClass = 'w-full px-3 py-2 rounded-lg border border-gray-200 text-sm';
   const addButtonClass = 'text-sm text-orange font-medium';
   const submitButtonLabel = getSubmitButtonLabel(saving, isEdit);
+
+  useEffect(() => {
+    if (initialData) {
+      setForm(buildCountryForm(initialData));
+    }
+  }, [initialData]);
 
   const updateStudentLife = (value: StudentLifeForm) => {
     setForm((prev) => ({ ...prev, studentLife: value }));
@@ -481,6 +586,16 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
           ...form.seo,
           keywords: form.seo.keywords,
         },
+        countryCode: form.countryCode.trim(),
+        language: form.language.trim(),
+        currency: form.currency.trim(),
+        climate: form.climate.trim(),
+        bannerImage: form.bannerImage.trim(),
+        cardImage: form.cardImage.trim(),
+        feeRangeUSD: form.feeRangeUSD.trim(),
+        headerColor: form.headerColor.trim(),
+        visaInfo: form.visaInfo.trim(),
+        isFeatured: form.isFeatured,
       };
       if (isEdit && initialData?._id) {
         await updateCountry(initialData._id as string, payload);
@@ -534,6 +649,7 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
               />
             </div>
           </div>
+
           <div>
             <label htmlFor="country-tagline" className="block text-sm font-medium text-gray-700 mb-1">Tagline</label>
             <input
@@ -545,6 +661,7 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
             />
             <div className="flex justify-end"><CharCount current={form.tagline.length} max={L.tagline.max} /></div>
           </div>
+
           <div>
             <label htmlFor="country-description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
             <textarea
@@ -557,6 +674,7 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
             />
             <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'description')} /><CharCount current={form.description.length} max={L.description.max} /></div>
           </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="country-fee-range" className="block text-sm font-medium text-gray-700 mb-1">Tuition Fee</label>
@@ -571,6 +689,20 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
               <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'feeRange')} /><CharCount current={form.feeRange.length} max={L.feeRange.max} /></div>
             </div>
             <div>
+              <label htmlFor="country-fee-usd" className="block text-sm font-medium text-gray-700 mb-1">Tuition Fee (USD)</label>
+              <input
+                id="country-fee-usd"
+                maxLength={100}
+                value={form.feeRangeUSD}
+                onChange={(e) => updateField('feeRangeUSD', e.target.value)}
+                className={textInputClass}
+                placeholder="e.g. $5000-8000 / year"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
               <label htmlFor="country-duration" className="block text-sm font-medium text-gray-700 mb-1">Course Duration</label>
               <input
                 id="country-duration"
@@ -581,20 +713,6 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
                 placeholder="e.g. 6 Years"
               />
               <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'duration')} /><CharCount current={form.duration.length} max={L.duration.max} /></div>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="country-medium" className="block text-sm font-medium text-gray-700 mb-1">Medium of Study</label>
-              <input
-                id="country-medium"
-                maxLength={L.medium.max}
-                value={form.medium}
-                onChange={(e) => updateField('medium', e.target.value)}
-                className={textInputClass}
-                placeholder="e.g. English medium"
-              />
-              <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'medium')} /><CharCount current={form.medium.length} max={L.medium.max} /></div>
             </div>
             <div>
               <label htmlFor="country-living-cost" className="block text-sm font-medium text-gray-700 mb-1">Living Cost</label>
@@ -609,7 +727,70 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
               <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'livingCost')} /><CharCount current={form.livingCost.length} max={L.livingCost.max} /></div>
             </div>
           </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="country-medium" className="block text-sm font-medium text-gray-700 mb-1">Medium of Study</label>
+              <input
+                id="country-medium"
+                maxLength={L.medium.max}
+                value={form.medium}
+                onChange={(e) => updateField('medium', e.target.value)}
+                className={textInputClass}
+                placeholder="e.g. English medium"
+              />
+              <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'medium')} /><CharCount current={form.medium.length} max={L.medium.max} /></div>
+            </div>
+            <div>
+              <label htmlFor="country-code" className="block text-sm font-medium text-gray-700 mb-1">Country Code</label>
+              <input
+                id="country-code"
+                maxLength={10}
+                value={form.countryCode}
+                onChange={(e) => updateField('countryCode', e.target.value)}
+                className={textInputClass}
+                placeholder="e.g. RU, IN, US"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="country-language" className="block text-sm font-medium text-gray-700 mb-1">Language</label>
+              <input
+                id="country-language"
+                maxLength={100}
+                value={form.language}
+                onChange={(e) => updateField('language', e.target.value)}
+                className={textInputClass}
+                placeholder="e.g. English, Russian"
+              />
+            </div>
+            <div>
+              <label htmlFor="country-currency" className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+              <input
+                id="country-currency"
+                maxLength={100}
+                value={form.currency}
+                onChange={(e) => updateField('currency', e.target.value)}
+                className={textInputClass}
+                placeholder="e.g. RUB, INR, USD"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="country-climate" className="block text-sm font-medium text-gray-700 mb-1">Climate</label>
+              <input
+                id="country-climate"
+                maxLength={100}
+                value={form.climate}
+                onChange={(e) => updateField('climate', e.target.value)}
+                className={textInputClass}
+                placeholder="e.g. Temperate, Tropical"
+              />
+            </div>
             <div>
               <label htmlFor="country-status" className="block text-sm font-medium text-gray-700 mb-1">Status</label>
               <select
@@ -621,6 +802,40 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
               </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="country-featured" className="block text-sm font-medium text-gray-700 mb-1">Featured</label>
+              <select
+                id="country-featured"
+                value={form.isFeatured ? 'true' : 'false'}
+                onChange={(e) => updateField('isFeatured', e.target.value === 'true')}
+                className={textInputClass}
+              >
+                <option value="false">No</option>
+                <option value="true">Yes</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="country-header-color" className="block text-sm font-medium text-gray-700 mb-1">Header Color</label>
+              <div className="flex gap-2">
+                <input
+                  id="country-header-color"
+                  type="color"
+                  value={form.headerColor}
+                  onChange={(e) => updateField('headerColor', e.target.value)}
+                  className="h-10 w-16 rounded border border-gray-200 cursor-pointer"
+                />
+                <input
+                  type="text"
+                  value={form.headerColor}
+                  onChange={(e) => updateField('headerColor', e.target.value)}
+                  className={`flex-1 ${textInputClass}`}
+                  placeholder="#F26419"
+                />
+              </div>
             </div>
           </div>
         </section>
@@ -645,6 +860,26 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
                 currentImage={form.heroImage}
                 onUpload={(url) => updateField('heroImage', url)}
                 hint="Recommended: 1200×600 px (2:1). Large cover image used on the country page hero and home section card."
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <div className="block text-sm font-medium text-gray-700 mb-2">Banner Image</div>
+              <ImageUploader
+                folder="countries"
+                currentImage={form.bannerImage}
+                onUpload={(url) => updateField('bannerImage', url)}
+                hint="Recommended: 1600×400 px (4:1). Wide banner image for section headers."
+              />
+            </div>
+            <div>
+              <div className="block text-sm font-medium text-gray-700 mb-2">Card Image</div>
+              <ImageUploader
+                folder="countries"
+                currentImage={form.cardImage}
+                onUpload={(url) => updateField('cardImage', url)}
+                hint="Recommended: 400×300 px (4:3). Thumbnail for country cards in listings."
               />
             </div>
           </div>
@@ -1048,9 +1283,30 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
         </section>
 
         {/* FAQs */}
+               <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+                 <div>
+                   <h2 className="font-semibold text-gray-900">Visa Information</h2>
+                   <p className="mt-1 text-sm text-gray-500">Important visa requirements and process for this country.</p>
+                 </div>
+                 <textarea
+                   id="country-visa-info"
+                   rows={4}
+                   maxLength={2000}
+                   value={form.visaInfo}
+                   onChange={(e) => updateField('visaInfo', e.target.value)}
+                   className={textAreaClass}
+                   placeholder="Visa requirements, processing time, fees, documents needed..."
+                 />
+                 <CharCount current={form.visaInfo.length} max={2000} />
+               </section>
+
+               {/* FAQs */}
         <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-          <div className="flex items-center justify-between">
+          <div>
             <h2 className="font-semibold text-gray-900">Country FAQs <span className="text-xs text-gray-400 font-normal">({form.faqs.filter((f) => f.question).length}/{L.faqs.maxItems})</span></h2>
+            <p className="mt-1 text-sm text-gray-500">Embedded FAQs shown directly on this country&apos;s public page. Manage country-specific questions here.</p>
+          </div>
+          <div className="flex items-center justify-between">
             {form.faqs.length < L.faqs.maxItems && (
             <button type="button" onClick={() => updateField('faqs', [...form.faqs, createEmptyFaqItem()])} className={addButtonClass}>+ Add</button>
             )}

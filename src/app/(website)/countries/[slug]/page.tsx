@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { getCountryBySlug, getCountries } from '@/lib/countries';
+import { getPublicFaqs } from '@/lib/server/faqs';
 import { getUniversities, getUniversityBySlug } from '@/lib/universities';
 import { CounsellingForm } from '@/components/home/CounsellingForm';
 import { extractCollectionData, resolveMediaUrl } from '@/lib/utils';
@@ -246,13 +247,28 @@ export default async function CountryPage({ params }: Props) {
 
   if (!country) return notFound();
 
+  // Load FAQs from both sources in parallel
+  let apiFaqs: Array<{ question: string; answer: string }> = [];
+  try {
+    apiFaqs = await getPublicFaqs('country', { pageSlug: slug });
+  } catch { /* FAQ admin records may not exist */ }
+
+  // Merge FAQs: prefer API admin records first, then append embedded FAQs not already present by question
+  const normalizeQuestion = (value?: string) => (value || '').trim().toLowerCase();
+  const cleanApiFaqs = apiFaqs.filter((faq) => faq.question?.trim() && faq.answer?.trim());
+  const embeddedFaqs = (Array.isArray(country.faqs) ? country.faqs : []).filter(
+    (faq: CountryFaq): faq is Required<CountryFaq> => Boolean(faq?.question?.trim() && faq?.answer?.trim())
+  );
+  const apiQuestionSet = new Set(cleanApiFaqs.map((faq) => normalizeQuestion(faq.question)));
+  const mergedFaqs = cleanApiFaqs.length > 0
+    ? [...cleanApiFaqs, ...embeddedFaqs.filter((faq: Required<CountryFaq>) => !apiQuestionSet.has(normalizeQuestion(faq.question)))]
+    : embeddedFaqs;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
   let schemaJsonLd: object | null = null;
   if (country.seo?.schemaMarkup) {
     try { schemaJsonLd = JSON.parse(country.seo.schemaMarkup); } catch { /* invalid JSON */ }
   }
-  if (!schemaJsonLd) {
-    schemaJsonLd = {
+  schemaJsonLd ??= {
       '@context': 'https://schema.org',
       '@type': 'WebPage',
       name: `MBBS in ${country.name}`,
@@ -260,7 +276,6 @@ export default async function CountryPage({ params }: Props) {
       url: `${siteUrl}/countries/${slug}`,
       publisher: { '@type': 'Organization', name: 'AMW Career Point', url: siteUrl },
     };
-  }
 
   const countryId = typeof country._id === 'string' ? country._id : '';
   const heroImage = resolveMediaUrl(country.heroImage);
@@ -295,10 +310,6 @@ export default async function CountryPage({ params }: Props) {
         (step) => Boolean(step?.title || step?.description)
       )
     : [];
-  const countryFaqs = (Array.isArray(country.faqs) ? country.faqs : []).filter(
-    (faq: CountryFaq): faq is Required<CountryFaq> => Boolean(faq?.question && faq?.answer)
-  );
-  const faqs = countryFaqs;
   const studentLife =
     country.studentLife && typeof country.studentLife === 'object'
       ? (country.studentLife as StudentLife)
@@ -419,7 +430,6 @@ export default async function CountryPage({ params }: Props) {
               src={heroImage}
               alt={country.name}
               fill
-              priority
               className="object-cover object-center scale-[1.03] opacity-[0.62] saturate-110 contrast-110 sm:opacity-[0.68]"
               fallbackElement={<div className="absolute inset-0 bg-gradient-to-br from-[#0D1B3E]/10 to-[#F26419]/5" />}
             />
@@ -972,7 +982,7 @@ export default async function CountryPage({ params }: Props) {
         </section>
       )}
 
-      {faqs.length > 0 && <CountryFAQSection faqs={faqs} countryName={country.name} />}
+      {mergedFaqs.length > 0 && <CountryFAQSection faqs={mergedFaqs} countryName={country.name} />}
     </div>
   );
 }

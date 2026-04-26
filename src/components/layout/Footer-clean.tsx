@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getCurrentYear } from '@/lib/utils';
+import { getCountrySlug } from '@/lib/slugUtils';
 
 export function Footer() {
   const currentYear = getCurrentYear();
@@ -124,7 +125,7 @@ export function Footer() {
               {countries.map((country, idx) => (
                 <li key={`${idx}-${country}`}>
                   <Link 
-                    href={"/countries/" + country.toLowerCase()} 
+                    href={"/countries/" + getCountrySlug(country)} 
                     className="text-gray-300 hover:text-blue-400 transition-colors flex items-center gap-2"
                   >
                     <span>[Globe]</span> MBBS in {country}

@@ -6,16 +6,17 @@ import { Carousel } from '@/components/ui/Carousel';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { getCountries } from '@/lib/countries';
 import { extractCollectionData } from '@/lib/utils';
+import { getCountrySlugFromObject } from '@/lib/slugUtils';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 const fallbackCountries = [
-  { name: 'Russia', code: 'ru', unis: '50+', fees: '₹2.5L – 6L', dur: '6 Yrs', highlights: ['No IELTS', 'WHO Approved', 'Low Cost'] },
-  { name: 'Ukraine', code: 'ua', unis: '30+', fees: '₹3L – 5L', dur: '6 Yrs', highlights: ['English Medium', 'EU Recognition', 'Quality Edu'] },
-  { name: 'Kazakhstan', code: 'kz', unis: '25+', fees: '₹3.5L – 7L', dur: '6 Yrs', highlights: ['Advanced Infra', 'Safe', 'Cultural Similarity'] },
-  { name: 'Georgia', code: 'ge', unis: '15+', fees: '₹4L – 8L', dur: '6 Yrs', highlights: ['European Std', 'Modern', 'English Teaching'] },
-  { name: 'Kyrgyzstan', code: 'kg', unis: '20+', fees: '₹2L – 4L', dur: '6 Yrs', highlights: ['Most Affordable', 'Indian Food', 'Easy Admission'] },
-  { name: 'Philippines', code: 'ph', unis: '18+', fees: '₹3L – 6L', dur: '4 Yrs', highlights: ['English Speaking', 'US Curriculum', 'USMLE Prep'] },
+  { name: 'Russia', slug: 'mbbs-in-russia', code: 'ru', unis: '50+', fees: '₹2.5L – 6L', dur: '6 Yrs', highlights: ['No IELTS', 'WHO Approved', 'Low Cost'] },
+  { name: 'Ukraine', slug: 'ukraine', code: 'ua', unis: '30+', fees: '₹3L – 5L', dur: '6 Yrs', highlights: ['English Medium', 'EU Recognition', 'Quality Edu'] },
+  { name: 'Kazakhstan', slug: 'kazakhstan', code: 'kz', unis: '25+', fees: '₹3.5L – 7L', dur: '6 Yrs', highlights: ['Advanced Infra', 'Safe', 'Cultural Similarity'] },
+  { name: 'Georgia', slug: 'georgia', code: 'ge', unis: '15+', fees: '₹4L – 8L', dur: '6 Yrs', highlights: ['European Std', 'Modern', 'English Teaching'] },
+  { name: 'Kyrgyzstan', slug: 'mbbs-in-kyrgyzstan', code: 'kg', unis: '20+', fees: '₹2L – 4L', dur: '6 Yrs', highlights: ['Most Affordable', 'Indian Food', 'Easy Admission'] },
+  { name: 'Philippines', slug: 'philippines', code: 'ph', unis: '18+', fees: '₹3L – 6L', dur: '4 Yrs', highlights: ['English Speaking', 'US Curriculum', 'USMLE Prep'] },
 ];
 
 export function CountriesSection() {
@@ -93,7 +94,7 @@ export function CountriesSection() {
                     ))}
                   </ul>
                   <div className="mt-auto">
-                    <Link href={`/countries/${c.name.toLowerCase()}`} className="block w-full text-center py-2.5 sm:py-2 rounded-full bg-orange text-white text-sm sm:text-[13px] font-bold hover:bg-orange-hover transition-colors">
+                    <Link href={`/countries/${getCountrySlugFromObject(c)}`} className="block w-full text-center py-2.5 sm:py-2 rounded-full bg-orange text-white text-sm sm:text-[13px] font-bold hover:bg-orange-hover transition-colors">
                       View Universities
                     </Link>
                   </div>

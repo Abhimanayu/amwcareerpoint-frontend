@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
+import { getCountrySlug } from '@/lib/slugUtils';
 
 export function DestinationsSection() {
   const destinations = [
@@ -158,7 +159,7 @@ export function DestinationsSection() {
 
                 {/* CTA Buttons */}
                 <div className="space-y-3">
-                  <Link href={`/countries/${destination.country.toLowerCase()}`}>
+                  <Link href={`/countries/${getCountrySlug(destination.country)}`}>
                     <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
                       View Universities
                     </Button>
