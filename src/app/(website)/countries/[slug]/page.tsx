@@ -7,9 +7,10 @@ import { getPublicFaqs } from '@/lib/server/faqs';
 import { getUniversities, getUniversityBySlug } from '@/lib/universities';
 import { CounsellingForm } from '@/components/home/CounsellingForm';
 import { extractCollectionData, resolveMediaUrl } from '@/lib/utils';
+import { SEO_HOLD } from '@/lib/seoHold';
 import { CountryFAQSection } from './CountryFAQSection';
 
-export const revalidate = 60;
+export const revalidate = 10;
 
 type Props = Readonly<{ params: Promise<{ slug: string }> }>;
 
@@ -178,6 +179,17 @@ const DOCUMENTS_REQUIRED = [
 ];
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  if (SEO_HOLD) {
+    return {
+      title: 'AMW Career Point',
+      description: 'AMW Career Point official website.',
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
   const { slug } = await params;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
   const res = await getCountryBySlug(slug).catch(() => null);
@@ -416,10 +428,12 @@ export default async function CountryPage({ params }: Props) {
 
   return (
     <div className="overflow-x-hidden bg-[#F8F4EC] text-[#0D1B3E]">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJsonLd) }}
-      />
+      {!SEO_HOLD && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJsonLd) }}
+        />
+      )}
       <section className="relative overflow-hidden border-b border-[#E6DFD3] px-4 pb-16 pt-8 sm:px-6 lg:px-8 lg:pb-20 lg:pt-12">
         {/* Base background — visible when no hero image */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(242,100,25,0.12),_transparent_30%),linear-gradient(180deg,#FFF9F1_0%,#F8F4EC_100%)]" />

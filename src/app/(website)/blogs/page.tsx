@@ -4,38 +4,134 @@ import { getBlogs, getBlogCategories } from '@/lib/blogs';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { clampText, extractCollectionData, formatDate, pickBlogImageSource } from '@/lib/utils';
 import { SafeImage } from '@/components/ui/SafeImage';
-import { BlogSearchBar, NeetScoreCheck, SubscribeForm } from '@/components/blog/BlogInteractive';
+import { BlogSearchBar, SubscribeForm } from '@/components/blog/BlogInteractive';
+import { SEO_HOLD } from '@/lib/seoHold';
 
 export const metadata: Metadata = {
-  title: 'Blog - MBBS Abroad Insights',
-  description: 'Read the latest articles from AMW Career Point about MBBS abroad, university guides, admission tips, and student experiences.',
-  alternates: { canonical: '/blogs' },
+  ...(SEO_HOLD
+    ? {
+        title: 'AMW Career Point',
+        description: 'AMW Career Point official website.',
+        robots: {
+          index: false,
+          follow: false,
+        },
+      }
+    : {
+        title: 'Blog - MBBS Abroad Insights',
+        description: 'Read the latest articles from AMW Career Point about MBBS abroad, university guides, admission tips, and student experiences.',
+        alternates: { canonical: '/blogs' },
+      }),
 };
 
 export const revalidate = 60;
+const LATEST_PAGE_SIZE = 8;
 
 /* ── helpers ─────────────────────────────────────────── */
 function estimateReadTime(post: Record<string, unknown>): string {
   const content = typeof post.content === 'string' ? post.content : '';
   if (!content) return '5 min';
-  const words = content.replace(/<[^>]*>/g, '').split(/\s+/).length;
+  const words = content.replaceAll(/<[^>]*>/g, '').split(/\s+/).length;
   return `${Math.max(1, Math.ceil(words / 200))} min`;
 }
 
+function slugifyCategory(value: string): string {
+  return value
+    .toLowerCase()
+    .trim()
+    .replaceAll(/[^a-z0-9\s-]/g, '')
+    .replaceAll(/\s+/g, '-')
+    .replaceAll(/-+/g, '-');
+}
+
+function getCategoryName(post: Record<string, unknown>): string {
+  const category = post.category as Record<string, unknown> | string | undefined;
+  if (category && typeof category === 'object' && typeof category.name === 'string') {
+    return category.name;
+  }
+  if (typeof category === 'string') {
+    return category;
+  }
+  return 'General';
+}
+
+function buildBlogsHref(options: { q?: string; category?: string; page?: number }): string {
+  const params = new URLSearchParams();
+  if (options.q) params.set('q', options.q);
+  if (options.category) params.set('category', options.category);
+  if (options.page && options.page > 1) params.set('page', String(options.page));
+  const query = params.toString();
+  return query ? `/blogs?${query}` : '/blogs';
+}
+
+function matchesSearch(post: Record<string, unknown>, query: string): boolean {
+  if (!query) return true;
+  const haystack = [
+    typeof post.title === 'string' ? post.title : '',
+    typeof post.excerpt === 'string' ? post.excerpt : '',
+    typeof post.content === 'string' ? post.content : '',
+    getCategoryName(post),
+  ]
+    .join(' ')
+    .toLowerCase();
+  return haystack.includes(query.toLowerCase());
+}
+
+type BlogPageDataInput = {
+  blogPosts: any[];
+  categorySeed: string[];
+  categoryQuery: string;
+  searchQuery: string;
+  currentPage: number;
+};
+
+function deriveBlogPageData(input: BlogPageDataInput) {
+  const postCategories = Array.from(new Set(input.blogPosts.map((post) => getCategoryName(post)).filter(Boolean)));
+  const mergedCategories = Array.from(new Set([...input.categorySeed, ...postCategories]));
+  const categorySlugToName = new Map(mergedCategories.map((name) => [slugifyCategory(name), name]));
+  const selectedCategory = input.categoryQuery ? categorySlugToName.get(input.categoryQuery) || '' : '';
+
+  const filteredPosts = input.blogPosts.filter((post) => {
+    const categoryOk = !selectedCategory || getCategoryName(post).toLowerCase() === selectedCategory.toLowerCase();
+    return categoryOk && matchesSearch(post, input.searchQuery);
+  });
+
+  const featured = filteredPosts[0] || null;
+  const trending = filteredPosts.slice(1, 3);
+  const latestAll = filteredPosts.slice(3);
+  const latestVisibleCount = input.currentPage * LATEST_PAGE_SIZE;
+  const latest = latestAll.slice(0, latestVisibleCount);
+
+  return {
+    mergedCategories,
+    selectedCategory,
+    filteredPosts,
+    featured,
+    trending,
+    latest,
+    hasMoreLatest: latestVisibleCount < latestAll.length,
+    popularPosts: filteredPosts.slice(0, 4),
+    hasFilters: Boolean(input.searchQuery || selectedCategory),
+  };
+}
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
+// eslint-disable-next-line sonarjs/cognitive-complexity
 export default async function BlogPage({
   searchParams,
-}: {
+}: Readonly<{
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
+}>) {
   const resolvedParams = await searchParams;
   const searchQuery = typeof resolvedParams.q === 'string' ? resolvedParams.q.trim() : '';
+  const categoryQuery = typeof resolvedParams.category === 'string' ? resolvedParams.category.trim() : '';
+  const pageQuery = typeof resolvedParams.page === 'string' ? Number.parseInt(resolvedParams.page, 10) : 1;
+  const currentPage = Number.isFinite(pageQuery) && pageQuery > 0 ? pageQuery : 1;
 
   let blogPosts: any[] = [];
-  let categories: string[] = [];
+  let categorySeed: string[] = [];
 
-  const blogParams: Record<string, unknown> = { limit: 50 };
-  if (searchQuery) blogParams.q = searchQuery;
+  const blogParams: Record<string, unknown> = { limit: 120 };
 
   const [blogsResult, catResult] = await Promise.all([
     getBlogs(blogParams).catch(() => null),
@@ -47,21 +143,28 @@ export default async function BlogPage({
   }
   if (catResult) {
     const catData = extractCollectionData<any>(catResult, ['categories']);
-    categories = Array.isArray(catData) ? catData.map((c: any) => c.name || c) : [];
+    categorySeed = Array.isArray(catData) ? catData.map((c: any) => String(c.name || c || '')).filter(Boolean) : [];
   }
 
-  const featured = blogPosts[0] || null;
-  const trending = blogPosts.slice(1, 3);
-  const latest = blogPosts.slice(3);
-  const featuredImage = featured ? pickBlogImageSource(featured) : '';
+  const {
+    mergedCategories,
+    selectedCategory,
+    filteredPosts,
+    featured,
+    trending,
+    latest,
+    hasMoreLatest,
+    popularPosts,
+    hasFilters,
+  } = deriveBlogPageData({
+    blogPosts,
+    categorySeed,
+    categoryQuery,
+    searchQuery,
+    currentPage,
+  });
 
-  // sidebar derived data
-  const popularPosts = blogPosts.slice(0, 4);
-  const trendingTopics = blogPosts.slice(0, 4).map((p: any) => ({
-    title: p.title || 'Untitled',
-    slug: p.slug,
-    meta: formatDate(p.createdAt, 'en-US', { month: 'short', day: 'numeric' }),
-  }));
+  const featuredImage = featured ? pickBlogImageSource(featured) : '';
 
   return (
     <div className="bg-white">
@@ -80,7 +183,7 @@ export default async function BlogPage({
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-20">
           <div className="max-w-3xl">
             <span className="inline-flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-[#F26419] uppercase tracking-[0.15em] mb-3 sm:mb-4">
-              <span className="w-5 sm:w-6 h-[2px] bg-[#F26419] inline-block" />
+              <span className="w-5 sm:w-6 h-[2px] bg-[#F26419] inline-block" />{' '}
               Knowledge Centre
             </span>
             <h1 className="font-heading text-[1.55rem] sm:text-[2.1rem] lg:text-[2.8rem] font-bold leading-[1.12] text-white mb-3 sm:mb-4">
@@ -90,7 +193,7 @@ export default async function BlogPage({
             </h1>
             <p className="text-[12px] sm:text-[14px] text-blue-100/80 leading-relaxed max-w-xl mb-5 sm:mb-6">
               Research-backed answers on FMGE prep, NMC rules, university comparisons, fees, and student life
-              – written for students and parents making the most important decision of their lives.
+              - written for students and parents making the most important decision of their lives.
             </p>
 
             {/* search bar */}
@@ -116,24 +219,31 @@ export default async function BlogPage({
       </section>
 
       {/* ════════════ CATEGORY PILLS ════════════ */}
-      <section className="bg-white border-b border-[#DDD9D2] sticky top-0 z-30">
+      <section className="bg-white border-b border-[#DDD9D2]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-1.5 py-3 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
             <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#4A4742] mr-1.5 shrink-0">
               Browse
             </span>
-            <span className="inline-flex items-center shrink-0 rounded-full bg-[#0D1B3E] px-3 py-1.5 text-[11px] sm:text-[12px] font-semibold text-white whitespace-nowrap">
+            <Link
+              href={buildBlogsHref({ q: searchQuery || undefined })}
+              className={`inline-flex items-center shrink-0 rounded-full px-3 py-1.5 text-[11px] sm:text-[12px] font-semibold whitespace-nowrap transition-colors ${selectedCategory ? 'border border-[#DDD9D2] bg-white text-[#4A4742] hover:border-[#F26419] hover:text-[#F26419]' : 'bg-[#0D1B3E] text-white'}`}
+            >
               All Articles
-            </span>
-            {categories.slice(0, 10).map((cat) => (
-              <span
+            </Link>
+            {mergedCategories.slice(0, 12).map((cat) => {
+              const slug = slugifyCategory(cat);
+              const isActive = selectedCategory.toLowerCase() === cat.toLowerCase();
+              return (
+              <Link
                 key={cat}
                 title={typeof cat === 'string' ? cat : undefined}
-                className="inline-flex items-center shrink-0 rounded-full border border-[#DDD9D2] bg-white px-3 py-1.5 text-[11px] sm:text-[12px] font-medium text-[#4A4742] whitespace-nowrap hover:border-[#F26419] hover:text-[#F26419] transition-colors cursor-pointer"
+                href={buildBlogsHref({ q: searchQuery || undefined, category: slug })}
+                className={`inline-flex items-center shrink-0 rounded-full px-3 py-1.5 text-[11px] sm:text-[12px] font-medium whitespace-nowrap transition-colors ${isActive ? 'bg-[#0D1B3E] text-white' : 'border border-[#DDD9D2] bg-white text-[#4A4742] hover:border-[#F26419] hover:text-[#F26419]'}`}
               >
                 {clampText(cat, 28)}
-              </span>
-            ))}
+              </Link>
+            )})}
           </div>
         </div>
       </section>
@@ -144,6 +254,17 @@ export default async function BlogPage({
 
           {/* ──── LEFT: Main Content ──── */}
           <div className="flex-1 min-w-0">
+
+            {hasFilters && (
+              <div className="mb-5 rounded-xl border border-[#DDD9D2] bg-[#F9F8F6] px-4 py-3 text-[12px] sm:text-[13px] text-[#4A4742]">
+                Showing {filteredPosts.length} article{filteredPosts.length === 1 ? '' : 's'}
+                {selectedCategory ? ` in ${selectedCategory}` : ''}
+                {searchQuery ? ` for "${searchQuery}"` : ''}.
+                <Link href="/blogs" className="ml-2 font-semibold text-[#F26419] hover:underline">
+                  Reset filters
+                </Link>
+              </div>
+            )}
 
             {/* ── FEATURED ── */}
             {featured && (
@@ -205,7 +326,7 @@ export default async function BlogPage({
                           </div>
                         </div>
                         <span className="inline-flex items-center gap-1 text-[12px] sm:text-[13px] font-bold text-[#F26419] group-hover:gap-2 transition-all whitespace-nowrap">
-                          Read now <span aria-hidden="true">→</span>
+                          Read now <span aria-hidden="true">-&gt;</span>
                         </span>
                       </div>
                     </div>
@@ -256,9 +377,9 @@ export default async function BlogPage({
                           <div className="mt-auto flex items-center justify-between text-[10px] sm:text-[11px] text-[#4A4742]">
                             <span>
                               {post.createdAt ? formatDate(post.createdAt, 'en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''}
-                              {post.content && <> · {estimateReadTime(post)}</>}
+                              {post.content && <> - {estimateReadTime(post)}</>}
                             </span>
-                            <span className="font-bold text-[#F26419] group-hover:underline">Read →</span>
+                            <span className="font-bold text-[#F26419] group-hover:underline">Read -&gt;</span>
                           </div>
                         </div>
                       </Link>
@@ -274,7 +395,7 @@ export default async function BlogPage({
                 Latest Articles
               </SectionLabel>
 
-              {latest.length === 0 && blogPosts.length <= 3 ? (
+              {latest.length === 0 ? (
                 <EmptyState icon="📝" title="More coming soon" description="Check back for the latest insights about MBBS abroad." />
               ) : (
                 <div className="divide-y divide-[#DDD9D2] border border-[#DDD9D2] rounded-xl bg-white overflow-hidden">
@@ -324,7 +445,7 @@ export default async function BlogPage({
                             <span className="text-[11px] text-[#4A4742] mb-1">{estimateReadTime(post)} read</span>
                           )}
                           <span className="text-[12px] font-bold text-[#F26419] opacity-0 group-hover:opacity-100 transition-opacity">
-                            Read →
+                            Read -&gt;
                           </span>
                         </div>
                       </Link>
@@ -334,11 +455,18 @@ export default async function BlogPage({
               )}
 
               {/* load more */}
-              {latest.length > 0 && (
+              {hasMoreLatest && (
                 <div className="mt-5 sm:mt-6 text-center">
-                  <span className="inline-flex items-center justify-center h-10 px-6 sm:px-8 rounded-full border-2 border-[#DDD9D2] text-[12px] sm:text-[13px] font-semibold text-[#0D1B3E] hover:border-[#F26419] hover:text-[#F26419] transition-colors cursor-pointer">
-                    Load More Articles ↓
-                  </span>
+                  <Link
+                    href={buildBlogsHref({
+                      q: searchQuery || undefined,
+                      category: selectedCategory ? slugifyCategory(selectedCategory) : undefined,
+                      page: currentPage + 1,
+                    })}
+                    className="inline-flex items-center justify-center h-10 px-6 sm:px-8 rounded-full border-2 border-[#DDD9D2] text-[12px] sm:text-[13px] font-semibold text-[#0D1B3E] hover:border-[#F26419] hover:text-[#F26419] transition-colors"
+                  >
+                    Load More Articles
+                  </Link>
                 </div>
               )}
             </section>
@@ -400,56 +528,37 @@ export default async function BlogPage({
               </div>
             )}
 
-            {/* — NEET Score Check — */}
-            <NeetScoreCheck />
-
             {/* — Browse by Topic — */}
-            {categories.length > 0 && (
+            {mergedCategories.length > 0 && (
               <div className="rounded-xl border border-[#DDD9D2] bg-white p-4 sm:p-5">
                 <h4 className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#4A4742] mb-2 sm:mb-3">
                   Browse by Topic
                 </h4>
                 <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                  {categories.slice(0, 14).map((cat) => (
-                    <span
+                  <Link
+                    href={buildBlogsHref({ q: searchQuery || undefined })}
+                    className={`inline-flex items-center rounded-full px-2.5 sm:px-3 py-1 text-[10px] sm:text-[11px] font-medium transition-colors ${selectedCategory ? 'border border-[#DDD9D2] text-[#4A4742] hover:border-[#F26419] hover:text-[#F26419]' : 'bg-[#0D1B3E] text-white'}`}
+                  >
+                    All
+                  </Link>
+                  {mergedCategories.slice(0, 14).map((cat) => {
+                    const slug = slugifyCategory(cat);
+                    const isActive = selectedCategory.toLowerCase() === cat.toLowerCase();
+                    return (
+                    <Link
                       key={cat}
-                      className="inline-flex items-center rounded-full border border-[#DDD9D2] px-2.5 sm:px-3 py-1 text-[10px] sm:text-[11px] font-medium text-[#4A4742] hover:border-[#F26419] hover:text-[#F26419] transition-colors cursor-pointer"
+                      href={buildBlogsHref({ q: searchQuery || undefined, category: slug })}
+                      className={`inline-flex items-center rounded-full px-2.5 sm:px-3 py-1 text-[10px] sm:text-[11px] font-medium transition-colors ${isActive ? 'bg-[#0D1B3E] text-white' : 'border border-[#DDD9D2] text-[#4A4742] hover:border-[#F26419] hover:text-[#F26419]'}`}
                     >
                       {clampText(cat, 22)}
-                    </span>
-                  ))}
+                    </Link>
+                  )})}
                 </div>
               </div>
             )}
 
             {/* — Weekly Digest — */}
             <SubscribeForm variant="sidebar" />
-
-            {/* — Trending Topics — */}
-            {trendingTopics.length > 0 && (
-              <div className="rounded-xl border border-[#DDD9D2] bg-white p-4 sm:p-5">
-                <h4 className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#4A4742] mb-3 sm:mb-4">
-                  Trending Topics
-                </h4>
-                <div className="space-y-2.5 sm:space-y-3">
-                  {trendingTopics.map((t) => (
-                    <Link
-                      key={t.slug}
-                      href={`/blogs/${t.slug}`}
-                      className="group flex items-start gap-2"
-                    >
-                      <span className="mt-1 w-1.5 h-1.5 rounded-full bg-[#F26419] shrink-0" />
-                      <div className="min-w-0">
-                        <h5 className="text-[11px] sm:text-[12px] font-semibold text-[#0D1B3E] leading-snug line-clamp-2 group-hover:text-[#F26419] transition-colors">
-                          {clampText(t.title, 55)}
-                        </h5>
-                        <span className="text-[9px] sm:text-[10px] text-[#4A4742]">{t.meta}</span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
           </aside>
         </div>
       </div>
@@ -478,7 +587,7 @@ export default async function BlogPage({
 }
 
 /* ─────────── section label helper ─────────── */
-function SectionLabel({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) {
+function SectionLabel({ children, right }: Readonly<{ children: React.ReactNode; right?: React.ReactNode }>) {
   return (
     <div className="flex items-center justify-between mb-4 sm:mb-5">
       <div className="flex items-center gap-2 sm:gap-3">

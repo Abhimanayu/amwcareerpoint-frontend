@@ -3,8 +3,13 @@ import { getCountries } from '@/lib/countries';
 import { getUniversities } from '@/lib/universities';
 import { getBlogs } from '@/lib/blogs';
 import { extractCollectionData } from '@/lib/utils';
+import { SEO_HOLD } from '@/lib/seoHold';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  if (SEO_HOLD) {
+    return [];
+  }
+
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
 
   const staticPages: MetadataRoute.Sitemap = [

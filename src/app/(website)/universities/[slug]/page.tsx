@@ -4,6 +4,7 @@ import { getUniversityBySlug, getUniversities } from '@/lib/universities';
 import { getCountryBySlug } from '@/lib/countries';
 import { extractCollectionData, pickUniversityImageSource, resolveMediaUrl } from '@/lib/utils';
 import { getPublicFaqs } from '@/lib/server/faqs';
+import { SEO_HOLD } from '@/lib/seoHold';
 import UniversityDetailClient from './UniversityDetailClient';
 
 type Props = {
@@ -12,9 +13,20 @@ type Props = {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-export const revalidate = 60;
+export const revalidate = 10;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  if (SEO_HOLD) {
+    return {
+      title: 'AMW Career Point',
+      description: 'AMW Career Point official website.',
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
   const { slug } = await params;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
   try {
@@ -36,7 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default async function UniversityDetailPage({ params }: Props) {
+export default async function UniversityDetailPage({ params }: Readonly<Props>) {
   const { slug } = await params;
   let university: any = null;
   let countryData: any = null;
@@ -55,8 +67,7 @@ export default async function UniversityDetailPage({ params }: Props) {
   if (university.seo?.schemaMarkup) {
     try { schemaJsonLd = JSON.parse(university.seo.schemaMarkup); } catch { /* invalid JSON */ }
   }
-  if (!schemaJsonLd) {
-    schemaJsonLd = {
+  schemaJsonLd ??= {
       '@context': 'https://schema.org',
       '@type': 'EducationalOrganization',
       name: university.name || '',
@@ -65,7 +76,6 @@ export default async function UniversityDetailPage({ params }: Props) {
       image: resolveMediaUrl(pickUniversityImageSource(university)) || undefined,
       address: university.country?.name ? { '@type': 'PostalAddress', addressCountry: university.country.name } : undefined,
     };
-  }
 
   // Parallelize independent data fetches
   const [countryResult, relatedResult, apiFaqs] = await Promise.all([
@@ -88,10 +98,12 @@ export default async function UniversityDetailPage({ params }: Props) {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJsonLd) }}
-      />
+      {!SEO_HOLD && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJsonLd) }}
+        />
+      )}
       <UniversityDetailClient
         university={university}
         countryData={countryData}

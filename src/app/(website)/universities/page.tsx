@@ -4,11 +4,23 @@ import { getUniversities } from '@/lib/universities';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { clampText, extractCollectionData, pickUniversityImageSource } from '@/lib/utils';
+import { SEO_HOLD } from '@/lib/seoHold';
 
 export const metadata: Metadata = {
-  title: 'Top Medical Universities Abroad',
-  description: 'Explore top medical universities for MBBS abroad with AMW Career Point. Find WHO and MCI approved universities in Russia, Ukraine, Georgia, and more countries.',
-  alternates: { canonical: '/universities' },
+  ...(SEO_HOLD
+    ? {
+        title: 'AMW Career Point',
+        description: 'AMW Career Point official website.',
+        robots: {
+          index: false,
+          follow: false,
+        },
+      }
+    : {
+        title: 'Top Medical Universities Abroad',
+        description: 'Explore top medical universities for MBBS abroad with AMW Career Point. Find WHO and MCI approved universities in Russia, Ukraine, Georgia, and more countries.',
+        alternates: { canonical: '/universities' },
+      }),
 };
 
 export const revalidate = 60;

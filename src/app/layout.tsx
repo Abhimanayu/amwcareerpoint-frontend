@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { SEO_HOLD } from '@/lib/seoHold';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
 
-export const metadata: Metadata = {
+const defaultMetadata: Metadata = {
   title: {
     template: "%s | AMW Career Point",
     default: "AMW Career Point - MBBS Abroad Consultancy",
@@ -41,6 +42,24 @@ export const metadata: Metadata = {
     canonical: '/',
   },
 };
+
+const holdMetadata: Metadata = {
+  title: {
+    template: "%s | AMW Career Point",
+    default: 'AMW Career Point',
+  },
+  description: 'AMW Career Point official website.',
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
+  },
+};
+
+export const metadata: Metadata = SEO_HOLD ? holdMetadata : defaultMetadata;
 
 export const viewport = {
   width: 'device-width',

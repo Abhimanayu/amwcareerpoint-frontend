@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { submitEnquiry } from '@/lib/enquiries';
 
 /* ─── Hero Search Bar ─── */
-export function BlogSearchBar({ initialQuery = '' }: { initialQuery?: string }) {
+export function BlogSearchBar({ initialQuery = '' }: Readonly<{ initialQuery?: string }>) {
   const searchParams = useSearchParams();
   const currentQ = searchParams.get('q') || '';
   const [query, setQuery] = useState(initialQuery || currentQ);
@@ -18,16 +18,26 @@ export function BlogSearchBar({ initialQuery = '' }: { initialQuery?: string }) 
 
   const handleSearch = () => {
     const q = query.trim();
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.delete('page');
+
     if (q) {
-      router.push(`/blogs?q=${encodeURIComponent(q)}`);
+      nextParams.set('q', q);
     } else {
-      router.push('/blogs');
+      nextParams.delete('q');
     }
+
+    const nextQuery = nextParams.toString();
+    router.push(nextQuery ? `/blogs?${nextQuery}` : '/blogs');
   };
 
   const handleClear = () => {
     setQuery('');
-    router.push('/blogs');
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.delete('q');
+    nextParams.delete('page');
+    const nextQuery = nextParams.toString();
+    router.push(nextQuery ? `/blogs?${nextQuery}` : '/blogs');
   };
 
   return (
@@ -68,8 +78,8 @@ export function NeetScoreCheck() {
   const [result, setResult] = useState<string | null>(null);
 
   const handleCheck = () => {
-    const num = parseInt(score, 10);
-    if (isNaN(num) || num < 0 || num > 720) {
+    const num = Number.parseInt(score, 10);
+    if (Number.isNaN(num) || num < 0 || num > 720) {
       setResult('Please enter a valid NEET score (0–720)');
       return;
     }
@@ -119,13 +129,13 @@ export function NeetScoreCheck() {
 }
 
 /* ─── Subscribe Form (reusable for sidebar + bottom CTA) ─── */
-export function SubscribeForm({ variant = 'sidebar' }: { variant?: 'sidebar' | 'hero' }) {
+export function SubscribeForm({ variant = 'sidebar' }: Readonly<{ variant?: 'sidebar' | 'hero' }>) {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
 
-  const handleSubmit = async (e?: FormEvent) => {
-    e?.preventDefault();
+  const handleSubmit = async (e?: { preventDefault?: () => void }) => {
+    if (e?.preventDefault) e.preventDefault();
     const trimmed = email.trim();
     if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
       setStatus('error');

@@ -1,9 +1,21 @@
 import { Metadata } from 'next';
+import { SEO_HOLD } from '@/lib/seoHold';
 
 export const metadata: Metadata = {
-  title: 'About Us',
-  description: 'Learn about AMW Career Point - Your trusted partner for MBBS abroad consultancy with 10+ years of experience in medical education.',
-  alternates: { canonical: '/about' },
+  ...(SEO_HOLD
+    ? {
+        title: 'AMW Career Point',
+        description: 'AMW Career Point official website.',
+        robots: {
+          index: false,
+          follow: false,
+        },
+      }
+    : {
+        title: 'About Us',
+        description: 'Learn about AMW Career Point - Your trusted partner for MBBS abroad consultancy with 10+ years of experience in medical education.',
+        alternates: { canonical: '/about' },
+      }),
 };
 
 export default function AboutPage() {

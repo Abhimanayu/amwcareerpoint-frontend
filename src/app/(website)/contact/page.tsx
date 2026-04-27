@@ -2,13 +2,25 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { ContactForm } from '@/components/contact/ContactForm';
 import { contactFallbackFaqs, getPublicFaqs } from '@/lib/server/faqs';
+import { SEO_HOLD } from '@/lib/seoHold';
 
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: 'Contact Us',
-  description: 'Get in touch with AMW Career Point for expert MBBS abroad consultancy. Contact us for free consultation and guidance.',
-  alternates: { canonical: '/contact' },
+  ...(SEO_HOLD
+    ? {
+        title: 'AMW Career Point',
+        description: 'AMW Career Point official website.',
+        robots: {
+          index: false,
+          follow: false,
+        },
+      }
+    : {
+        title: 'Contact Us',
+        description: 'Get in touch with AMW Career Point for expert MBBS abroad consultancy. Contact us for free consultation and guidance.',
+        alternates: { canonical: '/contact' },
+      }),
 };
 
 export default async function ContactPage() {

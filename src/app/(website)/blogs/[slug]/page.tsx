@@ -5,6 +5,7 @@ import { getBlogBySlug, getBlogs } from '@/lib/blogs';
 import { extractCollectionData, formatDate, pickBlogImageSource, resolveMediaUrl, sanitizeHtml } from '@/lib/utils';
 import { sanitizeAndOptimizeMobileContent } from '@/lib/contentValidation';
 import { SafeImage } from '@/components/ui/SafeImage';
+import { SEO_HOLD } from '@/lib/seoHold';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -12,9 +13,20 @@ type Props = {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-export const revalidate = 60;
+export const revalidate = 10;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  if (SEO_HOLD) {
+    return {
+      title: 'AMW Career Point',
+      description: 'AMW Career Point official website.',
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
   const { slug } = await params;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
   try {
@@ -36,7 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default async function BlogPostPage({ params }: Props) {
+export default async function BlogPostPage({ params }: Readonly<Props>) {
   const { slug } = await params;
   let post: any = null;
   let relatedPosts: any[] = [];
@@ -71,7 +83,7 @@ export default async function BlogPostPage({ params }: Props) {
         year: 'numeric',
       })
     : '';
-  const readTime = post.content ? `${Math.max(1, Math.ceil(post.content.replace(/<[^>]*>/g, '').split(/\s+/).length / 200))} min read` : '';
+  const readTime = post.content ? `${Math.max(1, Math.ceil(post.content.replaceAll(/<[^>]*>/g, '').split(/\s+/).length / 200))} min read` : '';
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
   const postUrl = `${siteUrl}/blogs/${slug}`;
@@ -82,8 +94,7 @@ export default async function BlogPostPage({ params }: Props) {
   if (post.seo?.schemaMarkup) {
     try { schemaJsonLd = JSON.parse(post.seo.schemaMarkup); } catch { /* invalid JSON, skip */ }
   }
-  if (!schemaJsonLd) {
-    schemaJsonLd = {
+  schemaJsonLd ??= {
       '@context': 'https://schema.org',
       '@type': 'Article',
       headline: post.title || '',
@@ -95,14 +106,15 @@ export default async function BlogPostPage({ params }: Props) {
       dateModified: post.updatedAt || post.createdAt || undefined,
       mainEntityOfPage: { '@type': 'WebPage', '@id': postUrl },
     };
-  }
 
   return (
     <div className="min-h-screen bg-white">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJsonLd) }}
-      />
+      {!SEO_HOLD && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJsonLd) }}
+        />
+      )}
       {/* ── Hero ── */}
       <section className="bg-[#0D1B3E] py-10 sm:py-14">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -195,7 +207,7 @@ export default async function BlogPostPage({ params }: Props) {
               prose-pre:bg-[#0D1B3E] prose-pre:text-white prose-pre:overflow-x-auto prose-pre:rounded-lg
               [&_.break-all]:break-all [&_.overflow-x-auto]:overflow-x-auto [&_.overflow-x-auto]:scrollbar-thin"
             dangerouslySetInnerHTML={{ 
-              __html: sanitizeAndOptimizeMobileContent(sanitizeHtml((post.content || '').replace(/\n/g, '<br />')))
+              __html: sanitizeAndOptimizeMobileContent(sanitizeHtml((post.content || '').replaceAll('\n', '<br />')))
             }}
           />
         </div>

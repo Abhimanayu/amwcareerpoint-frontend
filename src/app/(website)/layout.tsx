@@ -1,6 +1,7 @@
 import { Header, Footer } from "@/components/layout";
 import { AnnouncementBar } from "@/components/home";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
+import { SEO_HOLD } from '@/lib/seoHold';
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -28,15 +29,17 @@ const jsonLd = {
 
 export default function WebsiteLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      {!SEO_HOLD && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
       <AnnouncementBar />
       <Header />
       <main className="flex-1">

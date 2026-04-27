@@ -4,11 +4,23 @@ import { getCountries } from '@/lib/countries';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { clampList, clampText, extractCollectionData } from '@/lib/utils';
+import { SEO_HOLD } from '@/lib/seoHold';
 
 export const metadata: Metadata = {
-  title: 'Countries for MBBS Abroad',
-  description: 'Explore top countries for MBBS abroad with AMW Career Point including Russia, Ukraine, Georgia, Kazakhstan and more. Find the best destination for your medical education.',
-  alternates: { canonical: '/countries' },
+  ...(SEO_HOLD
+    ? {
+        title: 'AMW Career Point',
+        description: 'AMW Career Point official website.',
+        robots: {
+          index: false,
+          follow: false,
+        },
+      }
+    : {
+        title: 'Countries for MBBS Abroad',
+        description: 'Explore top countries for MBBS abroad with AMW Career Point including Russia, Ukraine, Georgia, Kazakhstan and more. Find the best destination for your medical education.',
+        alternates: { canonical: '/countries' },
+      }),
 };
 
 export const revalidate = 60;
