@@ -149,7 +149,8 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Slug</label>
-              <input value={form.slug} onChange={(e) => updateField('slug', e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
+              <input maxLength={L.slug.max} value={form.slug} onChange={(e) => updateField('slug', e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
+              <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'slug')} /><CharCount current={form.slug.length} max={L.slug.max} /></div>
             </div>
           </div>
           <div>
@@ -161,8 +162,9 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-            <textarea rows={4} maxLength={L.description.max} value={form.description} onChange={(e) => updateField('description', e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none resize-none" />
+            <textarea rows={6} maxLength={L.description.max} value={form.description} onChange={(e) => updateField('description', e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none resize-y" />
             <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'description')} /><CharCount current={form.description.length} max={L.description.max} /></div>
+            <p className="text-xs text-gray-400 mt-1">Longer copy is supported, but keep the first 2-3 lines clear for card previews.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
@@ -216,7 +218,7 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Eligibility</label>
-            <textarea rows={2} maxLength={L.eligibility.max} value={form.eligibility} onChange={(e) => updateField('eligibility', e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none resize-none" />
+            <textarea rows={4} maxLength={L.eligibility.max} value={form.eligibility} onChange={(e) => updateField('eligibility', e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none resize-y" />
             <div className="flex justify-end"><CharCount current={form.eligibility.length} max={L.eligibility.max} /></div>
           </div>
         </section>
@@ -300,7 +302,7 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
                 <input maxLength={L.faqs.questionMax} value={f.question} onChange={(e) => { const arr = [...form.faqs]; arr[i] = { ...arr[i], question: e.target.value }; updateField('faqs', arr); }} placeholder="Question" className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm" />
                 {form.faqs.length > 1 && <button type="button" onClick={() => updateField('faqs', form.faqs.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600 px-2">×</button>}
               </div>
-              <textarea maxLength={L.faqs.answerMax} value={f.answer} onChange={(e) => { const arr = [...form.faqs]; arr[i] = { ...arr[i], answer: e.target.value }; updateField('faqs', arr); }} placeholder="Answer" rows={2} className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm resize-none" />
+              <textarea maxLength={L.faqs.answerMax} value={f.answer} onChange={(e) => { const arr = [...form.faqs]; arr[i] = { ...arr[i], answer: e.target.value }; updateField('faqs', arr); }} placeholder="Answer" rows={4} className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm resize-y" />
             </div>
           ))}
         </section>
@@ -313,7 +315,7 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
             <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'seoTitle')} /><CharCount current={form.seo.metaTitle.length} max={L.seoTitle.max} /></div>
           </div>
           <div>
-            <textarea rows={2} maxLength={L.seoDesc.max} value={form.seo.metaDescription} onChange={(e) => setForm((p) => ({ ...p, seo: { ...p.seo, metaDescription: e.target.value } }))} placeholder="Meta Description" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none resize-none" />
+            <textarea rows={3} maxLength={L.seoDesc.max} value={form.seo.metaDescription} onChange={(e) => setForm((p) => ({ ...p, seo: { ...p.seo, metaDescription: e.target.value } }))} placeholder="Meta Description" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none resize-y" />
             <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'seoDesc')} /><CharCount current={form.seo.metaDescription.length} max={L.seoDesc.max} /></div>
           </div>
           <div>

@@ -284,9 +284,15 @@ function buildCountryValidationInput(form: CountryFormState) {
     tagline: form.tagline,
     description: form.description,
     feeRange: form.feeRange,
+    feeRangeUSD: form.feeRangeUSD,
     duration: form.duration,
     medium: form.medium,
     livingCost: form.livingCost,
+    countryCode: form.countryCode,
+    language: form.language,
+    currency: form.currency,
+    climate: form.climate,
+    visaInfo: form.visaInfo,
     features: form.features.map(({ icon, title, description }) => ({
       icon,
       title,
@@ -496,7 +502,7 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const L = LIMITS.country;
   const textInputClass = 'w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-orange outline-none';
-  const textAreaClass = `${textInputClass} resize-none`;
+  const textAreaClass = `${textInputClass} resize-y`;
   const compactInputClass = 'w-full px-3 py-2 rounded-lg border border-gray-200 text-sm';
   const addButtonClass = 'text-sm text-orange font-medium';
   const submitButtonLabel = getSubmitButtonLabel(saving, isEdit);
@@ -643,10 +649,12 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
               <label htmlFor="country-slug" className="block text-sm font-medium text-gray-700 mb-1">Slug</label>
               <input
                 id="country-slug"
+                maxLength={L.slug.max}
                 value={form.slug}
                 onChange={(e) => updateField('slug', e.target.value)}
                 className={textInputClass}
               />
+              <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'slug')} /><CharCount current={form.slug.length} max={L.slug.max} /></div>
             </div>
           </div>
 
@@ -692,12 +700,13 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
               <label htmlFor="country-fee-usd" className="block text-sm font-medium text-gray-700 mb-1">Tuition Fee (USD)</label>
               <input
                 id="country-fee-usd"
-                maxLength={100}
+                maxLength={L.feeRangeUSD.max}
                 value={form.feeRangeUSD}
                 onChange={(e) => updateField('feeRangeUSD', e.target.value)}
                 className={textInputClass}
                 placeholder="e.g. $5000-8000 / year"
               />
+              <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'feeRangeUSD')} /><CharCount current={form.feeRangeUSD.length} max={L.feeRangeUSD.max} /></div>
             </div>
           </div>
 
@@ -745,12 +754,13 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
               <label htmlFor="country-code" className="block text-sm font-medium text-gray-700 mb-1">Country Code</label>
               <input
                 id="country-code"
-                maxLength={10}
+                maxLength={L.countryCode.max}
                 value={form.countryCode}
                 onChange={(e) => updateField('countryCode', e.target.value)}
                 className={textInputClass}
                 placeholder="e.g. RU, IN, US"
               />
+              <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'countryCode')} /><CharCount current={form.countryCode.length} max={L.countryCode.max} /></div>
             </div>
           </div>
 
@@ -759,23 +769,25 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
               <label htmlFor="country-language" className="block text-sm font-medium text-gray-700 mb-1">Language</label>
               <input
                 id="country-language"
-                maxLength={100}
+                maxLength={L.language.max}
                 value={form.language}
                 onChange={(e) => updateField('language', e.target.value)}
                 className={textInputClass}
                 placeholder="e.g. English, Russian"
               />
+              <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'language')} /><CharCount current={form.language.length} max={L.language.max} /></div>
             </div>
             <div>
               <label htmlFor="country-currency" className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
               <input
                 id="country-currency"
-                maxLength={100}
+                maxLength={L.currency.max}
                 value={form.currency}
                 onChange={(e) => updateField('currency', e.target.value)}
                 className={textInputClass}
                 placeholder="e.g. RUB, INR, USD"
               />
+              <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'currency')} /><CharCount current={form.currency.length} max={L.currency.max} /></div>
             </div>
           </div>
 
@@ -784,12 +796,13 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
               <label htmlFor="country-climate" className="block text-sm font-medium text-gray-700 mb-1">Climate</label>
               <input
                 id="country-climate"
-                maxLength={100}
+                maxLength={L.climate.max}
                 value={form.climate}
                 onChange={(e) => updateField('climate', e.target.value)}
                 className={textInputClass}
                 placeholder="e.g. Temperate, Tropical"
               />
+              <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'climate')} /><CharCount current={form.climate.length} max={L.climate.max} /></div>
             </div>
             <div>
               <label htmlFor="country-status" className="block text-sm font-medium text-gray-700 mb-1">Status</label>
@@ -921,7 +934,7 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
             <label htmlFor="student-life-description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
             <textarea
               id="student-life-description"
-              rows={3}
+              rows={4}
               maxLength={L.studentLife.descriptionMax}
               value={form.studentLife.description}
               onChange={(e) => updateStudentLife({ ...form.studentLife, description: e.target.value })}
@@ -968,7 +981,7 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
                   )}
                 </div>
                 <textarea
-                  rows={2}
+                  rows={3}
                   maxLength={L.studentLife.cardDescriptionMax}
                   value={item.description}
                   onChange={(e) => {
@@ -977,7 +990,7 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
                     updateStudentLife({ ...form.studentLife, cards: arr });
                   }}
                   placeholder="Card description"
-                  className={`${compactInputClass} resize-none`}
+                  className={`${compactInputClass} resize-y`}
                 />
                 <div className="text-[11px] text-gray-400">
                   Keep each card focused on one aspect of student life such as accommodation, food, academics, safety, or culture.
@@ -1084,7 +1097,7 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
             <label htmlFor="support-description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
             <textarea
               id="support-description"
-              rows={3}
+              rows={4}
               maxLength={L.supportExperience.descriptionMax}
               value={form.supportExperience.description}
               onChange={(e) => updateSupportExperience({ ...form.supportExperience, description: e.target.value })}
@@ -1267,7 +1280,7 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
                 )}
               </div>
               <textarea
-                rows={2}
+                rows={3}
                 maxLength={L.features.descriptionMax}
                 value={feature.description}
                 onChange={(e) => {
@@ -1276,7 +1289,7 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
                   updateField('features', arr);
                 }}
                 placeholder="Feature description"
-                className={`${compactInputClass} resize-none`}
+                className={`${compactInputClass} resize-y`}
               />
             </div>
           ))}
@@ -1290,14 +1303,14 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
                  </div>
                  <textarea
                    id="country-visa-info"
-                   rows={4}
-                   maxLength={2000}
+                   rows={5}
+                   maxLength={L.visaInfo.max}
                    value={form.visaInfo}
                    onChange={(e) => updateField('visaInfo', e.target.value)}
                    className={textAreaClass}
                    placeholder="Visa requirements, processing time, fees, documents needed..."
                  />
-                 <CharCount current={form.visaInfo.length} max={2000} />
+                 <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'visaInfo')} /><CharCount current={form.visaInfo.length} max={L.visaInfo.max} /></div>
                </section>
 
                {/* FAQs */}
@@ -1340,8 +1353,8 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
                   updateField('faqs', arr);
                 }}
                 placeholder="Answer"
-                rows={2}
-                className={`${compactInputClass} resize-none`}
+                rows={4}
+                className={`${compactInputClass} resize-y`}
               />
             </div>
           ))}
@@ -1383,10 +1396,13 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
           </div>
           <FieldError message={getFieldError(validationErrors, 'admissionProcess')} />
           {form.admissionProcess.map((s, i) => (
-            <div key={s.id} className="grid grid-cols-1 sm:grid-cols-[60px_1fr_1fr_auto] gap-2 p-3 bg-gray-50 rounded-xl items-center">
+            <div key={s.id} className="grid grid-cols-1 sm:grid-cols-[60px_1fr_auto] gap-2 p-3 bg-gray-50 rounded-xl items-start">
               <input type="number" value={s.step} onChange={(e) => { const arr = [...form.admissionProcess]; arr[i] = { ...arr[i], step: Number.parseInt(e.target.value) || 0 }; updateField('admissionProcess', arr); }} placeholder="#" className={`${compactInputClass} text-center`} />
-              <input maxLength={L.admissionProcess.titleMax} value={s.title} onChange={(e) => { const arr = [...form.admissionProcess]; arr[i] = { ...arr[i], title: e.target.value }; updateField('admissionProcess', arr); }} placeholder="Step title" className={compactInputClass} />
-              <input maxLength={L.admissionProcess.descMax} value={s.description} onChange={(e) => { const arr = [...form.admissionProcess]; arr[i] = { ...arr[i], description: e.target.value }; updateField('admissionProcess', arr); }} placeholder="Step description" className={compactInputClass} />
+              <div className="space-y-2">
+                <input maxLength={L.admissionProcess.titleMax} value={s.title} onChange={(e) => { const arr = [...form.admissionProcess]; arr[i] = { ...arr[i], title: e.target.value }; updateField('admissionProcess', arr); }} placeholder="Step title" className={compactInputClass} />
+                <textarea rows={3} maxLength={L.admissionProcess.descMax} value={s.description} onChange={(e) => { const arr = [...form.admissionProcess]; arr[i] = { ...arr[i], description: e.target.value }; updateField('admissionProcess', arr); }} placeholder="Step description" className={`${compactInputClass} resize-y`} />
+                <div className="flex justify-end"><CharCount current={s.description.length} max={L.admissionProcess.descMax} /></div>
+              </div>
               {form.admissionProcess.length > 1 && (
                 <button type="button" onClick={() => updateField('admissionProcess', form.admissionProcess.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600 px-2">×</button>
               )}

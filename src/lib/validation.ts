@@ -10,77 +10,83 @@ export interface ValidationError {
 export const LIMITS = {
   // Country
   country: {
-    name: { min: 2, max: 60 },
-    slug: { min: 2, max: 80 },
-    tagline: { max: 180 },
-    description: { min: 20, max: 3000 },
-    feeRange: { max: 60 },
-    duration: { max: 60 },
-    medium: { max: 60 },
-    livingCost: { max: 60 },
-    features: { maxItems: 6, iconMax: 8, titleMax: 75, descriptionMax: 500 },
+    name: { min: 2, max: 80 },
+    slug: { min: 2, max: 120 },
+    tagline: { max: 260 },
+    description: { min: 20, max: 6000 },
+    feeRange: { max: 120 },
+    feeRangeUSD: { max: 140 },
+    duration: { max: 120 },
+    medium: { max: 120 },
+    livingCost: { max: 120 },
+    countryCode: { max: 20 },
+    language: { max: 180 },
+    currency: { max: 120 },
+    climate: { max: 180 },
+    visaInfo: { max: 4000 },
+    features: { maxItems: 6, iconMax: 8, titleMax: 120, descriptionMax: 900 },
     studentLife: {
-      eyebrowMax: 40,
-      titleMax: 120,
-      descriptionMax: 700,
+      eyebrowMax: 80,
+      titleMax: 180,
+      descriptionMax: 1200,
       cardsMax: 6,
       cardIconMax: 8,
-      cardTitleMax: 55,
-      cardDescriptionMax: 500,
+      cardTitleMax: 90,
+      cardDescriptionMax: 800,
     },
     documentsChecklist: {
-      eyebrowMax: 100,
-      titleMax: 220,
+      eyebrowMax: 140,
+      titleMax: 300,
       itemsMax: 12,
-      itemLabelMax: 180,
+      itemLabelMax: 260,
     },
     supportExperience: {
-      eyebrowMax: 60,
-      titleMax: 120,
-      descriptionMax: 500,
+      eyebrowMax: 100,
+      titleMax: 180,
+      descriptionMax: 1200,
       progressItemsMax: 6,
-      progressLabelMax: 100,
-      progressStatusMax: 20,
+      progressLabelMax: 160,
+      progressStatusMax: 40,
       supportCardsMax: 6,
-      supportCardTitleMax: 32,
-      supportCardSubtitleMax: 90,
+      supportCardTitleMax: 60,
+      supportCardSubtitleMax: 180,
     },
-    highlights: { maxItems: 12, maxLen: 160 },
-    faqs: { maxItems: 12, questionMax: 300, answerMax: 2000 },
-    eligibility: { maxItems: 15, maxLen: 260 },
-    admissionProcess: { maxItems: 10, titleMax: 100, descMax: 500 },
+    highlights: { maxItems: 12, maxLen: 240 },
+    faqs: { maxItems: 12, questionMax: 450, answerMax: 4000 },
+    eligibility: { maxItems: 15, maxLen: 450 },
+    admissionProcess: { maxItems: 10, titleMax: 160, descMax: 1200 },
     seoTitle: { max: 70 },
     seoDesc: { max: 160 },
     seoKeywords: { max: 250 },
   },
   // University
   university: {
-    name: { min: 3, max: 140 },
-    slug: { min: 2, max: 160 },
-    description: { min: 20, max: 4500 },
-    ranking: { max: 120 },
-    accreditation: { max: 180 },
-    courseDuration: { max: 90 },
-    annualFees: { max: 100 },
-    medium: { max: 60 },
-    hostelFees: { max: 100 },
-    eligibility: { max: 1500 },
+    name: { min: 3, max: 180 },
+    slug: { min: 2, max: 220 },
+    description: { min: 20, max: 7000 },
+    ranking: { max: 180 },
+    accreditation: { max: 260 },
+    courseDuration: { max: 140 },
+    annualFees: { max: 140 },
+    medium: { max: 120 },
+    hostelFees: { max: 140 },
+    eligibility: { max: 3000 },
     gallery: { maxItems: 10 },
-    recognition: { maxItems: 10, maxLen: 100 },
-    highlights: { maxItems: 15, labelMax: 70, valueMax: 140 },
-    faqs: { maxItems: 15, questionMax: 260, answerMax: 1800 },
+    recognition: { maxItems: 10, maxLen: 180 },
+    highlights: { maxItems: 15, labelMax: 120, valueMax: 240 },
+    faqs: { maxItems: 15, questionMax: 400, answerMax: 3500 },
     seoTitle: { max: 70 },
     seoDesc: { max: 160 },
     seoKeywords: { max: 250 },
   },
   // Blog
   blog: {
-    title: { min: 5, max: 150 },
-    slug: { min: 2, max: 180 },
-    excerpt: { max: 300 },
+    title: { min: 5, max: 220 },
+    slug: { min: 2, max: 240 },
+    excerpt: { max: 700 },
     content: { min: 50 },
-    author: { max: 60 },
-    tags: { max: 250 },
+    author: { max: 100 },
+    tags: { max: 400 },
     seoTitle: { max: 70 },
     seoDesc: { max: 160 },
     seoKeywords: { max: 250 },
@@ -95,9 +101,15 @@ export function validateCountryForm(form: {
   tagline: string;
   description: string;
   feeRange: string;
+  feeRangeUSD: string;
   duration: string;
   medium: string;
   livingCost: string;
+  countryCode: string;
+  language: string;
+  currency: string;
+  climate: string;
+  visaInfo: string;
   features: { icon: string; title: string; description: string }[];
   studentLife: {
     eyebrow: string;
@@ -138,9 +150,15 @@ export function validateCountryForm(form: {
   if (form.description && form.description.length < L.description.min) errors.push({ field: 'description', message: `Description must be at least ${L.description.min} characters` });
   if (form.description.length > L.description.max) errors.push({ field: 'description', message: `Description must not exceed ${L.description.max} characters` });
   if (form.feeRange.length > L.feeRange.max) errors.push({ field: 'feeRange', message: `Tuition fee must not exceed ${L.feeRange.max} characters` });
+  if (form.feeRangeUSD.length > L.feeRangeUSD.max) errors.push({ field: 'feeRangeUSD', message: `Tuition fee (USD) must not exceed ${L.feeRangeUSD.max} characters` });
   if (form.duration.length > L.duration.max) errors.push({ field: 'duration', message: `Duration must not exceed ${L.duration.max} characters` });
   if (form.medium.length > L.medium.max) errors.push({ field: 'medium', message: `Medium must not exceed ${L.medium.max} characters` });
   if (form.livingCost.length > L.livingCost.max) errors.push({ field: 'livingCost', message: `Living cost must not exceed ${L.livingCost.max} characters` });
+  if (form.countryCode.length > L.countryCode.max) errors.push({ field: 'countryCode', message: `Country code must not exceed ${L.countryCode.max} characters` });
+  if (form.language.length > L.language.max) errors.push({ field: 'language', message: `Language must not exceed ${L.language.max} characters` });
+  if (form.currency.length > L.currency.max) errors.push({ field: 'currency', message: `Currency must not exceed ${L.currency.max} characters` });
+  if (form.climate.length > L.climate.max) errors.push({ field: 'climate', message: `Climate must not exceed ${L.climate.max} characters` });
+  if (form.visaInfo.length > L.visaInfo.max) errors.push({ field: 'visaInfo', message: `Visa information must not exceed ${L.visaInfo.max} characters` });
 
   const activeFeatures = form.features.filter((item) => item.title.trim() || item.description.trim());
   if (activeFeatures.length > L.features.maxItems) {

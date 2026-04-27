@@ -153,7 +153,8 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Slug</label>
-              <input value={form.slug} onChange={(e) => updateField('slug', e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
+              <input maxLength={L.slug.max} value={form.slug} onChange={(e) => updateField('slug', e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
+              <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'slug')} /><CharCount current={form.slug.length} max={L.slug.max} /></div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Author</label>
@@ -194,8 +195,9 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Excerpt</label>
-            <textarea rows={2} maxLength={L.excerpt.max} value={form.excerpt} onChange={(e) => updateField('excerpt', e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none resize-none" />
+            <textarea rows={4} maxLength={L.excerpt.max} value={form.excerpt} onChange={(e) => updateField('excerpt', e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none resize-y" />
             <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'excerpt')} /><CharCount current={form.excerpt.length} max={L.excerpt.max} /></div>
+            <p className="text-xs text-gray-400 mt-1">Use the first sentence as a crisp summary for cards and social previews.</p>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Content *</label>
@@ -281,7 +283,7 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
             <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'seoTitle')} /><CharCount current={form.seo.metaTitle.length} max={L.seoTitle.max} /></div>
           </div>
           <div>
-            <textarea rows={2} maxLength={L.seoDesc.max} value={form.seo.metaDescription} onChange={(e) => setForm((p) => ({ ...p, seo: { ...p.seo, metaDescription: e.target.value } }))} placeholder="Meta Description" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none resize-none" />
+            <textarea rows={3} maxLength={L.seoDesc.max} value={form.seo.metaDescription} onChange={(e) => setForm((p) => ({ ...p, seo: { ...p.seo, metaDescription: e.target.value } }))} placeholder="Meta Description" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none resize-y" />
             <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'seoDesc')} /><CharCount current={form.seo.metaDescription.length} max={L.seoDesc.max} /></div>
           </div>
           <div>

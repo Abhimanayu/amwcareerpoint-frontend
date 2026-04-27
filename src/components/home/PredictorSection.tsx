@@ -16,17 +16,6 @@ export function PredictorSection() {
             Predict College
           </button>
         </div>
-
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-8 sm:mt-10 max-w-md mx-auto text-center">
-          <div>
-            <div className="font-heading text-base sm:text-lg font-bold text-[#F26419]">⚡ Instant</div>
-            <p className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">Results in seconds</p>
-          </div>
-          <div>
-            <div className="font-heading text-base sm:text-lg font-bold text-[#F26419]">🎯 95%</div>
-            <p className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">Accuracy rate</p>
-          </div>
-        </div>
       </div>
     </section>
   );

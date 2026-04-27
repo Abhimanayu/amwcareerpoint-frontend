@@ -26,7 +26,7 @@ const staticMenuItems: MenuItem[] = [
   },
   { href: '#', label: 'College Predictor' },
   { href: '/blogs', label: 'Blog' },
-  { href: '#', label: 'Login' },
+  { href: '/about', label: 'About Us' },
 ];
 
 const HEADER_COUNTRY_LIMIT = 5;
