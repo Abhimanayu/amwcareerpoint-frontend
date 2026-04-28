@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ImageUploader from '@/components/admin/ImageUploader';
@@ -506,12 +506,6 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
   const compactInputClass = 'w-full px-3 py-2 rounded-lg border border-gray-200 text-sm';
   const addButtonClass = 'text-sm text-orange font-medium';
   const submitButtonLabel = getSubmitButtonLabel(saving, isEdit);
-
-  useEffect(() => {
-    if (initialData) {
-      setForm(buildCountryForm(initialData));
-    }
-  }, [initialData]);
 
   const updateStudentLife = (value: StudentLifeForm) => {
     setForm((prev) => ({ ...prev, studentLife: value }));
@@ -1295,23 +1289,30 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
           ))}
         </section>
 
-        {/* FAQs */}
-               <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-                 <div>
-                   <h2 className="font-semibold text-gray-900">Visa Information</h2>
-                   <p className="mt-1 text-sm text-gray-500">Important visa requirements and process for this country.</p>
-                 </div>
-                 <textarea
-                   id="country-visa-info"
-                   rows={5}
-                   maxLength={L.visaInfo.max}
-                   value={form.visaInfo}
-                   onChange={(e) => updateField('visaInfo', e.target.value)}
-                   className={textAreaClass}
-                   placeholder="Visa requirements, processing time, fees, documents needed..."
-                 />
-                 <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'visaInfo')} /><CharCount current={form.visaInfo.length} max={L.visaInfo.max} /></div>
-               </section>
+        {/* Visa Information */}
+        <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <h2 className="font-semibold text-gray-900">Visa Information <span className="text-xs font-normal text-gray-400">(Optional)</span></h2>
+              <p className="mt-1 text-sm text-gray-500">If filled, this will appear on the public country page. Leave empty to hide the visa section.</p>
+            </div>
+            {form.visaInfo.trim() ? (
+              <span className="inline-flex items-center rounded-full bg-green-50 border border-green-200 px-2.5 py-1 text-xs font-medium text-green-700">Will show on website</span>
+            ) : (
+              <span className="inline-flex items-center rounded-full bg-gray-100 border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-500">Currently hidden on website</span>
+            )}
+          </div>
+          <textarea
+            id="country-visa-info"
+            rows={5}
+            maxLength={L.visaInfo.max}
+            value={form.visaInfo}
+            onChange={(e) => updateField('visaInfo', e.target.value)}
+            className={textAreaClass}
+            placeholder="Visa requirements, processing time, fees, documents needed..."
+          />
+          <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'visaInfo')} /><CharCount current={form.visaInfo.length} max={L.visaInfo.max} /></div>
+        </section>
 
                {/* FAQs */}
         <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">

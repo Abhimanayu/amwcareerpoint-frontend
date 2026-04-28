@@ -781,6 +781,24 @@ export default async function CountryPage({ params }: Props) {
         </section>
       )}
 
+      {typeof country.visaInfo === 'string' && country.visaInfo.trim() && (
+        <section className="bg-white px-4 py-14 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-8 max-w-3xl">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F26419]">
+                Visa Information
+              </span>
+              <h2 className="mt-3 font-heading text-2xl sm:text-3xl font-bold text-[#0D1B3E]">
+                Visa requirements for {country.name}
+              </h2>
+            </div>
+            <div className="rounded-[24px] border border-[#E7DECF] bg-[#FFFDF9] p-6 shadow-[0_12px_36px_rgba(13,27,62,0.04)]">
+              <p className="whitespace-pre-line text-[15px] leading-7 text-[#4A4742]">{country.visaInfo}</p>
+            </div>
+          </div>
+        </section>
+      )}
+
       {admissionSteps.length > 0 && (
         <section className="bg-white px-4 py-14 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl">
