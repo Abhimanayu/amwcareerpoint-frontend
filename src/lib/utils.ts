@@ -55,13 +55,14 @@ export function clampText(
 ) {
   const { fallback = '', preserveWords = true } = options;
   const text = normalizeDisplayText(value);
+  const chars = Array.from(text);
 
   if (!text) return fallback;
-  if (text.length <= maxLength) return text;
-  if (maxLength <= 1) return '…';
+  if (chars.length <= maxLength) return text;
+  if (maxLength <= 3) return '.'.repeat(Math.max(1, maxLength));
 
-  const limit = maxLength - 1;
-  let trimmed = text.slice(0, limit);
+  const limit = maxLength - 3;
+  let trimmed = chars.slice(0, limit).join('');
 
   if (preserveWords) {
     const lastSpace = trimmed.lastIndexOf(' ');
@@ -70,7 +71,7 @@ export function clampText(
     }
   }
 
-  return `${trimmed.trimEnd()}…`;
+  return `${trimmed.trimEnd()}...`;
 }
 
 export function clampList(

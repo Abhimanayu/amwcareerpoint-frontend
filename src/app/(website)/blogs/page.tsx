@@ -4,7 +4,7 @@ import { getBlogs, getBlogCategories } from '@/lib/blogs';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { clampText, extractCollectionData, formatDate, pickBlogImageSource } from '@/lib/utils';
 import { SafeImage } from '@/components/ui/SafeImage';
-import { BlogSearchBar, SubscribeForm } from '@/components/blog/BlogInteractive';
+import { SubscribeForm } from '@/components/blog/BlogInteractive';
 import { SEO_HOLD } from '@/lib/seoHold';
 
 export const metadata: Metadata = {
@@ -27,7 +27,24 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 const LATEST_PAGE_SIZE = 8;
 
-/* ── helpers ─────────────────────────────────────────── */
+type BlogPost = {
+  _id?: string;
+  slug?: string;
+  title?: string;
+  excerpt?: string;
+  content?: string;
+  author?: string;
+  createdAt?: string;
+  category?: { name?: string } | string;
+  [key: string]: unknown;
+};
+
+type BlogCategory = {
+  name?: string;
+  [key: string]: unknown;
+};
+
+/* helpers */
 function estimateReadTime(post: Record<string, unknown>): string {
   const content = typeof post.content === 'string' ? post.content : '';
   if (!content) return '5 min';
@@ -78,7 +95,7 @@ function matchesSearch(post: Record<string, unknown>, query: string): boolean {
 }
 
 type BlogPageDataInput = {
-  blogPosts: any[];
+  blogPosts: BlogPost[];
   categorySeed: string[];
   categoryQuery: string;
   searchQuery: string;
@@ -115,8 +132,6 @@ function deriveBlogPageData(input: BlogPageDataInput) {
   };
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// eslint-disable-next-line sonarjs/cognitive-complexity
 export default async function BlogPage({
   searchParams,
 }: Readonly<{
@@ -128,7 +143,7 @@ export default async function BlogPage({
   const pageQuery = typeof resolvedParams.page === 'string' ? Number.parseInt(resolvedParams.page, 10) : 1;
   const currentPage = Number.isFinite(pageQuery) && pageQuery > 0 ? pageQuery : 1;
 
-  let blogPosts: any[] = [];
+  let blogPosts: BlogPost[] = [];
   let categorySeed: string[] = [];
 
   const blogParams: Record<string, unknown> = { limit: 120 };
@@ -139,11 +154,15 @@ export default async function BlogPage({
   ]);
 
   if (blogsResult) {
-    blogPosts = extractCollectionData<any>(blogsResult, ['blogs']);
+    blogPosts = extractCollectionData<BlogPost>(blogsResult, ['blogs']);
   }
   if (catResult) {
-    const catData = extractCollectionData<any>(catResult, ['categories']);
-    categorySeed = Array.isArray(catData) ? catData.map((c: any) => String(c.name || c || '')).filter(Boolean) : [];
+    const catData = extractCollectionData<BlogCategory | string>(catResult, ['categories']);
+    categorySeed = Array.isArray(catData)
+      ? catData
+          .map((c) => (typeof c === 'string' ? c : String(c.name || '')))
+          .filter(Boolean)
+      : [];
   }
 
   const {
@@ -168,7 +187,7 @@ export default async function BlogPage({
 
   return (
     <div className="bg-white">
-      {/* ════════════ HERO ════════════ */}
+      {/* HERO */}
       <section className="relative bg-[#0D1B3E] overflow-hidden">
         {/* oversized background decoration */}
         <div
@@ -197,7 +216,32 @@ export default async function BlogPage({
             </p>
 
             {/* search bar */}
-            <BlogSearchBar initialQuery={searchQuery} />
+            <form action="/blogs" method="get" className="flex max-w-md mb-6 sm:mb-8">
+              {categoryQuery ? <input type="hidden" name="category" value={categoryQuery} /> : null}
+              <div className="relative flex-1 min-w-0">
+                <input
+                  type="text"
+                  name="q"
+                  defaultValue={searchQuery}
+                  placeholder="Search: FMGE pass rate, Georgia fees, NMC rules..."
+                  className="w-full h-10 sm:h-11 rounded-l-lg bg-white/10 border border-white/20 px-3 sm:px-4 pr-8 text-[12px] sm:text-[13px] text-white placeholder:text-white/50 focus:outline-none focus:border-white/40"
+                />
+                {searchQuery ? (
+                  <Link
+                    href={buildBlogsHref({ category: categoryQuery || undefined })}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-white/50 hover:text-white text-sm"
+                  >
+                    ✕
+                  </Link>
+                ) : null}
+              </div>
+              <button
+                type="submit"
+                className="inline-flex items-center h-10 sm:h-11 px-4 sm:px-5 rounded-r-lg bg-[#F26419] text-white text-[12px] sm:text-[13px] font-bold hover:bg-[#FF8040] transition-colors shrink-0"
+              >
+                Search
+              </button>
+            </form>
 
             {/* stats */}
             <div className="flex flex-wrap items-center gap-x-6 gap-y-3 sm:gap-x-10 text-white">
@@ -218,7 +262,7 @@ export default async function BlogPage({
         </div>
       </section>
 
-      {/* ════════════ CATEGORY PILLS ════════════ */}
+      {/* CATEGORY PILLS */}
       <section className="bg-white border-b border-[#DDD9D2]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-1.5 py-3 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
@@ -248,11 +292,11 @@ export default async function BlogPage({
         </div>
       </section>
 
-      {/* ════════════ MAIN TWO-COLUMN LAYOUT ════════════ */}
+      {/* MAIN TWO-COLUMN LAYOUT */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
 
-          {/* ──── LEFT: Main Content ──── */}
+          {/* LEFT: Main Content */}
           <div className="flex-1 min-w-0">
 
             {hasFilters && (
@@ -266,7 +310,7 @@ export default async function BlogPage({
               </div>
             )}
 
-            {/* ── FEATURED ── */}
+            {/* FEATURED */}
             {featured && (
               <section className="mb-8 sm:mb-10">
                 <SectionLabel right={<span className="text-[10px] sm:text-[11px] text-[#4A4742]">Editor&apos;s pick</span>}>
@@ -303,7 +347,7 @@ export default async function BlogPage({
                     {/* content */}
                     <div className="p-4 sm:p-6 flex flex-col justify-center">
                       <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#F26419] mb-2">
-                        {clampText(featured.category?.name || featured.category || 'FMGE & NExT', 30)}
+                        {clampText(getCategoryName(featured) || 'FMGE & NExT', 30)}
                       </span>
                       <h3 className="font-heading text-base sm:text-lg lg:text-xl font-bold text-[#0D1B3E] leading-snug mb-2 sm:mb-3 line-clamp-3 group-hover:text-[#F26419] transition-colors">
                         {featured.title || 'Untitled Article'}
@@ -335,16 +379,16 @@ export default async function BlogPage({
               </section>
             )}
 
-            {/* ── TRENDING NOW ── */}
+            {/* TRENDING NOW */}
             {trending.length > 0 && (
               <section className="mb-8 sm:mb-10">
                 <SectionLabel right={<span className="text-[10px] sm:text-[11px] text-[#4A4742]">Most read this week</span>}>
                   Trending Now
                 </SectionLabel>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {trending.map((post: any) => {
+                  {trending.map((post) => {
                     const img = pickBlogImageSource(post);
-                    const catLabel = clampText(post.category?.name || post.category || 'Blog', 24);
+                    const catLabel = clampText(getCategoryName(post) || 'Blog', 24);
                     return (
                       <Link
                         key={post._id || post.slug}
@@ -369,7 +413,7 @@ export default async function BlogPage({
                         </div>
                         <div className="p-3.5 sm:p-4 flex flex-col flex-1">
                           <span className="text-[10px] font-bold uppercase tracking-wider text-[#F26419] mb-1">
-                            {clampText(post.category?.name || post.category || '', 24)}
+                            {clampText(getCategoryName(post), 24)}
                           </span>
                           <h3 className="font-heading text-[14px] sm:text-[15px] font-bold text-[#0D1B3E] leading-snug line-clamp-2 mb-2 group-hover:text-[#F26419] transition-colors">
                             {clampText(post.title || 'Untitled', 72)}
@@ -389,7 +433,7 @@ export default async function BlogPage({
               </section>
             )}
 
-            {/* ── LATEST ARTICLES ── */}
+            {/* LATEST ARTICLES */}
             <section>
               <SectionLabel right={<span className="text-[10px] sm:text-[11px] text-[#4A4742]">Updated daily</span>}>
                 Latest Articles
@@ -399,9 +443,9 @@ export default async function BlogPage({
                 <EmptyState icon="📝" title="More coming soon" description="Check back for the latest insights about MBBS abroad." />
               ) : (
                 <div className="divide-y divide-[#DDD9D2] border border-[#DDD9D2] rounded-xl bg-white overflow-hidden">
-                  {latest.map((post: any) => {
+                  {latest.map((post) => {
                     const img = pickBlogImageSource(post);
-                    const catLabel = clampText(post.category?.name || post.category || 'Blog', 22);
+                    const catLabel = clampText(getCategoryName(post) || 'Blog', 22);
                     return (
                       <Link
                         key={post._id || post.slug}
@@ -472,10 +516,10 @@ export default async function BlogPage({
             </section>
           </div>
 
-          {/* ──── RIGHT: Sidebar ──── */}
+          {/* RIGHT: Sidebar */}
           <aside className="w-full lg:w-[300px] xl:w-[330px] shrink-0 space-y-5 sm:space-y-6">
 
-            {/* — Free Consultation — */}
+            {/* Free Consultation */}
             <div className="rounded-xl bg-gradient-to-br from-[#0D1B3E] to-[#162550] p-4 sm:p-5 text-white">
               <div className="text-[10px] font-bold uppercase tracking-wider text-[#F26419] mb-2">
                 Free Consultation
@@ -498,14 +542,14 @@ export default async function BlogPage({
               </p>
             </div>
 
-            {/* — Popular This Week — */}
+            {/* Popular This Week */}
             {popularPosts.length > 0 && (
               <div className="rounded-xl border border-[#DDD9D2] bg-white p-4 sm:p-5">
                 <h4 className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#4A4742] mb-3 sm:mb-4">
                   Popular This Week
                 </h4>
                 <div className="space-y-3 sm:space-y-4">
-                  {popularPosts.map((post: any, i: number) => (
+                  {popularPosts.map((post, i) => (
                     <Link
                       key={post._id || post.slug}
                       href={`/blogs/${post.slug}`}
@@ -528,7 +572,7 @@ export default async function BlogPage({
               </div>
             )}
 
-            {/* — Browse by Topic — */}
+            {/* Browse by Topic */}
             {mergedCategories.length > 0 && (
               <div className="rounded-xl border border-[#DDD9D2] bg-white p-4 sm:p-5">
                 <h4 className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#4A4742] mb-2 sm:mb-3">
@@ -557,13 +601,13 @@ export default async function BlogPage({
               </div>
             )}
 
-            {/* — Weekly Digest — */}
+            {/* Weekly Digest */}
             <SubscribeForm variant="sidebar" />
           </aside>
         </div>
       </div>
 
-      {/* ════════════ BOTTOM NEWSLETTER CTA ════════════ */}
+      {/* BOTTOM NEWSLETTER CTA */}
       <section className="bg-[#0D1B3E]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 sm:gap-6">
@@ -586,7 +630,7 @@ export default async function BlogPage({
   );
 }
 
-/* ─────────── section label helper ─────────── */
+/* section label helper */
 function SectionLabel({ children, right }: Readonly<{ children: React.ReactNode; right?: React.ReactNode }>) {
   return (
     <div className="flex items-center justify-between mb-4 sm:mb-5">

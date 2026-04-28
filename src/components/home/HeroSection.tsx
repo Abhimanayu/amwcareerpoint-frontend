@@ -11,17 +11,21 @@ export function HeroSection() {
             <div className="max-w-[520px]">
               <span className="mb-3 sm:mb-4 inline-flex items-center gap-2 rounded-full bg-orange-50 border border-orange-200 px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold text-[#F26419]">
                 <span className="w-1.5 h-1.5 bg-[#F26419] rounded-full" />
+                {' '}
                 India&apos;s #1 Trusted Medical Consultancy
               </span>
 
-              <h1 className="font-heading text-[1.75rem] sm:text-[2.1rem] lg:text-[2.65rem] font-bold leading-[1.15] sm:leading-[1.12] text-[#0D1B3E] mb-3 sm:mb-4">
-                Your Trusted Partner for
+              <h1
+                aria-label="Your Trusted Partner for Medical Education in India & Abroad"
+                className="font-heading text-[1.75rem] sm:text-[2.1rem] lg:text-[2.65rem] font-bold leading-[1.15] sm:leading-[1.12] text-[#0D1B3E] mb-3 sm:mb-4"
+              >
+                Your Trusted Partner for{' '}
                 <span className="block text-[#F26419]">Medical Education</span>
-                <span className="block">in India &amp; Abroad</span>
+                <span className="block"> in India &amp; Abroad</span>
               </h1>
 
               <p className="text-[13px] sm:text-[14px] leading-[1.65] sm:leading-[1.7] text-[#4A4742] mb-4 sm:mb-5 max-w-md">
-                At AMW Career Point, we&apos;ve guided over 20,000 students since 2009. From NEET counselling to foreign university admissions — we turn your medical dreams into reality.
+                At AMW Career Point, we&apos;ve guided over 20,000 students since 2009. From NEET counselling to foreign university admissions - we turn your medical dreams into reality.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 mb-5 sm:mb-6">

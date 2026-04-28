@@ -115,7 +115,7 @@ export default async function BlogPostPage({ params }: Readonly<Props>) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJsonLd) }}
         />
       )}
-      {/* ── Hero ── */}
+      {/* Hero */}
       <section className="bg-[#0D1B3E] py-10 sm:py-14">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           {/* Breadcrumb */}
@@ -168,7 +168,7 @@ export default async function BlogPostPage({ params }: Readonly<Props>) {
         </div>
       </section>
 
-      {/* ── Cover Image ── */}
+      {/* Cover Image */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
         {postImage ? (
           <div className="w-full overflow-hidden rounded-xl border border-[#DDD9D2] shadow-sm bg-[#F9F8F6]">
@@ -189,7 +189,7 @@ export default async function BlogPostPage({ params }: Readonly<Props>) {
         )}
       </div>
 
-      {/* ── Article Content ── */}
+      {/* Article Content */}
       <section className="py-10 sm:py-14">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
@@ -213,7 +213,7 @@ export default async function BlogPostPage({ params }: Readonly<Props>) {
         </div>
       </section>
 
-      {/* ── Tags & Share ── */}
+      {/* Tags & Share */}
       <section className="border-t border-[#DDD9D2]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-wrap items-center justify-between gap-6">
@@ -250,7 +250,7 @@ export default async function BlogPostPage({ params }: Readonly<Props>) {
         </div>
       </section>
 
-      {/* ── Related Posts ── */}
+      {/* Related Posts */}
       {relatedPosts.length > 0 && (
         <section className="py-10 sm:py-14 bg-[#F9F8F6]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -322,7 +322,7 @@ export default async function BlogPostPage({ params }: Readonly<Props>) {
         </section>
       )}
 
-      {/* ── CTA Section ── */}
+      {/* CTA Section */}
       <section className="bg-[#0D1B3E] py-10 sm:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <span className="inline-block text-[#F26419] text-xs font-semibold tracking-wider uppercase mb-2">
