@@ -19,9 +19,42 @@ const fallbackCountries = [
   { name: 'Philippines', slug: 'philippines', code: 'ph', unis: '18+', fees: '₹3L – 6L', dur: '4 Yrs', highlights: ['English Speaking', 'US Curriculum', 'USMLE Prep'] },
 ];
 
+function readCountryTotal(payload: unknown, fallbackCount: number) {
+  if (!payload || typeof payload !== 'object') {
+    return fallbackCount;
+  }
+
+  const root = payload as Record<string, unknown>;
+  const data = typeof root.data === 'object' && root.data !== null ? root.data as Record<string, unknown> : null;
+  const pagination = typeof root.pagination === 'object' && root.pagination !== null ? root.pagination as Record<string, unknown> : null;
+  const nestedPagination = typeof data?.pagination === 'object' && data.pagination !== null ? data.pagination as Record<string, unknown> : null;
+
+  const candidates = [
+    root.total,
+    root.totalCount,
+    root.count,
+    pagination?.total,
+    pagination?.totalCount,
+    data?.total,
+    data?.totalCount,
+    data?.count,
+    nestedPagination?.total,
+    nestedPagination?.totalCount,
+  ];
+
+  for (const candidate of candidates) {
+    if (typeof candidate === 'number' && Number.isFinite(candidate) && candidate > 0) {
+      return candidate;
+    }
+  }
+
+  return fallbackCount;
+}
+
 export function CountriesSection() {
   const [countries, setCountries] = useState<any[]>(fallbackCountries);
   const [usingFallback, setUsingFallback] = useState(true);
+  const [totalCountries, setTotalCountries] = useState(fallbackCountries.length);
 
   useEffect(() => {
     getCountries({ limit: 10 })
@@ -30,18 +63,21 @@ export function CountriesSection() {
         if (items.length > 0) {
           setCountries(items);
           setUsingFallback(false);
+          setTotalCountries(readCountryTotal(res, items.length));
         } else {
           setCountries(fallbackCountries);
           setUsingFallback(true);
+          setTotalCountries(fallbackCountries.length);
         }
       })
       .catch(() => {
         setCountries(fallbackCountries);
         setUsingFallback(true);
+        setTotalCountries(fallbackCountries.length);
       });
   }, []);
 
-  const countLabel = countries.length;
+  const countLabel = totalCountries;
 
   return (
     <section className="bg-white py-10 sm:py-14">
