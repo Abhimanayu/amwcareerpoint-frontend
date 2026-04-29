@@ -6,7 +6,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import DataTable from '@/components/admin/DataTable';
 import ConfirmModal from '@/components/admin/ConfirmModal';
 import StatusBadge from '@/components/admin/StatusBadge';
-import { FlagImage } from '@/components/ui/UniversalImage';
+import { SafeImage } from '@/components/ui/SafeImage';
 import { adminGetCountries, deleteCountry } from '@/lib/countries';
 import { handleApiError } from '@/lib/handleApiError';
 
@@ -68,12 +68,17 @@ export default function AdminCountriesPage() {
       label: 'Country',
       render: (item: Record<string, unknown>) => (
         <div className="flex items-center gap-3">
-          <FlagImage 
-            src={item.flagImage as string} 
-            alt={`${item.name} flag`} 
+          <SafeImage
+            src={item.flagImage as string}
+            alt={`${item.name} flag`}
             width={32}
             height={24}
             className="w-8 h-6 rounded object-cover"
+            fallbackElement={
+              <div className="w-8 h-6 rounded bg-gray-100 border border-gray-200 flex items-center justify-center text-[7px] leading-tight text-gray-500 text-center px-0.5">
+                Image unavailable / replace image
+              </div>
+            }
           />
           <span className="font-medium">{item.name as string}</span>
         </div>

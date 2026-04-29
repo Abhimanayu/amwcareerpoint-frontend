@@ -94,6 +94,36 @@ export function isRemoteImageUrl(src: unknown): src is string {
   return typeof src === 'string' && /^https?:\/\//i.test(src);
 }
 
+const UNIVERSITY_FALLBACK_IMAGES = [
+  '/universities/moscow.jpg',
+  '/universities/astana.jpg',
+  '/universities/kyrgyz.jpg',
+  '/universities/tashkent.jpg',
+  '/universities/aiims.jpg',
+  '/universities/china.jpg',
+  '/blogs/mbbs-georgia-vs-india.jpg',
+];
+
+const BLOG_FALLBACK_IMAGES = [
+  '/blogs/russia-universities-nmc.jpg',
+  '/blogs/cost-abroad-vs-india.jpg',
+  '/blogs/alte-university.jpg',
+  '/blogs/mbbs-georgia-vs-india.jpg',
+  '/blogs/neet-cutoff-2025.jpg',
+];
+
+function getStableFallback(seed: unknown, fallbacks: string[]) {
+  const text = normalizeDisplayText(seed);
+  if (!text || fallbacks.length === 0) return '';
+
+  let hash = 0;
+  for (let i = 0; i < text.length; i += 1) {
+    hash = (hash * 31 + text.charCodeAt(i)) >>> 0;
+  }
+
+  return fallbacks[hash % fallbacks.length];
+}
+
 function getApiOrigin() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
@@ -192,7 +222,8 @@ export function pickUniversityImageSource(university: Record<string, unknown> | 
     university.cardImage,
     gallery[0],
     university.image,
-  ].find((value) => typeof value === 'string' && value.trim()) as string | undefined) || '';
+  ].find((value) => typeof value === 'string' && value.trim()) as string | undefined)
+    || getStableFallback(university.slug || university.name, UNIVERSITY_FALLBACK_IMAGES);
 }
 
 export function pickBlogImageSource(post: Record<string, unknown> | null | undefined) {
@@ -202,7 +233,7 @@ export function pickBlogImageSource(post: Record<string, unknown> | null | undef
 
   return ([post.coverImage, post.image, post.heroImage].find(
     (value) => typeof value === 'string' && value.trim()
-  ) as string | undefined) || '';
+  ) as string | undefined) || getStableFallback(post.slug || post.title, BLOG_FALLBACK_IMAGES);
 }
 
 /** Sanitize HTML: strip script tags, event handlers, and dangerous elements */

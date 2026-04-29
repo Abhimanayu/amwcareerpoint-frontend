@@ -79,10 +79,16 @@ export default function AdminUniversitiesPage() {
               width={32}
               height={32}
               className="w-8 h-8 rounded object-cover"
-              fallbackElement={<div className="w-8 h-8 rounded bg-gray-200 flex items-center justify-center text-xs">🏫</div>}
+              fallbackElement={
+                <div className="w-8 h-8 rounded bg-gray-100 border border-gray-200 flex items-center justify-center text-[7px] leading-tight text-gray-500 text-center px-0.5">
+                  Image unavailable / replace image
+                </div>
+              }
             />
           ) : (
-            <div className="w-8 h-8 rounded bg-gray-200 flex items-center justify-center text-xs">🏫</div>
+            <div className="w-8 h-8 rounded bg-gray-100 border border-gray-200 flex items-center justify-center text-[7px] leading-tight text-gray-500 text-center px-0.5">
+              Image unavailable / replace image
+            </div>
           )}
           <div className="min-w-0">
             <div className="font-medium truncate">{item.name as string}</div>

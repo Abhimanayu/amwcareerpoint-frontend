@@ -6,7 +6,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import DataTable from '@/components/admin/DataTable';
 import ConfirmModal from '@/components/admin/ConfirmModal';
 import StatusBadge from '@/components/admin/StatusBadge';
-import { CoverImage } from '@/components/ui/UniversalImage';
+import { SafeImage } from '@/components/ui/SafeImage';
 import { adminGetBlogs, deleteBlog } from '@/lib/blogs';
 import { handleApiError } from '@/lib/handleApiError';
 
@@ -72,12 +72,17 @@ export default function AdminBlogsPage() {
       label: 'Blog',
       render: (item: Record<string, unknown>) => (
         <div className="flex items-center gap-3">
-          <CoverImage 
-            src={item.coverImage as string} 
-            alt={`${String(item.title)} cover`} 
+          <SafeImage
+            src={item.coverImage as string}
+            alt={`${String(item.title)} cover`}
             width={48}
             height={32}
             className="w-12 h-8 rounded object-cover shrink-0"
+            fallbackElement={
+              <div className="w-12 h-8 rounded bg-gray-100 border border-gray-200 flex items-center justify-center text-[7px] leading-tight text-gray-500 text-center px-0.5">
+                Image unavailable / replace image
+              </div>
+            }
           />
           <div className="min-w-0">
             <div className="font-medium truncate max-w-75">{item.title as string}</div>

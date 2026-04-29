@@ -19,7 +19,6 @@ export default function ImageUploader({ folder, currentImage, onUpload, label, h
   const [uploadProgress, setUploadProgress] = useState('');
   const [preview, setPreview] = useState(resolveMediaUrl(currentImage));
   const [error, setError] = useState('');
-  const [retryCount, setRetryCount] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const objectUrlRef = useRef<string | null>(null);
 
@@ -158,7 +157,7 @@ export default function ImageUploader({ folder, currentImage, onUpload, label, h
           result = await uploadImage(file, folder);
           break; // success, exit retry loop
           
-        } catch (uploadErr) {
+        } catch {
           currentRetry++;
           if (currentRetry > maxRetries) {
             throw new Error(`Upload failed after ${maxRetries} attempts. Please check your connection.`);
@@ -190,7 +189,6 @@ export default function ImageUploader({ folder, currentImage, onUpload, label, h
       // 6. Success - notify parent component
       setUploadProgress('Upload complete!');
       onUpload(normalizedUrl);
-      setRetryCount(0);
       
       // Clear warning after 3 seconds
       if (!validation.isAccessible) {
@@ -235,7 +233,7 @@ export default function ImageUploader({ folder, currentImage, onUpload, label, h
                 <div className="h-full w-full bg-gray-100 flex items-center justify-center text-gray-400">
                   <div className="text-center">
                     <div className="text-2xl mb-1">🖼️</div>
-                    <div className="text-xs">Preview unavailable</div>
+                    <div className="text-xs">Image unavailable / replace image</div>
                   </div>
                 </div>
               }
