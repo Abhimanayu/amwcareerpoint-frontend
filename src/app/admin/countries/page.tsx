@@ -10,6 +10,8 @@ import { FlagImage } from '@/components/ui/UniversalImage';
 import { adminGetCountries, deleteCountry } from '@/lib/countries';
 import { handleApiError } from '@/lib/handleApiError';
 
+const ADMIN_COUNTRIES_LIST_LIMIT = 100;
+
 export default function AdminCountriesPage() {
   const router = useRouter();
   const [countries, setCountries] = useState<Record<string, unknown>[]>([]);
@@ -17,22 +19,27 @@ export default function AdminCountriesPage() {
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 });
   const [deleteTarget, setDeleteTarget] = useState<Record<string, unknown> | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [sortBy, setSortBy] = useState<string | null>(null);
 
   const fetchCountries = useCallback(async (page = 1) => {
     setLoading(true);
     try {
-      const res = await adminGetCountries({ page, limit: 10 });
+      const params: Record<string, unknown> = { page, limit: ADMIN_COUNTRIES_LIST_LIMIT };
+      if (sortBy) {
+        params.sort = sortBy;
+      }
+      const res = await adminGetCountries(params);
       const items = Array.isArray(res.data) ? res.data : res.data?.countries || res.countries || [];
       setCountries(items);
       const total = res.total ?? res.data?.total ?? res.pagination?.total ?? items.length;
-      const limit = res.limit ?? res.data?.limit ?? 10;
+      const limit = res.limit ?? res.data?.limit ?? ADMIN_COUNTRIES_LIST_LIMIT;
       const pg = res.page ?? res.data?.page ?? res.pagination?.page ?? page;
       setPagination({ page: pg, totalPages: Math.ceil(total / limit) || 1, total });
     } catch {
       // silent
     }
     setLoading(false);
-  }, []);
+  }, [sortBy]);
 
   useEffect(() => {
     const frameId = globalThis.requestAnimationFrame(() => {
@@ -84,11 +91,69 @@ export default function AdminCountriesPage() {
   return (
     <AdminLayout>
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
           <h1 className="text-2xl font-bold text-gray-900">Countries</h1>
+          
+          {/* Sort controls */}
+          <div className="flex gap-2 flex-wrap">
+            <button
+              onClick={() => setSortBy(sortBy === 'sortOrder' ? null : 'sortOrder')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                sortBy === 'sortOrder'
+                  ? 'bg-orange text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+              title="Sort by order (ascending: lowest to highest)"
+            >
+              ↑ Sort Order
+            </button>
+            <button
+              onClick={() => setSortBy(sortBy === '-sortOrder' ? null : '-sortOrder')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                sortBy === '-sortOrder'
+                  ? 'bg-orange text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+              title="Sort by order (descending: highest to lowest)"
+            >
+              ↓ Sort Order
+            </button>
+            <button
+              onClick={() => setSortBy(sortBy === 'name' ? null : 'name')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                sortBy === 'name'
+                  ? 'bg-orange text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+              title="Sort alphabetically by country name"
+            >
+              ↑ Name (A-Z)
+            </button>
+            <button
+              onClick={() => setSortBy(sortBy === '-name' ? null : '-name')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                sortBy === '-name'
+                  ? 'bg-orange text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+              title="Sort reverse alphabetically by country name"
+            >
+              ↓ Name (Z-A)
+            </button>
+            {sortBy && (
+              <button
+                onClick={() => setSortBy(null)}
+                className="px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                title="Clear sort and show default order"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+          
           <button
             onClick={() => router.push('/admin/countries/new')}
-            className="px-4 py-2 bg-orange hover:bg-orange-hover text-white text-sm font-semibold rounded-xl transition-colors"
+            className="px-4 py-2 bg-orange hover:bg-orange-hover text-white text-sm font-semibold rounded-xl transition-colors whitespace-nowrap"
           >
             + Add Country
           </button>
