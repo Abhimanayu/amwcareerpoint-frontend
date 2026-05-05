@@ -25,9 +25,9 @@ export function ProcessSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8 sm:mb-10">
           <span className="inline-block text-xs font-semibold text-[#F26419] uppercase tracking-wider mb-2">Simple Process</span>
-          <h2 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0D1B3E]">Your MBBS Journey in 3 Steps</h2>
+          <h2 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0D1B3E]">Start Your MBBS Abroad Journey in 3 Steps</h2>
           <p className="mt-3 text-[15px] text-[#4A4742] max-w-2xl mx-auto">
-            From counselling to graduation — we handle everything so you can focus on your studies.
+            From counselling to graduation. Here at AMW, we handle everything so you can focus on your studies.
           </p>
         </div>
 
