@@ -1,39 +1,39 @@
 export function WhyChooseSection() {
   const features = [
     {
-      title: "Zero Commission Model",
+      title: "Transparent Commission Model",
       subtitle: "We Don't Get Paid by Universities. We Get Paid by You.",
-      desc: "Every consultancy that takes university commissions has a conflict of interest and will not admit it, but the university paying the highest fee gets recommended first. We do not take a single rupee from any university. What we recommend is what is genuinely right for your NEET score, budget, and career goal.",
+      desc: "Every consultancy that takes university commissions has a conflict of interest and won't admit it, but the university paying the highest fee gets recommended first. We don't take a single rupee from any university. What we recommend is what's genuinely right for your NEET score, budget, and career goal.",
       icon: "\u{1F6AB}",
     },
     {
       title: "Founded by Doctors",
       subtitle: "Built by People Who Have Actually Been There and Done That.",
-      desc: "Our founders did not stumble into education consulting. They hold MBBS degrees, went through the same system, and built AMW specifically because they saw how badly students were being misguided. Every major recommendation of ours goes through a medically qualified lens, not as a sales tactic.",
+      desc: "Our founders didn't stumble into education consulting. They are FMGE Graduates who went through the same system and founded AMW specifically after their own MBBS abroad journey because they saw how badly students were being misguided. Every major recommendation of ours goes through a medically qualified lens, not as a sales tactic.",
       icon: "\u{1F468}\u200D\u2695\uFE0F",
     },
     {
       title: "No Hidden Fees -- Ever",
       subtitle: "The Number We Quote Is the Number You Pay.",
-      desc: "Before you sign anything, we put every cost in writing, including tuition, hostel, visa, documentation, and everything else. No processing charges surfacing after you have committed. No add-ons once you have paid. If a cost is not in your written breakdown, you do not pay it. It is as simple as that.",
+      desc: "Before you sign anything, we put every cost in writing, including tuition, hostel, visa, documentation, and everything else. No processing charges surfacing after you have committed. No add-ons once you've paid. If a cost isn't in your written breakdown, you don't pay it. It is as simple as that.",
       icon: "\u{1F4CB}",
     },
     {
       title: "NMC - FMGL Gazette Colleges Only",
       subtitle: "Your Degree Has to Work When You Come Home.",
-      desc: "An MBBS degree that is not NMC-FMGL Gazette 2021 compliant is six years and several lakhs spent on a certificate you cannot use in India. We track every NMC gazette update and drop any university the moment compliance becomes uncertain. We would rather lose a placement than send you to the wrong university.",
+      desc: "A globally accredited MBBS degree with WHO-WFME, WDOMS, ECFMG, AMSE, AMC, EFMD, AACSB, AMBA, MCC, IEA, and NMC-approved university. That is six years and several lakhs spent on a certificate you can't use in India. We track every NMC gazette update and drop any university the moment compliance becomes uncertain. We'd rather lose a placement than send you to the wrong university.",
       icon: "\u2705",
     },
     {
-      title: "Support for All 6 Years",
+      title: "Support for All 1st Years to Completion of Course",
       subtitle: "We Don't Disappear After You Board the Flight.",
-      desc: "Most consultancies are done with you the moment your admission letter arrives. We assign you a dedicated support contact for your entire degree, covering hostel disputes, university paperwork, academic issues, visa renewals, and pre-final-year licensing guidance. Six years is a long time. We are here for all of it.",
+      desc: "Most consultancies are done with you the moment your admission letter arrives. We assign you a dedicated support contact for your entire degree, covering hostel disputes, university paperwork, academic issues, visa renewals, and pre-final-year licensing guidance. Six years is a long time. We're here for all of it.",
       icon: "\u{1F91D}",
     },
     {
       title: "2-Hour Response Guarantee",
       subtitle: "Because Anxiety and a Great Idea Don't Wait for Business Hours.",
-      desc: "When you are sitting in a foreign country with a problem, a 24-hour callback window feels like forever. Every enquiry at AMW gets a response within 2 hours. Our counsellors are reachable Monday to Saturday, 9 AM to 6 PM, and for genuine emergencies, we do not hide behind office hours.",
+      desc: "When you're sitting in a foreign country with a problem, a 24-hour callback window feels like forever. Every enquiry at AMW gets a response within 2 hours. Our counsellors are reachable Monday to Saturday, 9 AM to 6 PM, and for genuine emergencies, we don't hide behind office hours.",
       icon: "\u26A1",
     },
   ];
