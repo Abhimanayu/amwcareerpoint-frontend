@@ -44,6 +44,23 @@ const colors = [
   '#1E90FF', '#8A2BE2', '#FF1493', '#00FF7F', '#FF6347', '#4169E1',
 ];
 
+const normalizeEditorLink = (value: string) => {
+  const url = value.trim();
+  if (!url || /^javascript:/i.test(url) || /^data:/i.test(url)) return null;
+  if (url.startsWith('/') && !url.startsWith('//')) return url;
+
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+      return parsed.toString();
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+};
+
 export function RichTextEditor({ content, onChange, placeholder, className = '' }: Readonly<RichTextEditorProps>) {
   const [fontSize, setFontSize] = useState('16px');
   const [fontFamily, setFontFamily] = useState('Calibri, sans-serif');
@@ -147,6 +164,34 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
       editor.chain().focus().setFontFamily(family).run();
       setFontFamily(family);
     }
+  }, [editor]);
+
+  const applyLink = useCallback(() => {
+    if (!editor) return;
+    if (editor.state.selection.empty && !editor.isActive('link')) {
+      window.alert('Please select the text you want to link first.');
+      return;
+    }
+
+    const existingHref = editor.getAttributes('link').href as string | undefined;
+    const input = window.prompt('Enter URL (https://... or /internal-page)', existingHref || '');
+    if (input === null) return;
+
+    const normalizedUrl = normalizeEditorLink(input);
+    if (!normalizedUrl) {
+      window.alert('Please enter a valid URL. Use https://... or an internal path like /countries/mbbs-in-russia.');
+      return;
+    }
+
+    const attrs = normalizedUrl.startsWith('/')
+      ? { href: normalizedUrl }
+      : { href: normalizedUrl, target: '_blank', rel: 'noopener noreferrer' };
+
+    editor.chain().focus().extendMarkRange('link').setLink(attrs).run();
+  }, [editor]);
+
+  const removeLink = useCallback(() => {
+    editor?.chain().focus().extendMarkRange('link').unsetLink().run();
   }, [editor]);
 
   if (!editor) {
@@ -361,6 +406,29 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
             title="Code Block"
           >
             📄
+          </button>
+        </div>
+
+        <div className="w-px h-6 bg-gray-300 mx-1"></div>
+
+        {/* Links */}
+        <div className="flex gap-1">
+          <button
+            type="button"
+            onClick={applyLink}
+            className={`p-1.5 text-xs rounded hover:bg-gray-200 ${editor.isActive('link') ? 'bg-blue-100 text-blue-600' : 'text-gray-700'}`}
+            title="Add Link"
+          >
+            Link
+          </button>
+          <button
+            type="button"
+            onClick={removeLink}
+            disabled={!editor.isActive('link')}
+            className="p-1.5 text-xs rounded hover:bg-gray-200 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed"
+            title="Remove Link"
+          >
+            Unlink
           </button>
         </div>
 
