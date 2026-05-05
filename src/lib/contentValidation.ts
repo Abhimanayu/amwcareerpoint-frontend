@@ -147,7 +147,7 @@ function checkAccessibility(content: string) {
 }
 
 export function sanitizeAndOptimizeMobileContent(htmlContent: string): string {
-  return htmlContent
+  const optimizedHtml = htmlContent
     // Make images responsive
     .replace(/<img([^>]*?)>/gi, (match, attrs) => {
       if (!attrs.includes('class=')) {
@@ -161,8 +161,16 @@ export function sanitizeAndOptimizeMobileContent(htmlContent: string): string {
     // Add responsive classes to table cells
     .replace(/<th([^>]*?)>/gi, '<th$1 class="border border-gray-300 px-2 py-1 bg-gray-50 text-left text-sm">')
     .replace(/<td([^>]*?)>/gi, '<td$1 class="border border-gray-300 px-2 py-1 text-sm">')
-    // Make long words breakable
-    .replace(/(\w{20,})/g, '<span class="break-all">$1</span>')
     // Ensure proper spacing
     .replace(/\n/g, '<br />');
+
+  // Make long words breakable without touching HTML tags/attributes such as href/src.
+  return optimizedHtml
+    .split(/(<[^>]+>)/g)
+    .map((part) => (
+      part.startsWith('<')
+        ? part
+        : part.replace(/(\w{20,})/g, '<span class="break-all">$1</span>')
+    ))
+    .join('');
 }

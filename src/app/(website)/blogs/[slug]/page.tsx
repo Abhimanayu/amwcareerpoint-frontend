@@ -205,6 +205,7 @@ export default async function BlogPostPage({ params }: Readonly<Props>) {
               prose-ul:list-disc prose-ol:list-decimal prose-li:marker:text-[#F26419]
               prose-code:bg-[#F9F8F6] prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm prose-code:break-words
               prose-pre:bg-[#0D1B3E] prose-pre:text-white prose-pre:overflow-x-auto prose-pre:rounded-lg
+              [&_a]:text-[#F26419] [&_a]:underline [&_a_strong]:text-[#F26419] [&_a_span]:text-[#F26419]
               [&_.break-all]:break-all [&_.overflow-x-auto]:overflow-x-auto [&_.overflow-x-auto]:scrollbar-thin"
             dangerouslySetInnerHTML={{ 
               __html: sanitizeAndOptimizeMobileContent(sanitizeHtml((post.content || '').replaceAll('\n', '<br />')))
