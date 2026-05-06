@@ -1,8 +1,8 @@
 import { MetadataRoute } from 'next';
-import { SEO_HOLD } from '@/lib/seoHold';
+import { SEO_ROBOTS_BLOCK } from '@/lib/seoHold';
 
 export default function robots(): MetadataRoute.Robots {
-  if (SEO_HOLD) {
+  if (SEO_ROBOTS_BLOCK) {
     return {
       rules: [
         {
