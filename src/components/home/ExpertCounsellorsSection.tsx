@@ -10,7 +10,7 @@ const counsellors = [
     role: 'Senior Counselor - Study Abroad Guidance',
     rating: '5.0',
     students: '18,500+',
-    image: '',
+    image: '/experts/dr-yashpal.png',
     bio: 'Dr. Yashpal is a highly experienced medical education advisor specializing in MBBS abroad counseling. Being an FMG himself and an Indian registered doctor, he brings firsthand experience and deep insight into international medical education. With years of expertise, he helps students choose the right university based on their budget, academic profile, and future career goals.',
     tags: ['MBBS Abroad Counseling', 'University Selection', 'Career Guidance', 'Admission Assistance'],
   },
