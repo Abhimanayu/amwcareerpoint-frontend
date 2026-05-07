@@ -1,15 +1,15 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 
 export function ComparisonSection() {
   const rows = [
     { factor: 'Admission Process', india: 'NEET + Counselling + High Cutoff', abroad: 'Direct Admission + Simple Process' },
-    { factor: 'Annual Fees', india: '₹15–25L (Govt) / ₹50L+ (Pvt)', abroad: '₹2.5–8 Lakhs' },
-    { factor: 'Donation', india: '₹50L – 2 Crores', abroad: 'No Donation Required' },
-    { factor: 'Seat Availability', india: 'Limited – High Competition', abroad: 'Ample Seats Available' },
+    { factor: 'Annual Fees', india: 'Rs. 25,000 - 1.00L (Govt) / Rs. 60L to 1.50cr (Pvt)', abroad: 'Rs. 2.5-8 Lakhs' },
+    { factor: 'Donation', india: 'No Donation Required', abroad: 'No Donation Required' },
+    { factor: 'Seat Availability', india: 'Limited - High Competition', abroad: 'Seat depends on the university intake or an interview/exam may be required' },
     { factor: 'Recognition', india: 'NMC Approved', abroad: 'WHO & NMC Approved' },
     { factor: 'Infrastructure', india: 'Varies (Govt Good, Pvt Mixed)', abroad: 'World-Class Infrastructure' },
     { factor: 'Clinical Exposure', india: 'Limited in Pvt Colleges', abroad: 'Excellent Clinical Training' },
-    { factor: 'Total Investment', india: '₹80L – 3 Crores', abroad: '₹15L – 50L' },
+    { factor: 'Total Investment', india: 'Rs. 60L - 1.50 Crores', abroad: 'Rs. 15L - 50L' },
   ];
 
   return (
@@ -66,8 +66,8 @@ export function ComparisonSection() {
 
         <div className="mt-5 sm:mt-6 rounded-xl border border-green-200 bg-green-50 p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h3 className="font-heading text-[14px] sm:text-[15px] font-bold text-[#0D1B3E] mb-0.5">💡 Expert Recommendation</h3>
-            <p className="text-[12px] sm:text-[13px] text-[#4A4742]">MBBS abroad offers better value and easier admission at a fraction of the cost of Indian private colleges.</p>
+            <h3 className="font-heading text-[14px] sm:text-[15px] font-bold text-[#0D1B3E] mb-0.5">Expert Recommendation</h3>
+            <p className="text-[12px] sm:text-[13px] text-[#4A4742]">Compare your NEET score, budget, seat availability, and long-term licensing goals before choosing between India and abroad.</p>
           </div>
           <Link href="#counselling" className="shrink-0 w-full sm:w-auto h-10 px-6 rounded-full bg-[#F26419] text-white text-[13px] sm:text-sm font-bold inline-flex items-center justify-center hover:bg-[#FF8040] transition-colors">
             Get Free Consultation

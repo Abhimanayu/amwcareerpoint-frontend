@@ -1,4 +1,4 @@
-export function StatsSection() {
+﻿export function StatsSection() {
   const stats = [
     {
       number: '18,500+',
@@ -11,7 +11,7 @@ export function StatsSection() {
       ),
     },
     {
-      number: '12+',
+      number: '18+',
       label: 'Years of Trust',
       desc: 'Experienced counselling team',
       icon: (
@@ -21,7 +21,7 @@ export function StatsSection() {
       ),
     },
     {
-      number: '4.9/5',
+      number: '5/5',
       label: 'Student Rating',
       desc: 'Consistent parent confidence',
       icon: (
@@ -31,7 +31,7 @@ export function StatsSection() {
       ),
     },
     {
-      number: '25+',
+      number: '45+',
       label: 'Top Destinations',
       desc: 'India plus global options',
       icon: (

@@ -1,4 +1,4 @@
-export function WhyChooseSection() {
+﻿export function WhyChooseSection() {
   const features = [
     {
       title: "Transparent Commission Model",
@@ -9,7 +9,7 @@ export function WhyChooseSection() {
     {
       title: "Founded by Doctors",
       subtitle: "Built by People Who Have Actually Been There and Done That.",
-      desc: "Our founders didn't stumble into education consulting. They are FMGE Graduates who went through the same system and founded AMW specifically after their own MBBS abroad journey because they saw how badly students were being misguided. Every major recommendation of ours goes through a medically qualified lens, not as a sales tactic.",
+      desc: "Our founders didn't stumble into education consulting. They are FMG Graduates who went through the same system and founded AMW specifically after their own MBBS abroad journey because they saw how badly students were being misguided. Every major recommendation of ours goes through a medically qualified lens, not as a sales tactic.",
       icon: "\u{1F468}\u200D\u2695\uFE0F",
     },
     {
@@ -19,7 +19,7 @@ export function WhyChooseSection() {
       icon: "\u{1F4CB}",
     },
     {
-      title: "NMC - FMGL Gazette Colleges Only",
+      title: "Globally Valid Degree",
       subtitle: "Your Degree Has to Work When You Come Home.",
       desc: "A globally accredited MBBS degree with WHO-WFME, WDOMS, ECFMG, AMSE, AMC, EFMD, AACSB, AMBA, MCC, IEA, and NMC-approved university. That is six years and several lakhs spent on a certificate you can't use in India. We track every NMC gazette update and drop any university the moment compliance becomes uncertain. We'd rather lose a placement than send you to the wrong university.",
       icon: "\u2705",

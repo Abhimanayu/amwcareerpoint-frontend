@@ -215,17 +215,17 @@ function getFallbackLifeCards(countryName: string) {
     {
       title: 'Accommodation and student comfort',
       description: `Indian students in ${countryName} usually look for safe housing, manageable daily costs, and campus support from day one.`,
-      icon: '🏠',
+      icon: 'Home',
     },
     {
       title: 'Food and daily routine',
       description: 'AMW helps students understand hostel life, meal options, and what to expect from their first semester abroad.',
-      icon: '🍲',
+      icon: 'Food',
     },
     {
       title: 'Campus and classroom culture',
       description: `The academic environment in ${countryName} combines structured teaching with steady clinical exposure over time.`,
-      icon: '🎓',
+      icon: 'Study',
     },
   ];
 }
@@ -237,7 +237,7 @@ function resolveLifeCards(
 ) {
   if (studentLifeCards.length > 0) {
     return studentLifeCards.slice(0, 6).map((card) => ({
-      icon: card.icon || '🎓',
+      icon: card.icon || 'Study',
       title: card.title || 'Student life',
       description:
         card.description ||
@@ -250,6 +250,28 @@ function resolveLifeCards(
   }
 
   return getFallbackLifeCards(countryName);
+}
+
+function getCountryHeroParagraphs(description: string | undefined, countryName: string) {
+  const fallback = `${countryName} offers international medical education with practical guidance on fees, admission, documentation, and university selection.`;
+  const source = (description || fallback).trim();
+  const paragraphBreaks = source
+    .split(/\n{2,}/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  if (paragraphBreaks.length > 1) {
+    return paragraphBreaks.slice(0, 4);
+  }
+
+  const sentences = source.match(/[^.!?]+[.!?]+(?:\s|$)/g)?.map((item) => item.trim()) || [source];
+  const paragraphs: string[] = [];
+
+  for (let index = 0; index < sentences.length && paragraphs.length < 4; index += 2) {
+    paragraphs.push(sentences.slice(index, index + 2).join(' '));
+  }
+
+  return paragraphs.filter(Boolean);
 }
 
 export default async function CountryPage({ params }: Props) {
@@ -357,14 +379,14 @@ export default async function CountryPage({ params }: Props) {
             feature.description ||
             country.description ||
             `Students choose ${country.name} for quality medical education and structured support.`,
-          icon: feature.icon || '✦',
+          icon: feature.icon || '+',
         }))
       : highlights.slice(0, 6).map((highlight) => ({
           title: highlight,
           description:
             country.tagline ||
             `Study MBBS in ${country.name} with a balance of affordability, recognition, and student support.`,
-          icon: '✦',
+          icon: '+',
         }));
 
   const studentLifeCards = Array.isArray(studentLife.cards)
@@ -390,6 +412,13 @@ export default async function CountryPage({ params }: Props) {
           'Affordable fee planning',
           'Visa and travel guidance',
         ];
+  const heroParagraphs = getCountryHeroParagraphs(country.description, country.name || 'this destination');
+  const heroTrustItems = [
+    { title: 'Trusted by 18,500+ Students', subtitle: 'Successful admissions across top universities' },
+    { title: '10+ Years of Experience', subtitle: 'Expert guidance you can rely on' },
+    { title: 'Transparent Process', subtitle: 'Clear information, no hidden charges' },
+    { title: 'End-to-End Support', subtitle: 'From admission to accommodation' },
+  ];
 
   const supportProgressItems = Array.isArray(supportExperience.progressItems)
     ? supportExperience.progressItems.filter(
@@ -434,115 +463,110 @@ export default async function CountryPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJsonLd) }}
         />
       )}
-      <section className="relative overflow-hidden border-b border-[#E6DFD3] px-4 pb-16 pt-8 sm:px-6 lg:px-8 lg:pb-20 lg:pt-12">
-        {/* Base background — visible when no hero image */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(242,100,25,0.12),_transparent_30%),linear-gradient(180deg,#FFF9F1_0%,#F8F4EC_100%)]" />
-        {/* Hero image — prominent but softened */}
+      <section className="relative overflow-hidden border-b border-[#E6DFD3] bg-[#F8F4EC] px-4 py-8 sm:px-6 lg:min-h-[calc(100vh-112px)] lg:px-8 lg:py-10">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.92),_rgba(255,255,255,0.58)_34%,_rgba(248,244,236,0.22)_58%,_transparent_100%)]" />
         {heroImage && (
           <div className="pointer-events-none absolute inset-0">
             <SafeImage
               src={heroImage}
               alt={country.name}
               fill
-              className="object-cover object-center scale-[1.03] opacity-[0.62] saturate-110 contrast-110 sm:opacity-[0.68]"
-              fallbackElement={<div className="absolute inset-0 bg-gradient-to-br from-[#0D1B3E]/10 to-[#F26419]/5" />}
+              priority
+              className="object-cover object-center opacity-[0.62] saturate-110 contrast-105"
+              fallbackElement={<div className="absolute inset-0 bg-gradient-to-br from-[#FFF9F1] to-[#E7DECF]" />}
             />
-            {/* Keep left side clearer for text while preserving richer image detail */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#FFF9F1]/88 via-[#FFF9F1]/46 to-[#F8F4EC]/14" />
-            <div className="absolute inset-0 bg-gradient-to-b from-[#FFF9F1]/28 via-transparent to-[#F8F4EC]/36" />
-            <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#0D1B3E]/14 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#FFF9F1]/96 via-[#FFF9F1]/70 to-[#FFF9F1]/12" />
+            <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-white/8 to-[#F8F4EC]/72" />
           </div>
         )}
 
-        {/* Decorative blurs */}
-        <div className="absolute right-[-8rem] top-28 h-72 w-72 rounded-full bg-[#E9D8C3]/40 blur-3xl" />
-        <div className="absolute left-[-6rem] top-44 h-60 w-60 rounded-full bg-white/30 blur-3xl" />
+        <div className="relative mx-auto flex min-h-[calc(100vh-176px)] max-w-[1500px] flex-col justify-center">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(370px,460px)] lg:items-center xl:gap-16">
+            <div className="max-w-[760px]">
+              {flagImage && (
+                <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-white/80 bg-white/90 px-4 py-2.5 text-sm font-semibold text-[#1F2B44] shadow-[0_12px_30px_rgba(13,27,62,0.12)] backdrop-blur">
+                  <SafeImage
+                    src={flagImage}
+                    alt={`${country.name} flag`}
+                    width={28}
+                    height={18}
+                    className="rounded-sm object-cover"
+                    fallbackElement={<div className="h-[18px] w-7 rounded-sm bg-[#DDD9D2]" />}
+                  />
+                  <span>Study destination: {country.name}</span>
+                </div>
+              )}
 
-        <div className="relative mx-auto max-w-7xl">
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_370px] lg:items-start">
-            <div className="pt-14 lg:pt-16">
-              <div className="mb-6 flex flex-wrap items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F26419]">
-                <span className="rounded-full border border-[#F4C8B0] bg-white/90 px-3 py-1.5 shadow-sm">
-                  Abroad destination
-                </span>
-                <span className="rounded-full border border-[#DDD9D2] bg-white/80 px-3 py-1.5 shadow-sm">
-                  NMC-oriented guidance
-                </span>
-              </div>
+              <h1 className="font-heading text-[3.6rem] font-bold leading-[0.96] tracking-[-0.04em] text-[#0D1B3E] sm:text-[5rem] lg:text-[6.4rem] xl:text-[7.4rem]">
+                MBBS in<br className="hidden sm:block" /> {country.name}
+              </h1>
+              <div className="mt-5 h-1 w-20 rounded-full bg-[#F26419]" />
 
-              <div className="max-w-3xl">
-                {flagImage && (
-                  <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#DDD9D2] bg-white/85 px-3 py-2 text-xs font-medium text-[#4A4742] shadow-sm backdrop-blur">
-                    <SafeImage
-                      src={flagImage}
-                      alt={`${country.name} flag`}
-                      width={24}
-                      height={16}
-                      className="rounded-sm object-cover"
-                      fallbackElement={
-                        <div className="w-6 h-4 rounded-sm bg-[#DDD9D2] flex items-center justify-center text-xs">🏳️</div>
-                      }
-                    />
-                    <span>Study destination: {country.name}</span>
-                  </div>
-                )}
+              {country.tagline && (
+                <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-[14px] font-semibold text-[#243454]">
+                  {country.tagline.split('|').slice(0, 5).map((item: string, index: number) => (
+                    <span key={`${index}-${item.trim()}`} className="inline-flex items-center gap-2">
+                      {index === 0 && <span className="h-5 w-5 rounded-full border border-[#2B5BB5] text-center text-[11px] leading-[18px] text-[#2B5BB5]">+</span>}
+                      <span>{item.trim()}</span>
+                    </span>
+                  ))}
+                </div>
+              )}
 
-                <h1 className="font-heading text-[1.75rem] font-bold leading-[1.02] text-[#0D1B3E] sm:text-[3rem] lg:text-[4rem]">
-                  MBBS in {country.name}
-                </h1>
-                {country.tagline && (
-                  <p className="mt-3 max-w-3xl text-[17px] font-medium leading-snug text-[#0D1B3E]/80">
-                    {country.tagline}
-                  </p>
-                )}
-                <p className="mt-4 max-w-3xl text-[15px] leading-7 text-[#4A4742] sm:text-[16px]">
-                  {country.description ||
-                    `${country.name} offers international medical education with practical guidance on fees, admission, documentation, and university selection.`}
-                </p>
-              </div>
-
-              <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                {heroStats.map((item) => (
-                  <div key={item.label} className="rounded-2xl border border-[#E7DECF] bg-white/90 px-4 py-4 shadow-sm backdrop-blur">
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8A8175]">
-                      {item.label}
-                    </div>
-                    <div className="mt-2 text-[15px] font-bold text-[#0D1B3E]">{item.value}</div>
-                  </div>
+              <div className="mt-8 space-y-4 text-[15px] leading-7 text-[#26334D] sm:text-[16px]">
+                {heroParagraphs.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
                 ))}
               </div>
 
-              <div className="mt-7 flex flex-wrap gap-3">
-                <Link
-                  href="#counselling"
-                  className="inline-flex items-center justify-center rounded-full bg-[#F26419] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#FF8040]"
-                >
-                  Apply for Admission Now
-                </Link>
-                <Link
-                  href="#universities"
-                  className="inline-flex items-center justify-center rounded-full border border-[#0D1B3E] px-6 py-3 text-sm font-semibold text-[#0D1B3E] transition-colors hover:bg-[#0D1B3E] hover:text-white"
-                >
-                  View Universities
-                </Link>
+              <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                {heroStats.map((item, index) => (
+                  <div key={item.label} className="flex items-center gap-3 rounded-2xl border border-white/75 bg-white/86 px-4 py-4 shadow-[0_14px_36px_rgba(13,27,62,0.09)] backdrop-blur">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#FFF4E9] text-sm font-bold text-[#F26419]">
+                      {String(index + 1).padStart(2, '0')}
+                    </div>
+                    <div>
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#8A8175]">
+                        {item.label}
+                      </div>
+                      <div className="mt-1 text-[14px] font-bold leading-snug text-[#0D1B3E]">{item.value}</div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div className="relative z-10 lg:sticky lg:top-24">
+            <div className="relative z-10 mx-auto w-full max-w-[470px]">
               <CounsellingForm />
             </div>
           </div>
-        </div>
-      </section>
 
-      <section className="border-b border-[#E6DFD3] bg-white px-4 py-4 sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-3 lg:gap-5">
-          {trustPills.map((pill, idx) => (
-            <div key={`${idx}-${pill}`} className="inline-flex items-center gap-2 rounded-full border border-[#E7DECF] bg-[#F8F4EC] px-4 py-2 text-[12px] font-medium text-[#4A4742]">
-              <span className="text-[#F26419]">✦</span>
-              <span>{pill}</span>
+          <div className="mt-8 flex flex-col gap-5 lg:mt-10">
+            <div className="grid overflow-hidden rounded-[24px] border border-white/70 bg-white/76 shadow-[0_20px_60px_rgba(13,27,62,0.11)] backdrop-blur md:grid-cols-2 xl:grid-cols-4">
+              {heroTrustItems.map((item, index) => (
+                <div key={item.title} className="flex items-center gap-4 border-[#E4D8C9] px-6 py-5 md:border-r md:last:border-r-0">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#0D1B3E]/12 bg-white text-base font-bold text-[#0D1B3E]">
+                    {String(index + 1).padStart(2, '0')}
+                  </div>
+                  <div>
+                    <div className="font-semibold text-[#0D1B3E]">{item.title}</div>
+                    <div className="mt-1 text-sm leading-snug text-[#4A4742]">{item.subtitle}</div>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+
+            {trustPills.length > 0 && (
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                {trustPills.map((pill, idx) => (
+                  <div key={`${idx}-${pill}`} className="inline-flex items-center gap-2 rounded-full border border-[#E7DECF] bg-white/82 px-4 py-2 text-[12px] font-medium text-[#4A4742] shadow-sm backdrop-blur">
+                    <span className="text-[#F26419]">+</span>
+                    <span>{pill}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </section>
 
@@ -640,11 +664,11 @@ export default async function CountryPage({ params }: Props) {
                             fill
                             className="object-cover"
                             fallbackElement={
-                              <div className="flex h-full items-center justify-center text-5xl text-white/20">🏫</div>
+                              <div className="flex h-full items-center justify-center text-5xl text-white/20">ðŸ«</div>
                             }
                           />
                         ) : (
-                          <div className="flex h-full items-center justify-center text-5xl text-white/20">🏫</div>
+                          <div className="flex h-full items-center justify-center text-5xl text-white/20">ðŸ«</div>
                         )}
                       </div>
 
@@ -821,7 +845,7 @@ export default async function CountryPage({ params }: Props) {
                   className="rounded-[26px] border border-[#E7DECF] bg-[#FFFDF9] p-6 shadow-[0_14px_40px_rgba(13,27,62,0.04)]"
                 >
                   <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#10244B] text-sm font-semibold text-white">
-                    {step.step || '•'}
+                    {step.step || 'â€¢'}
                   </div>
                   <h3 className="text-lg font-semibold text-[#0D1B3E]">{step.title || 'Step'}</h3>
                   <p className="mt-3 text-sm leading-7 text-[#4A4742]">{step.description || 'Admission support details will be shared by our counselling team.'}</p>
@@ -848,7 +872,7 @@ export default async function CountryPage({ params }: Props) {
                     key={`${idx}-${item}`}
                     className="rounded-2xl border border-[#EFE6D8] bg-[#FFFDF9] px-4 py-4 text-sm font-medium text-[#0D1B3E]"
                   >
-                    <span className="mr-2 text-[#22A06B]">✓</span>
+                    <span className="mr-2 text-[#22A06B]">âœ“</span>
                     {item}
                   </div>
                 ))
@@ -872,7 +896,7 @@ export default async function CountryPage({ params }: Props) {
                 ? resolvedDocumentsChecklistItems.map((item) => item.label)
                 : DOCUMENTS_REQUIRED).map((item, idx) => (
                 <li key={`${idx}-${item}`} className="flex items-start gap-3 rounded-2xl border border-[#EFE6D8] bg-[#FFFDF9] px-4 py-3">
-                  <span className="mt-1 text-[#F26419]">•</span>
+                  <span className="mt-1 text-[#F26419]">â€¢</span>
                   <span>{item}</span>
                 </li>
               ))}
