@@ -31,8 +31,8 @@ export const metadata: Metadata = {
         },
       }
     : {
-        title: 'AMW Career Point - MBBS Abroad Consultancy | Study Medicine Overseas',
-        description: 'India\'s most trusted MBBS abroad consultancy since 2009. Expert guidance for NEET counselling, MBBS in Russia, Georgia, Kazakhstan & more. 20,000+ students placed.',
+        title: 'Study MBBS Abroad for Indian Students',
+        description: 'AMW Career Point helps Indian students study MBBS abroad in Russia, Kazakhstan, Georgia, Kyrgyzstan, and Europe at affordable fees with complete admission support.',
         openGraph: {
           title: 'AMW Career Point - MBBS Abroad Consultancy',
           description: 'India\'s most trusted MBBS abroad consultancy since 2009. 20,000+ students placed in top NMC-approved universities.',
