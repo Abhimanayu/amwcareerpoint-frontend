@@ -274,6 +274,31 @@ function getCountryHeroParagraphs(description: string | undefined, countryName: 
   return paragraphs.filter(Boolean);
 }
 
+function normalizeObjectPosition(value?: string) {
+  if (!value) return undefined;
+
+  const normalized = value.trim().toLowerCase();
+  if (!normalized || normalized.length > 40) return undefined;
+
+  // Supports values like "50% 30%".
+  const percentPair = normalized.match(/^(\d{1,3})%\s+(\d{1,3})%$/);
+  if (percentPair) {
+    const x = Number(percentPair[1]);
+    const y = Number(percentPair[2]);
+    if (x >= 0 && x <= 100 && y >= 0 && y <= 100) {
+      return `${x}% ${y}%`;
+    }
+  }
+
+  // Supports values like "center", "top", "left top", "right center".
+  const allowed = /^(center|top|bottom|left|right|left\s+top|left\s+center|left\s+bottom|center\s+top|center\s+center|center\s+bottom|right\s+top|right\s+center|right\s+bottom)$/;
+  if (allowed.test(normalized)) {
+    return normalized;
+  }
+
+  return undefined;
+}
+
 export default async function CountryPage({ params }: Props) {
   const { slug } = await params;
   const res = await getCountryBySlug(slug).catch(() => null);
@@ -314,6 +339,30 @@ export default async function CountryPage({ params }: Props) {
   const countryId = typeof country._id === 'string' ? country._id : '';
   const heroImage = resolveMediaUrl(country.heroImage);
   const flagImage = resolveMediaUrl(country.flagImage);
+  const heroImageClass = 'object-cover object-center opacity-[0.32] saturate-110 contrast-105 sm:opacity-[0.5] lg:opacity-[0.58]';
+  const heroImageObjectPosition = normalizeObjectPosition(
+    (
+      country as {
+        heroImagePosition?: string;
+        heroImageFocus?: string;
+        seo?: { heroImagePosition?: string };
+      }
+    ).heroImagePosition ||
+      (
+        country as {
+          heroImagePosition?: string;
+          heroImageFocus?: string;
+          seo?: { heroImagePosition?: string };
+        }
+      ).heroImageFocus ||
+      (
+        country as {
+          heroImagePosition?: string;
+          heroImageFocus?: string;
+          seo?: { heroImagePosition?: string };
+        }
+      ).seo?.heroImagePosition
+  );
 
   // Parallelize independent data fetches
   const [universityRes, countriesRes] = await Promise.all([
@@ -463,25 +512,26 @@ export default async function CountryPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJsonLd) }}
         />
       )}
-      <section className="relative overflow-hidden border-b border-[#E6DFD3] bg-[#F8F4EC] px-4 py-8 sm:px-6 lg:min-h-[calc(100vh-112px)] lg:px-8 lg:py-10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.92),_rgba(255,255,255,0.58)_34%,_rgba(248,244,236,0.22)_58%,_transparent_100%)]" />
+      <section className="relative overflow-hidden border-b border-[#E6DFD3] bg-[#F8F4EC] px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16 xl:py-20">
+        <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.96),_rgba(255,255,255,0.7)_34%,_rgba(248,244,236,0.34)_58%,_transparent_100%)]" />
         {heroImage && (
-          <div className="pointer-events-none absolute inset-0">
+          <div className="pointer-events-none absolute inset-0 z-0">
             <SafeImage
               src={heroImage}
               alt={country.name}
               fill
               priority
-              className="object-cover object-center opacity-[0.62] saturate-110 contrast-105"
+              className={heroImageClass}
+              style={heroImageObjectPosition ? { objectPosition: heroImageObjectPosition } : undefined}
               fallbackElement={<div className="absolute inset-0 bg-gradient-to-br from-[#FFF9F1] to-[#E7DECF]" />}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#FFF9F1]/96 via-[#FFF9F1]/70 to-[#FFF9F1]/12" />
-            <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-white/8 to-[#F8F4EC]/72" />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#FFF9F1]/90 via-[#FFF9F1]/76 to-[#F8F4EC]/92 sm:bg-gradient-to-r sm:from-[#FFF9F1]/98 sm:via-[#FFF9F1]/76 sm:to-[#FFF9F1]/24" />
+            <div className="absolute inset-0 bg-gradient-to-b from-white/44 via-white/8 to-[#F8F4EC]/76 sm:from-white/72 sm:via-white/16 sm:to-[#F8F4EC]/82" />
           </div>
         )}
 
-        <div className="relative mx-auto flex min-h-[calc(100vh-176px)] max-w-[1500px] flex-col justify-center">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(370px,460px)] lg:items-center xl:gap-16">
+        <div className="relative z-10 mx-auto flex max-w-[1440px] flex-col">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(350px,430px)] lg:items-center xl:gap-14">
             <div className="max-w-[760px]">
               {flagImage && (
                 <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-white/80 bg-white/90 px-4 py-2.5 text-sm font-semibold text-[#1F2B44] shadow-[0_12px_30px_rgba(13,27,62,0.12)] backdrop-blur">
@@ -497,7 +547,7 @@ export default async function CountryPage({ params }: Props) {
                 </div>
               )}
 
-              <h1 className="font-heading text-[3.6rem] font-bold leading-[0.96] tracking-[-0.04em] text-[#0D1B3E] sm:text-[5rem] lg:text-[6.4rem] xl:text-[7.4rem]">
+              <h1 className="font-heading text-[2.65rem] font-bold leading-[0.98] tracking-[-0.04em] text-[#0D1B3E] sm:text-[4rem] lg:text-[5.1rem] xl:text-[5.9rem]">
                 MBBS in<br className="hidden sm:block" /> {country.name}
               </h1>
               <div className="mt-5 h-1 w-20 rounded-full bg-[#F26419]" />
@@ -513,16 +563,16 @@ export default async function CountryPage({ params }: Props) {
                 </div>
               )}
 
-              <div className="mt-8 space-y-4 text-[15px] leading-7 text-[#26334D] sm:text-[16px]">
-                {heroParagraphs.map((paragraph) => (
+              <div className="mt-7 max-w-[700px] space-y-3 text-[15px] leading-7 text-[#26334D] sm:text-[16px]">
+                {heroParagraphs.slice(0, 3).map((paragraph) => (
                   <p key={paragraph}>{paragraph}</p>
                 ))}
               </div>
 
-              <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 {heroStats.map((item, index) => (
-                  <div key={item.label} className="flex items-center gap-3 rounded-2xl border border-white/75 bg-white/86 px-4 py-4 shadow-[0_14px_36px_rgba(13,27,62,0.09)] backdrop-blur">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#FFF4E9] text-sm font-bold text-[#F26419]">
+                  <div key={item.label} className="flex items-center gap-3 rounded-2xl border border-white/75 bg-white/88 px-3.5 py-3.5 shadow-[0_14px_36px_rgba(13,27,62,0.09)] backdrop-blur">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#FFF4E9] text-sm font-bold text-[#F26419]">
                       {String(index + 1).padStart(2, '0')}
                     </div>
                     <div>
@@ -541,16 +591,16 @@ export default async function CountryPage({ params }: Props) {
             </div>
           </div>
 
-          <div className="mt-8 flex flex-col gap-5 lg:mt-10">
+          <div className="mt-7 flex flex-col gap-4 lg:mt-10">
             <div className="grid overflow-hidden rounded-[24px] border border-white/70 bg-white/76 shadow-[0_20px_60px_rgba(13,27,62,0.11)] backdrop-blur md:grid-cols-2 xl:grid-cols-4">
               {heroTrustItems.map((item, index) => (
-                <div key={item.title} className="flex items-center gap-4 border-[#E4D8C9] px-6 py-5 md:border-r md:last:border-r-0">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#0D1B3E]/12 bg-white text-base font-bold text-[#0D1B3E]">
+                <div key={item.title} className="flex items-center gap-4 border-[#E4D8C9] px-5 py-4 md:border-r md:last:border-r-0">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#0D1B3E]/12 bg-white text-sm font-bold text-[#0D1B3E]">
                     {String(index + 1).padStart(2, '0')}
                   </div>
                   <div>
-                    <div className="font-semibold text-[#0D1B3E]">{item.title}</div>
-                    <div className="mt-1 text-sm leading-snug text-[#4A4742]">{item.subtitle}</div>
+                    <div className="text-sm font-semibold text-[#0D1B3E] sm:text-base">{item.title}</div>
+                    <div className="mt-1 text-xs leading-snug text-[#4A4742] sm:text-sm">{item.subtitle}</div>
                   </div>
                 </div>
               ))}
@@ -845,7 +895,7 @@ export default async function CountryPage({ params }: Props) {
                   className="rounded-[26px] border border-[#E7DECF] bg-[#FFFDF9] p-6 shadow-[0_14px_40px_rgba(13,27,62,0.04)]"
                 >
                   <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#10244B] text-sm font-semibold text-white">
-                    {step.step || 'â€¢'}
+                    {step.step || <>&bull;</>}
                   </div>
                   <h3 className="text-lg font-semibold text-[#0D1B3E]">{step.title || 'Step'}</h3>
                   <p className="mt-3 text-sm leading-7 text-[#4A4742]">{step.description || 'Admission support details will be shared by our counselling team.'}</p>
@@ -872,7 +922,7 @@ export default async function CountryPage({ params }: Props) {
                     key={`${idx}-${item}`}
                     className="rounded-2xl border border-[#EFE6D8] bg-[#FFFDF9] px-4 py-4 text-sm font-medium text-[#0D1B3E]"
                   >
-                    <span className="mr-2 text-[#22A06B]">âœ“</span>
+                    <span className="mr-2 text-[#22A06B]">&#10003;</span>
                     {item}
                   </div>
                 ))
@@ -896,7 +946,7 @@ export default async function CountryPage({ params }: Props) {
                 ? resolvedDocumentsChecklistItems.map((item) => item.label)
                 : DOCUMENTS_REQUIRED).map((item, idx) => (
                 <li key={`${idx}-${item}`} className="flex items-start gap-3 rounded-2xl border border-[#EFE6D8] bg-[#FFFDF9] px-4 py-3">
-                  <span className="mt-1 text-[#F26419]">â€¢</span>
+                  <span className="mt-1 text-[#F26419]">&bull;</span>
                   <span>{item}</span>
                 </li>
               ))}
