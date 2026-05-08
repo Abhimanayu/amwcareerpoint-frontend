@@ -339,7 +339,7 @@ export default async function CountryPage({ params }: Props) {
   const countryId = typeof country._id === 'string' ? country._id : '';
   const heroImage = resolveMediaUrl(country.heroImage);
   const flagImage = resolveMediaUrl(country.flagImage);
-  const heroImageClass = 'object-cover object-center opacity-[0.32] saturate-110 contrast-105 sm:opacity-[0.5] lg:opacity-[0.58]';
+  const heroImageClass = 'object-contain object-right opacity-[0.42] saturate-110 contrast-105 lg:opacity-[0.5]';
   const heroImageObjectPosition = normalizeObjectPosition(
     (
       country as {
@@ -515,7 +515,7 @@ export default async function CountryPage({ params }: Props) {
       <section className="relative overflow-hidden border-b border-[#E6DFD3] bg-[#F8F4EC] px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16 xl:py-20">
         <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.96),_rgba(255,255,255,0.7)_34%,_rgba(248,244,236,0.34)_58%,_transparent_100%)]" />
         {heroImage && (
-          <div className="pointer-events-none absolute inset-0 z-0">
+          <div className="pointer-events-none absolute inset-0 z-0 hidden sm:block">
             <SafeImage
               src={heroImage}
               alt={country.name}
@@ -560,6 +560,21 @@ export default async function CountryPage({ params }: Props) {
                       <span>{item.trim()}</span>
                     </span>
                   ))}
+                </div>
+              )}
+
+              {heroImage && (
+                <div className="mt-6 overflow-hidden rounded-[28px] border border-white/80 bg-white/88 p-2 shadow-[0_18px_45px_rgba(13,27,62,0.12)] sm:hidden">
+                  <SafeImage
+                    src={heroImage}
+                    alt={`${country.name} destination view`}
+                    width={900}
+                    height={560}
+                    priority
+                    className="h-auto max-h-[260px] w-full rounded-[22px] object-contain"
+                    style={heroImageObjectPosition ? { objectPosition: heroImageObjectPosition } : undefined}
+                    fallbackElement={<div className="flex min-h-[190px] items-center justify-center rounded-[22px] bg-[#E7DECF] text-sm text-[#4A4742]">Image unavailable</div>}
+                  />
                 </div>
               )}
 
