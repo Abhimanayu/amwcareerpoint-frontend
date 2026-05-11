@@ -529,9 +529,9 @@ export default async function CountryPage({ params }: Props) {
               style={heroImageObjectPosition ? { objectPosition: heroImageObjectPosition } : undefined}
               fallbackElement={<div className="absolute inset-0 bg-gradient-to-br from-[#FFF9F1] to-[#E7DECF]" />}
             />
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,249,241,0.98)_0%,rgba(255,249,241,0.9)_30%,rgba(255,249,241,0.34)_51%,rgba(255,249,241,0)_68%)]" />
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.16)_0%,rgba(255,255,255,0)_34%,rgba(248,244,236,0.18)_100%)]" />
-            <div className="absolute inset-y-0 left-0 w-[46%] bg-[linear-gradient(90deg,rgba(255,249,241,0.98),rgba(255,249,241,0.52)_72%,rgba(255,249,241,0))]" />
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,249,241,0.93)_0%,rgba(255,249,241,0.78)_26%,rgba(255,249,241,0.2)_50%,rgba(255,249,241,0)_72%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.08)_0%,rgba(255,255,255,0)_34%,rgba(248,244,236,0.12)_100%)]" />
+            <div className="absolute inset-y-0 left-0 w-[42%] bg-[linear-gradient(90deg,rgba(255,249,241,0.9),rgba(255,249,241,0.36)_72%,rgba(255,249,241,0))]" />
           </div>
         )}
 
@@ -569,7 +569,7 @@ export default async function CountryPage({ params }: Props) {
               )}
 
               {heroImage && (
-                <div className="mt-6 overflow-hidden rounded-[24px] border border-white/80 bg-white/88 p-2 shadow-[0_18px_45px_rgba(13,27,62,0.12)] sm:hidden">
+                  <div className="mt-6 overflow-hidden rounded-[24px] border border-white/72 bg-white/74 p-2 shadow-[0_16px_40px_rgba(13,27,62,0.1)] sm:hidden">
                   <SafeImage
                     src={heroImage}
                     alt={`${country.name} destination view`}
@@ -577,7 +577,7 @@ export default async function CountryPage({ params }: Props) {
                     height={560}
                     priority
                     sizes="(max-width: 639px) 100vw, 900px"
-                    className="h-[240px] w-full rounded-[18px] object-cover saturate-110 contrast-105 min-[420px]:h-[280px]"
+                    className="h-[240px] w-full rounded-[18px] object-cover saturate-110 contrast-110 min-[420px]:h-[280px]"
                     style={heroImageObjectPosition ? { objectPosition: heroImageObjectPosition } : undefined}
                     fallbackElement={<div className="flex min-h-[190px] items-center justify-center rounded-[18px] bg-[#E7DECF] text-sm text-[#4A4742]">Image unavailable</div>}
                   />
