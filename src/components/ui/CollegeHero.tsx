@@ -1,8 +1,7 @@
 import Link from 'next/link';
+import { CounsellingForm } from '@/components/home/CounsellingForm';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { resolveMediaUrl } from '@/lib/utils';
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 interface CollegeHeroProps {
   name: string;
@@ -17,10 +16,6 @@ interface CollegeHeroProps {
   hostelFees?: string;
 }
 
-/**
- * Protected hero section for college detail pages.
- * Handles: missing hero image (gradient fallback), missing fields.
- */
 export function CollegeHero({
   name,
   heroImage,
@@ -35,85 +30,93 @@ export function CollegeHero({
 }: CollegeHeroProps) {
   const resolvedHeroImage = resolveMediaUrl(heroImage);
   const resolvedCountryFlagImage = resolveMediaUrl(countryFlagImage);
+  const metaLine = [countryName, accreditation || null, medium ? `${medium} medium` : null]
+    .filter(Boolean)
+    .join(' | ');
 
   return (
     <section className="relative isolate overflow-hidden bg-[#0D1B3E]">
-      {resolvedHeroImage ? (
+      {resolvedHeroImage && (
         <SafeImage
           src={resolvedHeroImage}
           alt={name || 'University'}
           fill
-          className="object-cover object-center"
+          priority
+          sizes="100vw"
+          className="object-cover object-center opacity-70"
           fallbackElement={<div className="absolute inset-0 bg-[#0D1B3E]" />}
         />
-      ) : null}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0D1B3E] via-[#0D1B3E]/90 to-[#0D1B3E]/40" />
+      )}
+      <div className="absolute inset-0 bg-gradient-to-r from-[#0D1B3E] via-[#0D1B3E]/88 to-[#0D1B3E]/45" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0D1B3E]/35 via-transparent to-[#0D1B3E]/82" />
 
-      <div className="relative z-10 mx-auto max-w-[1200px] px-5 py-20 sm:px-8 sm:py-24 lg:py-32">
-        <div className="max-w-2xl">
-          {countryName && (
-            <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-medium uppercase tracking-wider backdrop-blur-sm">
-              {resolvedCountryFlagImage && (
-                <SafeImage
-                  src={resolvedCountryFlagImage}
-                  alt={countryName}
-                  width={20}
-                  height={14}
-                  className="rounded-[2px]"
-                  fallbackElement={<span className="block h-[14px] w-5 rounded-[2px] bg-white/20" />}
-                />
-              )}
-              <span className="text-white/90">
-                {countryName}
-                {establishedYear ? ` · Est. ${establishedYear}` : ''}
+      <div className="relative z-10 mx-auto max-w-[1200px] px-5 py-10 sm:px-8 sm:py-16 lg:py-20">
+        <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(360px,440px)] lg:gap-12">
+          <div className="max-w-2xl">
+            {countryName && (
+              <span className="mb-5 inline-flex max-w-full items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-medium uppercase tracking-wider backdrop-blur-sm">
+                {resolvedCountryFlagImage && (
+                  <SafeImage
+                    src={resolvedCountryFlagImage}
+                    alt={countryName}
+                    width={20}
+                    height={14}
+                    className="shrink-0 rounded-[2px] object-cover"
+                    fallbackElement={<span className="block h-[14px] w-5 rounded-[2px] bg-white/20" />}
+                  />
+                )}
+                <span className="truncate text-white/90">
+                  {countryName}
+                  {establishedYear ? ` | Est. ${establishedYear}` : ''}
+                </span>
               </span>
-            </span>
-          )}
-
-          <h1 className="line-clamp-3 break-words font-heading text-[2rem] font-bold leading-[1.08] text-white sm:text-[2.75rem] md:text-[3.25rem] lg:text-[3.75rem]">
-            {name || 'University'}
-          </h1>
-
-          <p className="mt-4 max-w-xl truncate text-[15px] leading-relaxed text-white/60 sm:text-base">
-            {[countryName, accreditation ? accreditation : null, medium ? `${medium} medium` : null]
-              .filter(Boolean)
-              .join(' · ') || '\u00A0'}
-          </p>
-
-          {/* Stat badges */}
-          <div className="mt-10 flex flex-wrap gap-3">
-            {annualFees && (
-              <div className="min-w-[100px] rounded-xl border border-white/15 bg-white/10 px-5 py-3.5 text-center backdrop-blur-sm">
-                <div className="truncate text-lg font-bold leading-tight text-[#F26419] sm:text-xl">{annualFees}</div>
-                <div className="mt-1 text-[11px] text-white/50">Annual Fees</div>
-              </div>
             )}
-            {courseDuration && (
-              <div className="min-w-[100px] rounded-xl border border-white/15 bg-white/10 px-5 py-3.5 text-center backdrop-blur-sm">
-                <div className="truncate text-lg font-bold leading-tight text-white sm:text-xl">{courseDuration}</div>
-                <div className="mt-1 text-[11px] text-white/50">Duration</div>
+
+            <h1 className="line-clamp-4 break-words font-heading text-[clamp(2.25rem,12vw,3.5rem)] font-bold leading-[1.05] text-white sm:text-[2.75rem] md:text-[3.25rem] lg:text-[3.75rem]">
+              {name || 'University'}
+            </h1>
+
+            <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-white/72 sm:text-base">
+              {metaLine || '\u00A0'}
+            </p>
+
+            <div className="mt-8 grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:mt-10 lg:flex lg:flex-wrap">
+              {annualFees && (
+                <div className="min-w-0 rounded-xl border border-white/15 bg-white/10 px-4 py-3.5 text-center backdrop-blur-sm lg:min-w-[100px] lg:px-5">
+                  <div className="line-clamp-2 text-base font-bold leading-tight text-[#F26419] sm:text-xl">{annualFees}</div>
+                  <div className="mt-1 text-[11px] text-white/50">Annual Fees</div>
+                </div>
+              )}
+              {courseDuration && (
+                <div className="min-w-0 rounded-xl border border-white/15 bg-white/10 px-4 py-3.5 text-center backdrop-blur-sm lg:min-w-[100px] lg:px-5">
+                  <div className="line-clamp-2 text-base font-bold leading-tight text-white sm:text-xl">{courseDuration}</div>
+                  <div className="mt-1 text-[11px] text-white/50">Duration</div>
+                </div>
+              )}
+              <div className="min-w-0 rounded-xl border border-white/15 bg-white/10 px-4 py-3.5 text-center backdrop-blur-sm lg:min-w-[100px] lg:px-5">
+                <div className="text-lg font-bold leading-tight text-emerald-400 sm:text-xl">No</div>
+                <div className="mt-1 text-[11px] text-white/50">Donation</div>
               </div>
-            )}
-            <div className="min-w-[100px] rounded-xl border border-white/15 bg-white/10 px-5 py-3.5 text-center backdrop-blur-sm">
-              <div className="text-lg font-bold leading-tight text-emerald-400 sm:text-xl">No</div>
-              <div className="mt-1 text-[11px] text-white/50">Donation</div>
+              {hostelFees && (
+                <div className="min-w-0 rounded-xl border border-white/15 bg-white/10 px-4 py-3.5 text-center backdrop-blur-sm lg:min-w-[100px] lg:px-5">
+                  <div className="line-clamp-2 text-base font-bold leading-tight text-white sm:text-xl">{hostelFees}</div>
+                  <div className="mt-1 text-[11px] text-white/50">Hostel / yr</div>
+                </div>
+              )}
             </div>
-            {hostelFees && (
-              <div className="min-w-[100px] rounded-xl border border-white/15 bg-white/10 px-5 py-3.5 text-center backdrop-blur-sm">
-                <div className="truncate text-lg font-bold leading-tight text-white sm:text-xl">{hostelFees}</div>
-                <div className="mt-1 text-[11px] text-white/50">Hostel / yr</div>
-              </div>
-            )}
+
+            <div className="mt-8 flex flex-col gap-3 min-[420px]:flex-row sm:mt-10 sm:gap-4">
+              <Link href="#counselling" className="inline-flex items-center justify-center rounded-full bg-[#F26419] px-8 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-[#FF8040] sm:text-base">
+                {'Apply Now ->'}
+              </Link>
+              <Link href="#counselling" className="inline-flex items-center justify-center rounded-full border border-white/25 bg-white/10 px-8 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/20 sm:text-base">
+                Talk to Counsellor
+              </Link>
+            </div>
           </div>
 
-          {/* CTA buttons */}
-          <div className="mt-10 flex flex-wrap gap-4">
-            <Link href="/contact" className="inline-flex items-center justify-center rounded-full bg-[#F26419] px-8 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-[#FF8040] sm:text-base">
-              Apply Now →
-            </Link>
-            <Link href="/contact" className="inline-flex items-center justify-center rounded-full border border-white/25 bg-white/10 px-8 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/20 sm:text-base">
-              Talk to Counsellor
-            </Link>
+          <div id="counselling" className="w-full scroll-mt-24 lg:pt-2">
+            <CounsellingForm />
           </div>
         </div>
       </div>

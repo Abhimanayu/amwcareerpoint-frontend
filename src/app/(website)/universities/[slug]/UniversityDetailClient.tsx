@@ -62,6 +62,7 @@ export default function UniversityDetailClient({
     : universityFaqs;
   const gallery = Array.isArray(university.gallery) ? university.gallery.slice(0, 12) : [];
   const recognition = Array.isArray(university.recognition) ? university.recognition.slice(0, 10) : [];
+  const heroImage = pickUniversityImageSource(university);
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -75,7 +76,7 @@ export default function UniversityDetailClient({
       {/* ═══════════════ HERO — reusable protected component ═══════════════ */}
       <CollegeHero
         name={university.name}
-        heroImage={university.heroImage}
+        heroImage={heroImage}
         countryName={countryName}
         countryFlagImage={university.country?.flagImage}
         establishedYear={university.establishedYear}

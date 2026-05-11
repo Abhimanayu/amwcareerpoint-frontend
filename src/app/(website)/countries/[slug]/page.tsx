@@ -6,7 +6,7 @@ import { getCountryBySlug, getCountries } from '@/lib/countries';
 import { getPublicFaqs } from '@/lib/server/faqs';
 import { getUniversities, getUniversityBySlug } from '@/lib/universities';
 import { CounsellingForm } from '@/components/home/CounsellingForm';
-import { extractCollectionData, resolveMediaUrl } from '@/lib/utils';
+import { extractCollectionData, pickUniversityImageSource, resolveMediaUrl } from '@/lib/utils';
 import { SEO_HOLD } from '@/lib/seoHold';
 import { CountryFAQSection } from './CountryFAQSection';
 
@@ -84,7 +84,10 @@ type UniversitySummary = {
   slug?: string;
   name?: string;
   heroImage?: string;
+  cardImage?: string;
   logo?: string;
+  image?: string;
+  gallery?: string[];
   annualFees?: string;
   hostelFees?: string;
   hostelFee?: string;
@@ -207,7 +210,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 function pickImageSource(university: UniversitySummary) {
-  return resolveMediaUrl(university.heroImage || university.logo || '');
+  return resolveMediaUrl(pickUniversityImageSource(university as Record<string, unknown>));
 }
 
 function getFallbackLifeCards(countryName: string) {
@@ -339,7 +342,7 @@ export default async function CountryPage({ params }: Props) {
   const countryId = typeof country._id === 'string' ? country._id : '';
   const heroImage = resolveMediaUrl(country.heroImage);
   const flagImage = resolveMediaUrl(country.flagImage);
-  const heroImageClass = 'object-contain object-right opacity-[0.42] saturate-110 contrast-105 lg:opacity-[0.5]';
+  const heroImageClass = 'object-cover object-center opacity-100 saturate-110 contrast-110';
   const heroImageObjectPosition = normalizeObjectPosition(
     (
       country as {
@@ -512,8 +515,8 @@ export default async function CountryPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJsonLd) }}
         />
       )}
-      <section className="relative overflow-hidden border-b border-[#E6DFD3] bg-[#F8F4EC] px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16 xl:py-20">
-        <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.96),_rgba(255,255,255,0.7)_34%,_rgba(248,244,236,0.34)_58%,_transparent_100%)]" />
+      <section className="relative overflow-hidden border-b border-[#E6DFD3] bg-[#F8F4EC] px-4 py-8 sm:px-6 sm:py-10 lg:min-h-[calc(100svh-112px)] lg:px-8 lg:py-12 xl:min-h-[820px]">
+        <div className="absolute inset-0 z-0 bg-[#F8F4EC]" />
         {heroImage && (
           <div className="pointer-events-none absolute inset-0 z-0 hidden sm:block">
             <SafeImage
@@ -521,17 +524,19 @@ export default async function CountryPage({ params }: Props) {
               alt={country.name}
               fill
               priority
+              sizes="100vw"
               className={heroImageClass}
               style={heroImageObjectPosition ? { objectPosition: heroImageObjectPosition } : undefined}
               fallbackElement={<div className="absolute inset-0 bg-gradient-to-br from-[#FFF9F1] to-[#E7DECF]" />}
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-[#FFF9F1]/90 via-[#FFF9F1]/76 to-[#F8F4EC]/92 sm:bg-gradient-to-r sm:from-[#FFF9F1]/98 sm:via-[#FFF9F1]/76 sm:to-[#FFF9F1]/24" />
-            <div className="absolute inset-0 bg-gradient-to-b from-white/44 via-white/8 to-[#F8F4EC]/76 sm:from-white/72 sm:via-white/16 sm:to-[#F8F4EC]/82" />
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,249,241,0.98)_0%,rgba(255,249,241,0.9)_30%,rgba(255,249,241,0.34)_51%,rgba(255,249,241,0)_68%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.16)_0%,rgba(255,255,255,0)_34%,rgba(248,244,236,0.18)_100%)]" />
+            <div className="absolute inset-y-0 left-0 w-[46%] bg-[linear-gradient(90deg,rgba(255,249,241,0.98),rgba(255,249,241,0.52)_72%,rgba(255,249,241,0))]" />
           </div>
         )}
 
         <div className="relative z-10 mx-auto flex max-w-[1440px] flex-col">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(350px,430px)] lg:items-center xl:gap-14">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.98fr)_minmax(350px,430px)] lg:items-start xl:gap-14">
             <div className="max-w-[760px]">
               {flagImage && (
                 <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-white/80 bg-white/90 px-4 py-2.5 text-sm font-semibold text-[#1F2B44] shadow-[0_12px_30px_rgba(13,27,62,0.12)] backdrop-blur">
@@ -547,7 +552,7 @@ export default async function CountryPage({ params }: Props) {
                 </div>
               )}
 
-              <h1 className="font-heading text-[2.65rem] font-bold leading-[0.98] tracking-[-0.04em] text-[#0D1B3E] sm:text-[4rem] lg:text-[5.1rem] xl:text-[5.9rem]">
+              <h1 className="font-heading text-[clamp(2.7rem,15vw,4rem)] font-bold leading-[0.98] tracking-normal text-[#0D1B3E] sm:text-[4rem] lg:text-[5.1rem] xl:text-[5.9rem]">
                 MBBS in<br className="hidden sm:block" /> {country.name}
               </h1>
               <div className="mt-5 h-1 w-20 rounded-full bg-[#F26419]" />
@@ -555,7 +560,7 @@ export default async function CountryPage({ params }: Props) {
               {country.tagline && (
                 <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-[14px] font-semibold text-[#243454]">
                   {country.tagline.split('|').slice(0, 5).map((item: string, index: number) => (
-                    <span key={`${index}-${item.trim()}`} className="inline-flex items-center gap-2">
+                    <span key={`${index}-${item.trim()}`} className={`items-center gap-2 ${index > 2 ? 'hidden sm:inline-flex' : 'inline-flex'}`}>
                       {index === 0 && <span className="h-5 w-5 rounded-full border border-[#2B5BB5] text-center text-[11px] leading-[18px] text-[#2B5BB5]">+</span>}
                       <span>{item.trim()}</span>
                     </span>
@@ -564,53 +569,54 @@ export default async function CountryPage({ params }: Props) {
               )}
 
               {heroImage && (
-                <div className="mt-6 overflow-hidden rounded-[28px] border border-white/80 bg-white/88 p-2 shadow-[0_18px_45px_rgba(13,27,62,0.12)] sm:hidden">
+                <div className="mt-6 overflow-hidden rounded-[24px] border border-white/80 bg-white/88 p-2 shadow-[0_18px_45px_rgba(13,27,62,0.12)] sm:hidden">
                   <SafeImage
                     src={heroImage}
                     alt={`${country.name} destination view`}
                     width={900}
                     height={560}
                     priority
-                    className="h-auto max-h-[260px] w-full rounded-[22px] object-contain"
+                    sizes="(max-width: 639px) 100vw, 900px"
+                    className="h-[240px] w-full rounded-[18px] object-cover saturate-110 contrast-105 min-[420px]:h-[280px]"
                     style={heroImageObjectPosition ? { objectPosition: heroImageObjectPosition } : undefined}
-                    fallbackElement={<div className="flex min-h-[190px] items-center justify-center rounded-[22px] bg-[#E7DECF] text-sm text-[#4A4742]">Image unavailable</div>}
+                    fallbackElement={<div className="flex min-h-[190px] items-center justify-center rounded-[18px] bg-[#E7DECF] text-sm text-[#4A4742]">Image unavailable</div>}
                   />
                 </div>
               )}
 
               <div className="mt-7 max-w-[700px] space-y-3 text-[15px] leading-7 text-[#26334D] sm:text-[16px]">
-                {heroParagraphs.slice(0, 3).map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
+                {heroParagraphs.slice(0, 3).map((paragraph, index) => (
+                  <p key={paragraph} className={index > 1 ? 'hidden sm:block' : undefined}>{paragraph}</p>
                 ))}
               </div>
 
-              <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="mt-6 grid grid-cols-2 gap-3 xl:grid-cols-4">
                 {heroStats.map((item, index) => (
-                  <div key={item.label} className="flex items-center gap-3 rounded-2xl border border-white/75 bg-white/88 px-3.5 py-3.5 shadow-[0_14px_36px_rgba(13,27,62,0.09)] backdrop-blur">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#FFF4E9] text-sm font-bold text-[#F26419]">
+                  <div key={item.label} className="flex min-w-0 items-center gap-2.5 rounded-2xl border border-white/75 bg-white/88 px-3 py-3 shadow-[0_14px_36px_rgba(13,27,62,0.09)] backdrop-blur sm:gap-3 sm:px-3.5 sm:py-3.5">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#FFF4E9] text-xs font-bold text-[#F26419] sm:h-10 sm:w-10 sm:text-sm">
                       {String(index + 1).padStart(2, '0')}
                     </div>
-                    <div>
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#8A8175]">
+                    <div className="min-w-0">
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#8A8175] sm:text-[11px]">
                         {item.label}
                       </div>
-                      <div className="mt-1 text-[14px] font-bold leading-snug text-[#0D1B3E]">{item.value}</div>
+                      <div className="mt-1 text-[12px] font-bold leading-snug text-[#0D1B3E] sm:text-[14px]">{item.value}</div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="relative z-10 mx-auto w-full max-w-[470px]">
+            <div className="relative z-10 mx-auto w-full max-w-[470px] lg:pt-8 xl:pt-10">
               <CounsellingForm />
             </div>
           </div>
 
           <div className="mt-7 flex flex-col gap-4 lg:mt-10">
-            <div className="grid overflow-hidden rounded-[24px] border border-white/70 bg-white/76 shadow-[0_20px_60px_rgba(13,27,62,0.11)] backdrop-blur md:grid-cols-2 xl:grid-cols-4">
+            <div className="grid overflow-hidden rounded-[20px] border border-white/70 bg-white/76 shadow-[0_20px_60px_rgba(13,27,62,0.11)] backdrop-blur sm:rounded-[24px] md:grid-cols-2 xl:grid-cols-4">
               {heroTrustItems.map((item, index) => (
-                <div key={item.title} className="flex items-center gap-4 border-[#E4D8C9] px-5 py-4 md:border-r md:last:border-r-0">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#0D1B3E]/12 bg-white text-sm font-bold text-[#0D1B3E]">
+                <div key={item.title} className="flex items-center gap-3 border-b border-[#E4D8C9] px-4 py-3 last:border-b-0 sm:gap-4 sm:px-5 sm:py-4 md:border-b-0 md:border-r md:last:border-r-0">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#0D1B3E]/12 bg-white text-xs font-bold text-[#0D1B3E] sm:h-10 sm:w-10 sm:text-sm">
                     {String(index + 1).padStart(2, '0')}
                   </div>
                   <div>
@@ -727,6 +733,7 @@ export default async function CountryPage({ params }: Props) {
                             src={imageSrc}
                             alt={university.name || 'University'}
                             fill
+                            sizes="(min-width: 768px) 180px, 100vw"
                             className="object-cover"
                             fallbackElement={
                               <div className="flex h-full items-center justify-center text-5xl text-white/20">ðŸ«</div>
