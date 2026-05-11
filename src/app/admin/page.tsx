@@ -17,6 +17,72 @@ interface StatCard {
   icon: string;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function readNumericValue(obj: Record<string, unknown>, keys: string[]) {
+  for (const key of keys) {
+    const value = obj[key];
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+    if (typeof value === 'string') {
+      const parsed = Number(value);
+      if (Number.isFinite(parsed)) return parsed;
+    }
+  }
+
+  return null;
+}
+
+function getResponseTotal(payload: unknown, collectionKeys: string[] = []) {
+  const totalKeys = [
+    'total',
+    'totalCount',
+    'count',
+    'totalItems',
+    'totalDocs',
+    'totalRecords',
+    'totalResults',
+    ...collectionKeys.map((key) => `${key}Count`),
+    ...collectionKeys.map((key) => `total${key.charAt(0).toUpperCase()}${key.slice(1)}`),
+  ];
+  const nestedKeys = ['pagination', 'meta', 'pageInfo'];
+  const queue: unknown[] = [payload];
+  const visited = new Set<unknown>();
+
+  while (queue.length > 0) {
+    const current = queue.shift();
+    if (!current || visited.has(current)) continue;
+    if (Array.isArray(current)) return current.length;
+    if (!isRecord(current)) continue;
+
+    visited.add(current);
+
+    const total = readNumericValue(current, totalKeys);
+    if (total !== null) return total;
+
+    for (const key of nestedKeys) {
+      const nested = current[key];
+      if (isRecord(nested)) {
+        const nestedTotal = readNumericValue(nested, totalKeys);
+        if (nestedTotal !== null) return nestedTotal;
+      }
+    }
+
+    for (const key of collectionKeys) {
+      const collection = current[key];
+      if (Array.isArray(collection)) return collection.length;
+    }
+
+    for (const key of ['data', ...nestedKeys]) {
+      const nested = current[key];
+      if (nested && !visited.has(nested)) queue.push(nested);
+    }
+  }
+
+  return 0;
+}
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState<StatCard[]>([]);
   const [recentEnquiries, setRecentEnquiries] = useState<Record<string, unknown>[]>([]);
@@ -33,44 +99,17 @@ export default function AdminDashboard() {
           adminGetFaqs({ limit: 1 }),
         ]);
 
-        const getTotal = (r: PromiseSettledResult<Record<string, unknown>>) => {
+        const getTotal = (r: PromiseSettledResult<unknown>, collectionKeys: string[]) => {
           if (r.status !== 'fulfilled') return 0;
-          const v = r.value as Record<string, unknown>;
-          // Support many backend response shapes:
-          // { total }, { count }, { totalCount }
-          // { data: { total } }, { data: { count } }
-          // { pagination: { total } }, { data: { pagination: { total } } }
-          // { data: { data: [...], pagination: { total } } }
-          const pickTotal = (obj: Record<string, unknown> | undefined): number | null => {
-            if (!obj) return null;
-            if (typeof obj.total === 'number') return obj.total;
-            if (typeof obj.totalCount === 'number') return obj.totalCount;
-            if (typeof obj.count === 'number') return obj.count;
-            const p = obj.pagination as Record<string, unknown> | undefined;
-            if (typeof p?.total === 'number') return p.total;
-            if (typeof p?.totalCount === 'number') return p.totalCount;
-            return null;
-          };
-          // Try top-level
-          const t1 = pickTotal(v);
-          if (t1 !== null) return t1;
-          // Try v.data
-          const d = v?.data as Record<string, unknown> | unknown[] | undefined;
-          if (Array.isArray(d)) return d.length;
-          const t2 = pickTotal(d as Record<string, unknown>);
-          if (t2 !== null) return t2;
-          // Try v.data.data (double nested)
-          const dd = (d as Record<string, unknown>)?.data;
-          if (Array.isArray(dd)) return (pickTotal(d as Record<string, unknown>) ?? dd.length);
-          return 0;
+          return getResponseTotal(r.value, collectionKeys);
         };
 
         setStats([
-          { label: 'Countries', value: getTotal(countries), href: '/admin/countries', color: 'bg-blue-500', icon: 'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
-          { label: 'Universities', value: getTotal(universities), href: '/admin/universities', color: 'bg-purple-500', icon: 'M12 14l9-5-9-5-9 5 9 5z M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z' },
-          { label: 'Enquiries', value: getTotal(enquiries), href: '/admin/enquiries', color: 'bg-green-500', icon: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
-          { label: 'Blogs', value: getTotal(blogs), href: '/admin/blogs', color: 'bg-pink-500', icon: 'M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z' },
-          { label: 'FAQs', value: getTotal(faqs), href: '/admin/faqs', color: 'bg-amber-500', icon: 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
+          { label: 'Countries', value: getTotal(countries, ['countries', 'country']), href: '/admin/countries', color: 'bg-blue-500', icon: 'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
+          { label: 'Universities', value: getTotal(universities, ['universities', 'university']), href: '/admin/universities', color: 'bg-purple-500', icon: 'M12 14l9-5-9-5-9 5 9 5z M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z' },
+          { label: 'Enquiries', value: getTotal(enquiries, ['enquiries', 'enquiry']), href: '/admin/enquiries', color: 'bg-green-500', icon: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 012-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
+          { label: 'Blogs', value: getTotal(blogs, ['blogs', 'blog']), href: '/admin/blogs', color: 'bg-pink-500', icon: 'M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z' },
+          { label: 'FAQs', value: getTotal(faqs, ['faqs', 'faq']), href: '/admin/faqs', color: 'bg-amber-500', icon: 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
         ]);
 
         if (enquiries.status === 'fulfilled') {
