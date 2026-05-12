@@ -194,6 +194,14 @@ export const metadata: Metadata = {
           title: 'AMW Career Point - MBBS Abroad Consultancy',
           description: 'India\'s most trusted MBBS abroad consultancy since 2009. 20,000+ students placed in top NMC-approved universities.',
           type: 'website',
+          images: [
+            {
+              url: '/og-image.png',
+              width: 1200,
+              height: 630,
+              alt: 'AMW Career Point - MBBS Abroad Consultancy',
+            },
+          ],
         },
         alternates: {
           canonical: 'https://amwcareerpoint.com/',
