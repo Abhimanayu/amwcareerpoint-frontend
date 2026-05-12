@@ -80,7 +80,7 @@ export function UniversitiesSection() {
               const imageSource = pickUniversityImageSource(uni);
 
               return (
-              <Link key={uni._id} href={`/universities/${uni.slug}`} className="block">
+              <Link key={uni._id} href={`/college/${uni.slug}`} className="block">
                 <div className="relative rounded-xl overflow-hidden group cursor-pointer aspect-[3/4] sm:aspect-[3/4] lg:aspect-[3/4]">
                   {imageSource ? (
                     <SafeImage
@@ -108,10 +108,10 @@ export function UniversitiesSection() {
         {/* CTA */}
         <div className="text-center mt-8 sm:mt-10">
           <Link
-            href="/universities"
+            href="/college"
             className="inline-flex items-center justify-center h-11 px-7 rounded-full bg-[#F26419] text-white text-[13px] sm:text-sm font-bold hover:bg-[#FF8040] transition-colors"
           >
-            Show All Universities →
+            Show All Colleges →
           </Link>
         </div>
       </div>

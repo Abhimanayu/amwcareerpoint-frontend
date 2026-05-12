@@ -80,7 +80,7 @@ export function CollegeCard({ university }: CollegeCardProps) {
   );
 
   if (slug) {
-    return <Link href={`/universities/${slug}`} className="block h-full">{content}</Link>;
+    return <Link href={`/college/${slug}`} className="block h-full">{content}</Link>;
   }
   return content;
 }

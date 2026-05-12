@@ -788,10 +788,10 @@ export default async function CountryPage({ params }: Props) {
                 </p>
               </div>
               <Link
-                href={`/universities?country=${encodeURIComponent(country.name || '')}`}
+                href={`/college?country=${encodeURIComponent(country.name || '')}`}
                 className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#0D1B3E] px-5 py-3 text-sm font-semibold text-[#0D1B3E] transition-colors hover:bg-[#0D1B3E] hover:text-white"
               >
-                Explore all universities
+                Explore all colleges
               </Link>
             </div>
 
@@ -881,7 +881,7 @@ export default async function CountryPage({ params }: Props) {
 
                         <div className="mt-6 flex flex-wrap gap-3">
                           <Link
-                            href={`/universities/${university.slug}`}
+                            href={`/college/${university.slug}`}
                             className="inline-flex min-h-11 flex-1 items-center justify-center rounded-full border border-[#0D1B3E] px-4 py-3 text-sm font-semibold text-[#0D1B3E] transition-colors hover:bg-[#0D1B3E] hover:text-white"
                           >
                             View details

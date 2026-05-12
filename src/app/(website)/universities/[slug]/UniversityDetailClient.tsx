@@ -488,12 +488,12 @@ export default function UniversityDetailClient({
         <section className="bg-[#F9F8F6] py-16 sm:py-20 lg:py-24">
           <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
             <h2 className="mb-10 text-center font-heading text-[1.75rem] font-bold leading-tight text-[#0D1B3E] sm:text-[2rem] md:text-[2.25rem]">
-              Other universities in {countryName}
+              Other colleges in {countryName}
             </h2>
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {relatedUniversities.map((uni: any, i: number) => (
-                <Link key={uni._id || `rel-${i}`} href={`/universities/${uni.slug}`} className="group overflow-hidden rounded-2xl border border-[#DDD9D2] bg-white transition-shadow hover:shadow-lg">
+                <Link key={uni._id || `rel-${i}`} href={`/college/${uni.slug}`} className="group overflow-hidden rounded-2xl border border-[#DDD9D2] bg-white transition-shadow hover:shadow-lg">
                   <div className="relative h-40 bg-[#0D1B3E]">
                     {pickUniversityImageSource(uni) ? (
                       <SafeImage src={pickUniversityImageSource(uni)} alt={uni.name || 'University'} fill className="object-cover transition-transform duration-300 group-hover:scale-105" fallbackElement={<div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0D1B3E] to-[#162550] text-2xl text-white/30">🏫</div>} />
@@ -513,8 +513,8 @@ export default function UniversityDetailClient({
             </div>
 
             <div className="mt-10 text-center">
-              <Link href="/universities" className="inline-flex items-center rounded-full border-2 border-[#0D1B3E] px-6 py-3 text-sm font-semibold text-[#0D1B3E] transition-colors hover:bg-[#0D1B3E] hover:text-white">
-                View All Universities →
+              <Link href="/college" className="inline-flex items-center rounded-full border-2 border-[#0D1B3E] px-6 py-3 text-sm font-semibold text-[#0D1B3E] transition-colors hover:bg-[#0D1B3E] hover:text-white">
+                View All Colleges →
               </Link>
             </div>
           </div>
@@ -534,8 +534,8 @@ export default function UniversityDetailClient({
             <Link href="/contact" className="inline-flex items-center justify-center rounded-full bg-[#F26419] px-10 py-4 text-base font-semibold text-white transition-colors hover:bg-[#FF8040] sm:text-lg">
               Start Your Application →
             </Link>
-            <Link href="/universities" className="inline-flex items-center justify-center rounded-full border border-white/25 bg-white/10 px-10 py-4 text-base font-semibold text-white transition-colors hover:bg-white/20 sm:text-lg">
-              Compare Universities
+            <Link href="/college" className="inline-flex items-center justify-center rounded-full border border-white/25 bg-white/10 px-10 py-4 text-base font-semibold text-white transition-colors hover:bg-white/20 sm:text-lg">
+              Compare Colleges
             </Link>
           </div>
         </div>

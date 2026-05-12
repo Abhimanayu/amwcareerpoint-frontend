@@ -17,7 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${siteUrl}/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
     { url: `${siteUrl}/contact`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
     { url: `${siteUrl}/countries`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
-    { url: `${siteUrl}/universities`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${siteUrl}/college`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
     { url: `${siteUrl}/blogs`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
   ];
 
@@ -40,7 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const res = await getUniversities({ limit: 200 });
     const universities = extractCollectionData<{ slug: string; updatedAt?: string }>(res, ['universities']);
     universityPages = universities.map((u: { slug: string; updatedAt?: string }) => ({
-      url: `${siteUrl}/universities/${u.slug}`,
+      url: `${siteUrl}/college/${u.slug}`,
       lastModified: u.updatedAt ? new Date(u.updatedAt) : new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.7,

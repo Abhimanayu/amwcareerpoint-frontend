@@ -328,7 +328,7 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Canonical URL</label>
-            <input value={form.seo.canonicalUrl} onChange={(e) => setForm((p) => ({ ...p, seo: { ...p.seo, canonicalUrl: e.target.value } }))} placeholder="https://amwcareerpoint.com/universities/your-slug (leave empty for auto)" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
+            <input value={form.seo.canonicalUrl} onChange={(e) => setForm((p) => ({ ...p, seo: { ...p.seo, canonicalUrl: e.target.value } }))} placeholder="https://amwcareerpoint.com/college/your-slug (leave empty for auto)" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
             <p className="text-xs text-gray-400 mt-1">Leave empty to use the default page URL as canonical</p>
           </div>
           <div>

@@ -233,10 +233,10 @@ export default async function CountriesPage() {
               Get Free Consultation
             </Link>
             <Link
-              href="/universities"
+              href="/college"
               className="inline-flex items-center justify-center h-10 sm:h-11 px-7 rounded-full border-2 border-white text-white text-[13px] sm:text-sm font-bold hover:bg-white hover:text-[#0D1B3E] transition-colors"
             >
-              Explore Universities
+              Explore Colleges
             </Link>
           </div>
         </div>

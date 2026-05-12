@@ -28,7 +28,7 @@ export function Footer() {
               {[
                 { href: '/', label: 'Home' },
                 { href: '/about', label: 'About Us' },
-                { href: '/universities', label: 'Universities' },
+                { href: '/college', label: 'Colleges' },
                 { href: '/blogs', label: 'Blog' },
                 { href: '/contact', label: 'Contact' },
               ].map((l) => (
