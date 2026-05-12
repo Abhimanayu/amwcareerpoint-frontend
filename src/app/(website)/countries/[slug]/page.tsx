@@ -17,6 +17,26 @@ type Props = Readonly<{ params: Promise<{ slug: string }> }>;
 
 type CountryFaq = { question?: string; answer?: string };
 
+function removeStructuredDataType(value: unknown, typeToRemove: string): object | null {
+  if (!value || typeof value !== 'object') return null;
+
+  const item = value as Record<string, unknown>;
+  const type = item['@type'];
+  const matchesType = Array.isArray(type) ? type.includes(typeToRemove) : type === typeToRemove;
+  if (matchesType) return null;
+
+  if (Array.isArray(item['@graph'])) {
+    const graph = item['@graph'].filter((entry) => {
+      if (!entry || typeof entry !== 'object') return true;
+      const entryType = (entry as Record<string, unknown>)['@type'];
+      return Array.isArray(entryType) ? !entryType.includes(typeToRemove) : entryType !== typeToRemove;
+    });
+    return graph.length > 0 ? { ...item, '@graph': graph } : null;
+  }
+
+  return item;
+}
+
 type CountryFeature = {
   icon?: string;
   title?: string;
@@ -340,7 +360,9 @@ export default async function CountryPage({ params }: Props) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
   let schemaJsonLd: object | null = null;
   if (country.seo?.schemaMarkup) {
-    try { schemaJsonLd = JSON.parse(country.seo.schemaMarkup); } catch { /* invalid JSON */ }
+    try {
+      schemaJsonLd = removeStructuredDataType(JSON.parse(country.seo.schemaMarkup), 'FAQPage');
+    } catch { /* invalid JSON */ }
   }
   schemaJsonLd ??= {
       '@context': 'https://schema.org',
