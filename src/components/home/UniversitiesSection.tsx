@@ -23,7 +23,7 @@ export function UniversitiesSection() {
   const [usingFallback, setUsingFallback] = useState(true);
 
   useEffect(() => {
-    getUniversities({ limit: 20 })
+    getUniversities({ limit: 8 })
       .then((res) => {
         const items = extractCollectionData<any>(res, ['universities']);
         if (items.length > 0) {
@@ -60,8 +60,8 @@ export function UniversitiesSection() {
         </div>
 
         {/* Image carousel */}
-        <div className="px-4 sm:px-5">
-          <Carousel slideClass="basis-full sm:basis-1/2 lg:basis-1/4 pl-3 sm:pl-4" dots={false}>
+        <div className="px-1 sm:px-5">
+          <Carousel slideClass="basis-full px-1 sm:basis-1/2 sm:pl-4 sm:pr-0 lg:basis-1/4">
             {usingFallback ? universities.map((uni) => (
               <div key={`${uni.name}-${uni.country}`} className="relative rounded-xl overflow-hidden group cursor-pointer aspect-[3/4] sm:aspect-[3/4] lg:aspect-[3/4]">
                 <SafeImage 
@@ -109,7 +109,7 @@ export function UniversitiesSection() {
         <div className="text-center mt-8 sm:mt-10">
           <Link
             href="/universities"
-            className="inline-flex items-center justify-center h-10 sm:h-11 px-7 rounded-full bg-[#F26419] text-white text-[13px] sm:text-sm font-bold hover:bg-[#FF8040] transition-colors"
+            className="inline-flex items-center justify-center h-11 px-7 rounded-full bg-[#F26419] text-white text-[13px] sm:text-sm font-bold hover:bg-[#FF8040] transition-colors"
           >
             Show All Universities →
           </Link>

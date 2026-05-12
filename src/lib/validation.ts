@@ -5,6 +5,25 @@ export interface ValidationError {
   message: string;
 }
 
+type SeoFields = {
+  metaTitle: string;
+  metaDescription: string;
+  keywords: string;
+  canonicalUrl?: string;
+  schemaMarkup?: string;
+};
+
+function validateSchemaMarkup(value: string | undefined, errors: ValidationError[]) {
+  const schemaMarkup = value?.trim();
+  if (!schemaMarkup) return;
+
+  try {
+    JSON.parse(schemaMarkup);
+  } catch {
+    errors.push({ field: 'schemaMarkup', message: 'Schema markup must be valid JSON-LD' });
+  }
+}
+
 // --- Field limits (used for both validation and UI hints) ---
 
 export const LIMITS = {
@@ -13,7 +32,7 @@ export const LIMITS = {
     name: { min: 2, max: 80 },
     slug: { min: 2, max: 120 },
     tagline: { max: 260 },
-    description: { min: 20, max: 6000 },
+    description: { min: 20, max: 50000 },
     feeRange: { max: 120 },
     feeRangeUSD: { max: 140 },
     duration: { max: 120 },
@@ -63,7 +82,7 @@ export const LIMITS = {
   university: {
     name: { min: 3, max: 180 },
     slug: { min: 2, max: 220 },
-    description: { min: 20, max: 7000 },
+    description: { min: 20, max: 50000 },
     ranking: { max: 180 },
     accreditation: { max: 260 },
     courseDuration: { max: 140 },
@@ -133,7 +152,7 @@ export function validateCountryForm(form: {
   faqs: { question: string; answer: string }[];
   eligibility: string[];
   admissionProcess: { step: number; title: string; description: string }[];
-  seo: { metaTitle: string; metaDescription: string; keywords: string };
+  seo: SeoFields;
 }): ValidationError[] {
   const errors: ValidationError[] = [];
   const L = LIMITS.country;
@@ -287,6 +306,7 @@ export function validateCountryForm(form: {
   if (form.seo.metaTitle.length > L.seoTitle.max) errors.push({ field: 'seoTitle', message: `Meta title must not exceed ${L.seoTitle.max} characters` });
   if (form.seo.metaDescription.length > L.seoDesc.max) errors.push({ field: 'seoDesc', message: `Meta description must not exceed ${L.seoDesc.max} characters` });
   if (form.seo.keywords.length > L.seoKeywords.max) errors.push({ field: 'seoKeywords', message: `Keywords must not exceed ${L.seoKeywords.max} characters` });
+  validateSchemaMarkup(form.seo.schemaMarkup, errors);
 
   return errors;
 }
@@ -307,7 +327,7 @@ export function validateUniversityForm(form: {
   recognition: string[];
   highlights: { label: string; value: string }[];
   faqs: { question: string; answer: string }[];
-  seo: { metaTitle: string; metaDescription: string; keywords: string };
+  seo: SeoFields;
 }): ValidationError[] {
   const errors: ValidationError[] = [];
   const L = LIMITS.university;
@@ -352,6 +372,7 @@ export function validateUniversityForm(form: {
   if (form.seo.metaTitle.length > L.seoTitle.max) errors.push({ field: 'seoTitle', message: `Meta title must not exceed ${L.seoTitle.max} characters` });
   if (form.seo.metaDescription.length > L.seoDesc.max) errors.push({ field: 'seoDesc', message: `Meta description must not exceed ${L.seoDesc.max} characters` });
   if (form.seo.keywords.length > L.seoKeywords.max) errors.push({ field: 'seoKeywords', message: `Keywords must not exceed ${L.seoKeywords.max} characters` });
+  validateSchemaMarkup(form.seo.schemaMarkup, errors);
 
   return errors;
 }
@@ -363,7 +384,7 @@ export function validateBlogForm(form: {
   excerpt: string;
   author: string;
   tags: string;
-  seo: { metaTitle: string; metaDescription: string; keywords: string };
+  seo: SeoFields;
 }): ValidationError[] {
   const errors: ValidationError[] = [];
   const L = LIMITS.blog;
@@ -385,6 +406,7 @@ export function validateBlogForm(form: {
   if (form.seo.metaTitle.length > L.seoTitle.max) errors.push({ field: 'seoTitle', message: `Meta title must not exceed ${L.seoTitle.max} characters` });
   if (form.seo.metaDescription.length > L.seoDesc.max) errors.push({ field: 'seoDesc', message: `Meta description must not exceed ${L.seoDesc.max} characters` });
   if (form.seo.keywords.length > L.seoKeywords.max) errors.push({ field: 'seoKeywords', message: `Keywords must not exceed ${L.seoKeywords.max} characters` });
+  validateSchemaMarkup(form.seo.schemaMarkup, errors);
 
   return errors;
 }

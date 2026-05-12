@@ -84,7 +84,7 @@ export function Header() {
       <header className="sticky top-0 z-50 border-b border-gray-100 bg-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-12 sm:h-14 items-center justify-between">
-            <Link href="/" className="flex items-center shrink-0">
+            <Link href="/" className="flex min-h-11 min-w-11 items-center shrink-0">
               <SafeImage 
                 src="/logo.svg" 
                 alt="AMW Career Point"
@@ -165,7 +165,7 @@ export function Header() {
             </div>
 
             {/* Mobile hamburger */}
-            <button type="button" onClick={() => setIsMenuOpen(!isMenuOpen)} className="xl:hidden p-2.5 -mr-2 text-[#0D1B3E]" style={{ touchAction: 'manipulation' }}>
+            <button type="button" onClick={() => setIsMenuOpen(!isMenuOpen)} className="xl:hidden p-3 -mr-2 text-[#0D1B3E] min-h-11 min-w-11 flex items-center justify-center" style={{ touchAction: 'manipulation' }}>
               <span className="sr-only">Menu</span>
               <div className="space-y-1.5">
                 <div className={`h-0.5 w-5 bg-current transition-all ${isMenuOpen ? 'translate-y-2 rotate-45' : ''}`} />

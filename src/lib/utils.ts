@@ -90,6 +90,18 @@ export function clampList(
     .slice(0, maxItems);
 }
 
+export function clampSeoDescription(value: unknown, fallback = '', maxLength = 160) {
+  const source = typeof value === 'string' ? value : fallback;
+  const text = stripHtml(source).replace(/\s+/g, ' ').trim();
+  const fallbackText = stripHtml(fallback).replace(/\s+/g, ' ').trim();
+
+  return clampText(text || fallbackText, maxLength);
+}
+
+export function serializeJsonLd(value: unknown) {
+  return JSON.stringify(value).replace(/</g, '\\u003c');
+}
+
 export function isRemoteImageUrl(src: unknown): src is string {
   return typeof src === 'string' && /^https?:\/\//i.test(src);
 }
@@ -234,6 +246,30 @@ export function pickBlogImageSource(post: Record<string, unknown> | null | undef
   return ([post.coverImage, post.image, post.heroImage].find(
     (value) => typeof value === 'string' && value.trim()
   ) as string | undefined) || getStableFallback(post.slug || post.title, BLOG_FALLBACK_IMAGES);
+}
+
+/** Strip HTML tags and return plain text */
+export function stripHtml(html: string): string {
+  if (!html) return '';
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+/** Return a valid canonical URL, falling back when admin input is empty or HTML. */
+export function resolveCanonicalUrl(value: unknown, fallback: string): string {
+  if (typeof value !== 'string') return fallback;
+
+  const trimmed = value.trim();
+  if (!trimmed) return fallback;
+  if (/<[^>]+>/.test(trimmed)) return fallback;
+
+  const candidate = stripHtml(trimmed).trim();
+  if (!candidate) return fallback;
+
+  try {
+    return new URL(candidate, fallback).toString();
+  } catch {
+    return fallback;
+  }
 }
 
 /** Sanitize HTML: strip script tags, event handlers, and dangerous elements */

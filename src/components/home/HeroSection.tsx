@@ -29,10 +29,10 @@ export function HeroSection() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 mb-5 sm:mb-6">
-                <Link href="#predictor" className="h-10 sm:h-11 px-6 sm:px-7 rounded-full bg-[#F26419] text-white text-[13px] sm:text-sm font-bold inline-flex items-center justify-center hover:bg-[#FF8040] transition-colors">
+                <Link href="#predictor" className="h-11 px-6 sm:px-7 rounded-full bg-[#F26419] text-white text-[13px] sm:text-sm font-bold inline-flex items-center justify-center hover:bg-[#FF8040] transition-colors">
                   Use College Predictor
                 </Link>
-                <Link href="#experts" className="h-10 sm:h-11 px-6 sm:px-7 rounded-full border-2 border-[#0D1B3E] text-[#0D1B3E] text-[13px] sm:text-sm font-bold inline-flex items-center justify-center hover:bg-[#0D1B3E] hover:text-white transition-colors">
+                <Link href="#experts" className="h-11 px-6 sm:px-7 rounded-full border-2 border-[#0D1B3E] text-[#0D1B3E] text-[13px] sm:text-sm font-bold inline-flex items-center justify-center hover:bg-[#0D1B3E] hover:text-white transition-colors">
                   Meet Our Experts
                 </Link>
               </div>

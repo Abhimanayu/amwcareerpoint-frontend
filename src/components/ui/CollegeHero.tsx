@@ -80,26 +80,26 @@ export function CollegeHero({
               {metaLine || '\u00A0'}
             </p>
 
-            <div className="mt-8 grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:mt-10 lg:flex lg:flex-wrap">
+            <div className="mt-8 grid w-full grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:mt-10 lg:flex lg:flex-wrap">
               {annualFees && (
-                <div className="min-w-0 rounded-xl border border-white/15 bg-white/10 px-4 py-3.5 text-center backdrop-blur-sm lg:min-w-[100px] lg:px-5">
-                  <div className="line-clamp-2 text-base font-bold leading-tight text-[#F26419] sm:text-xl">{annualFees}</div>
+                <div className="min-w-0 w-full min-[420px]:w-auto rounded-xl border border-white/15 bg-white/10 px-4 py-3.5 text-center backdrop-blur-sm lg:min-w-[100px] lg:px-5 lg:w-auto">
+                  <div className="whitespace-normal break-words line-clamp-2 text-base font-bold leading-tight text-[#F26419] sm:text-xl">{annualFees}</div>
                   <div className="mt-1 text-[11px] text-white/50">Annual Fees</div>
                 </div>
               )}
               {courseDuration && (
-                <div className="min-w-0 rounded-xl border border-white/15 bg-white/10 px-4 py-3.5 text-center backdrop-blur-sm lg:min-w-[100px] lg:px-5">
-                  <div className="line-clamp-2 text-base font-bold leading-tight text-white sm:text-xl">{courseDuration}</div>
+                <div className="min-w-0 w-full min-[420px]:w-auto rounded-xl border border-white/15 bg-white/10 px-4 py-3.5 text-center backdrop-blur-sm lg:min-w-[100px] lg:px-5 lg:w-auto">
+                  <div className="whitespace-normal break-words line-clamp-2 text-base font-bold leading-tight text-white sm:text-xl">{courseDuration}</div>
                   <div className="mt-1 text-[11px] text-white/50">Duration</div>
                 </div>
               )}
-              <div className="min-w-0 rounded-xl border border-white/15 bg-white/10 px-4 py-3.5 text-center backdrop-blur-sm lg:min-w-[100px] lg:px-5">
+              <div className="min-w-0 w-full min-[420px]:w-auto rounded-xl border border-white/15 bg-white/10 px-4 py-3.5 text-center backdrop-blur-sm lg:min-w-[100px] lg:px-5 lg:w-auto">
                 <div className="text-lg font-bold leading-tight text-emerald-400 sm:text-xl">No</div>
                 <div className="mt-1 text-[11px] text-white/50">Donation</div>
               </div>
               {hostelFees && (
-                <div className="min-w-0 rounded-xl border border-white/15 bg-white/10 px-4 py-3.5 text-center backdrop-blur-sm lg:min-w-[100px] lg:px-5">
-                  <div className="line-clamp-2 text-base font-bold leading-tight text-white sm:text-xl">{hostelFees}</div>
+                <div className="min-w-0 w-full min-[420px]:w-auto rounded-xl border border-white/15 bg-white/10 px-4 py-3.5 text-center backdrop-blur-sm lg:min-w-[100px] lg:px-5 lg:w-auto">
+                  <div className="whitespace-normal break-words line-clamp-2 text-base font-bold leading-tight text-white sm:text-xl">{hostelFees}</div>
                   <div className="mt-1 text-[11px] text-white/50">Hostel / yr</div>
                 </div>
               )}

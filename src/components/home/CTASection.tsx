@@ -12,10 +12,10 @@ export function CTASection() {
           MBBS admissions are closing soon. Secure your seat in top medical universities with our expert guidance. 25,000+ students already did.
         </p>
         <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 justify-center">
-          <a href="tel:+919929299268" className="h-10 px-6 rounded-full bg-[#F26419] text-white text-[13px] font-bold inline-flex items-center justify-center hover:bg-[#FF8040] transition-colors w-full sm:w-auto">
+          <a href="tel:+919929299268" className="h-11 px-6 rounded-full bg-[#F26419] text-white text-[13px] font-bold inline-flex items-center justify-center hover:bg-[#FF8040] transition-colors w-full sm:w-auto">
             📞 Call Now
           </a>
-          <Link href="#counselling" className="h-10 px-6 rounded-full border-2 border-white text-white text-[13px] font-bold inline-flex items-center justify-center hover:bg-white hover:text-[#0D1B3E] transition-colors w-full sm:w-auto">
+          <Link href="#counselling" className="h-11 px-6 rounded-full border-2 border-white text-white text-[13px] font-bold inline-flex items-center justify-center hover:bg-white hover:text-[#0D1B3E] transition-colors w-full sm:w-auto">
             Get Free Counselling
           </Link>
         </div>

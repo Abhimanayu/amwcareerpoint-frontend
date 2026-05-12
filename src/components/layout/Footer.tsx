@@ -19,10 +19,6 @@ export function Footer() {
             <p className="text-xs leading-relaxed text-gray-400 mb-3">
               India&apos;s most trusted MBBS consultancy since 2009. Helping NEET aspirants secure admissions in top NMC-approved medical colleges.
             </p>
-            <div className="space-y-1 text-xs">
-              <a href="tel:+919929299268" className="block hover:text-white transition-colors">+91-9929299268</a>
-              <a href="mailto:support@amwcareerpoint.com" className="block hover:text-white transition-colors">support@amwcareerpoint.com</a>
-            </div>
           </div>
 
           {/* Quick Links */}
@@ -37,7 +33,7 @@ export function Footer() {
                 { href: '/contact', label: 'Contact' },
               ].map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="inline-block py-1 hover:text-white transition-colors">{l.label}</Link>
+                  <Link href={l.href} className="inline-flex min-h-11 min-w-11 items-center py-1 px-1 hover:text-white transition-colors">{l.label}</Link>
                 </li>
               ))}
             </ul>
@@ -49,7 +45,7 @@ export function Footer() {
             <ul className="space-y-0.5 text-xs">
               {destinations.map((country) => (
                 <li key={country}>
-                  <Link href={`/countries/${getCountrySlug(country)}`} className="inline-block py-1 hover:text-white transition-colors">MBBS in {country}</Link>
+                  <Link href={`/countries/${getCountrySlug(country)}`} className="inline-flex min-h-11 min-w-11 items-center py-1 px-1 hover:text-white transition-colors">MBBS in {country}</Link>
                 </li>
               ))}
             </ul>
@@ -63,6 +59,10 @@ export function Footer() {
               Meera Marg, Bani Park,<br />
               Jaipur, Rajasthan 302006
             </p>
+            <div className="space-y-1 text-xs">
+              <a href="tel:+919929299268" className="inline-flex min-h-11 w-full items-center py-1 hover:text-white transition-colors">+91-9929299268</a>
+              <a href="mailto:support@amwcareerpoint.com" className="inline-flex min-h-11 w-full items-center py-1 hover:text-white transition-colors">support@amwcareerpoint.com</a>
+            </div>
             <p className="text-xs text-gray-400">Mon–Sat, 9 AM – 7 PM</p>
           </div>
         </div>

@@ -25,8 +25,31 @@ export const metadata: Metadata = {
 
 export default async function ContactPage() {
   const faqs = await getPublicFaqs('contact', { fallback: contactFallbackFaqs });
+  const cleanFaqs = faqs.filter((faq) => faq.question?.trim() && faq.answer?.trim());
+  const faqSchemaJsonLd = cleanFaqs.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: cleanFaqs.map((faq) => ({
+          '@type': 'Question',
+          name: faq.question.trim(),
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: faq.answer.trim(),
+          },
+        })),
+      }
+    : null;
+
   return (
     <div className="min-h-screen bg-white">
+      {!SEO_HOLD && faqSchemaJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchemaJsonLd) }}
+        />
+      )}
+
       {/* ── Hero ── */}
       <section className="bg-[#0D1B3E] py-10 sm:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

@@ -1,9 +1,10 @@
 'use client';
 
+import NextImage from 'next/image';
 import { useCallback, useState } from 'react';
 
 interface ImageUploadDialogProps {
-  onInsert: (url: string) => void;
+  onInsert: (url: string, altText?: string) => void;
   onClose: () => void;
 }
 
@@ -104,9 +105,9 @@ export function ImageUploadDialog({ onInsert, onClose }: ImageUploadDialogProps)
       return;
     }
 
-    onInsert(imageUrl);
+    onInsert(imageUrl, altText.trim() || undefined);
     onClose();
-  }, [imageUrl, onInsert, onClose]);
+  }, [altText, imageUrl, onInsert, onClose]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -161,9 +162,12 @@ export function ImageUploadDialog({ onInsert, onClose }: ImageUploadDialogProps)
           {imageUrl && (
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-700">Preview</label>
-              <img
+              <NextImage
                 src={imageUrl}
                 alt={altText || 'Preview'}
+                width={384}
+                height={128}
+                unoptimized
                 className="h-32 max-w-full rounded border border-gray-300 object-contain"
                 onError={() => setImageUrl('')}
               />

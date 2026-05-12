@@ -83,7 +83,7 @@ export function VideosSection() {
                     href={`https://www.youtube.com/watch?v=${video.id}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block w-full text-center py-2 rounded-full bg-orange text-white text-[13px] font-bold hover:bg-orange-hover transition-colors"
+                    className="block w-full min-h-11 text-center py-3 rounded-full bg-orange text-white text-[13px] font-bold hover:bg-orange-hover transition-colors"
                   >
                     Watch on YouTube
                   </a>
@@ -99,7 +99,7 @@ export function VideosSection() {
             href={YOUTUBE_CHANNEL}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full sm:w-auto inline-flex items-center justify-center h-10 sm:h-11 px-7 rounded-full border-2 border-navy text-navy text-[13px] sm:text-sm font-bold hover:bg-navy hover:text-white transition-colors"
+            className="w-full sm:w-auto inline-flex items-center justify-center h-11 px-7 rounded-full border-2 border-navy text-navy text-[13px] sm:text-sm font-bold hover:bg-navy hover:text-white transition-colors"
           >
             View All Videos on YouTube →
           </a>

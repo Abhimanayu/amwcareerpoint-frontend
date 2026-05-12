@@ -30,9 +30,37 @@ const emptyForm = {
   seo: { metaTitle: '', metaDescription: '', keywords: '', canonicalUrl: '', schemaMarkup: '' },
 };
 
+function buildBlogForm(initialData?: Record<string, unknown>) {
+  if (!initialData) return emptyForm;
+
+  const catId = typeof initialData.category === 'object'
+    ? (initialData.category as Record<string, unknown>)?._id as string
+    : initialData.category as string;
+
+  return {
+    title: (initialData.title as string) || '',
+    slug: (initialData.slug as string) || '',
+    content: (initialData.content as string) || '',
+    excerpt: (initialData.excerpt as string) || '',
+    coverImage: (initialData.coverImage as string) || '',
+    category: catId || '',
+    author: (initialData.author as string) || '',
+    tags: Array.isArray(initialData.tags) ? (initialData.tags as string[]).join(', ') : (initialData.tags as string) || '',
+    status: (initialData.status as string) || 'published',
+    featured: !!initialData.featured,
+    seo: {
+      metaTitle: ((initialData.seo as Record<string, string>)?.metaTitle) || '',
+      metaDescription: ((initialData.seo as Record<string, string>)?.metaDescription) || '',
+      keywords: ((initialData.seo as Record<string, string>)?.keywords) || '',
+      canonicalUrl: ((initialData.seo as Record<string, string>)?.canonicalUrl) || '',
+      schemaMarkup: ((initialData.seo as Record<string, string>)?.schemaMarkup) || '',
+    },
+  };
+}
+
 export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
   const router = useRouter();
-  const [form, setForm] = useState(emptyForm);
+  const [form, setForm] = useState(() => buildBlogForm(initialData));
   const [categories, setCategories] = useState<{ _id: string; name: string }[]>([]);
   const [customCategory, setCustomCategory] = useState(false);
   const [customCategoryName, setCustomCategoryName] = useState('');
@@ -48,33 +76,6 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
       setCategories(Array.isArray(res.data) ? res.data : res.data?.categories || res.categories || []);
     }).catch(() => {});
   }, []);
-
-  useEffect(() => {
-    if (initialData) {
-      const catId = typeof initialData.category === 'object'
-        ? (initialData.category as Record<string, unknown>)?._id as string
-        : initialData.category as string;
-      setForm({
-        title: (initialData.title as string) || '',
-        slug: (initialData.slug as string) || '',
-        content: (initialData.content as string) || '',
-        excerpt: (initialData.excerpt as string) || '',
-        coverImage: (initialData.coverImage as string) || '',
-        category: catId || '',
-        author: (initialData.author as string) || '',
-        tags: Array.isArray(initialData.tags) ? (initialData.tags as string[]).join(', ') : (initialData.tags as string) || '',
-        status: (initialData.status as string) || 'published',
-        featured: !!initialData.featured,
-        seo: {
-          metaTitle: ((initialData.seo as Record<string, string>)?.metaTitle) || '',
-          metaDescription: ((initialData.seo as Record<string, string>)?.metaDescription) || '',
-          keywords: ((initialData.seo as Record<string, string>)?.keywords) || '',
-          canonicalUrl: ((initialData.seo as Record<string, string>)?.canonicalUrl) || '',
-          schemaMarkup: ((initialData.seo as Record<string, string>)?.schemaMarkup) || '',
-        },
-      });
-    }
-  }, [initialData]);
 
   const handleCreateCategory = async () => {
     if (!customCategoryName.trim()) return;
@@ -298,6 +299,7 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Schema Markup (JSON-LD)</label>
             <textarea rows={6} value={form.seo.schemaMarkup} onChange={(e) => setForm((p) => ({ ...p, seo: { ...p.seo, schemaMarkup: e.target.value } }))} placeholder='{"@context":"https://schema.org","@type":"Article",...}' className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm font-mono focus:ring-2 focus:ring-[#F26419] outline-none resize-y" />
+            <FieldError message={getFieldError(validationErrors, 'schemaMarkup')} />
             <p className="text-xs text-gray-400 mt-1">Optional. Paste valid JSON-LD schema. Leave empty for auto-generated Article schema.</p>
           </div>
         </section>

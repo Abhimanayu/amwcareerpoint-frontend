@@ -69,7 +69,7 @@ export function ComparisonSection() {
             <h3 className="font-heading text-[14px] sm:text-[15px] font-bold text-[#0D1B3E] mb-0.5">Expert Recommendation</h3>
             <p className="text-[12px] sm:text-[13px] text-[#4A4742]">Compare your NEET score, budget, seat availability, and long-term licensing goals before choosing between India and abroad.</p>
           </div>
-          <Link href="#counselling" className="shrink-0 w-full sm:w-auto h-10 px-6 rounded-full bg-[#F26419] text-white text-[13px] sm:text-sm font-bold inline-flex items-center justify-center hover:bg-[#FF8040] transition-colors">
+          <Link href="#counselling" className="shrink-0 w-full sm:w-auto h-11 px-6 rounded-full bg-[#F26419] text-white text-[13px] sm:text-sm font-bold inline-flex items-center justify-center hover:bg-[#FF8040] transition-colors">
             Get Free Consultation
           </Link>
         </div>

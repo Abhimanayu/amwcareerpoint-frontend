@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getBlogBySlug, getBlogs } from '@/lib/blogs';
-import { extractCollectionData, formatDate, pickBlogImageSource, resolveMediaUrl, sanitizeHtml } from '@/lib/utils';
+import { clampSeoDescription, extractCollectionData, formatDate, pickBlogImageSource, resolveCanonicalUrl, resolveMediaUrl, sanitizeHtml, serializeJsonLd } from '@/lib/utils';
 import { sanitizeAndOptimizeMobileContent } from '@/lib/contentValidation';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { SEO_HOLD } from '@/lib/seoHold';
@@ -34,14 +34,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const post = res.data || res;
     if (!post) return { title: 'Post Not Found' };
     const title = post.seo?.metaTitle || post.title;
-    const description = post.seo?.metaDescription || post.excerpt;
+    const description = clampSeoDescription(post.seo?.metaDescription || post.excerpt || post.content, post.title || '');
     const ogImage = resolveMediaUrl(pickBlogImageSource(post));
-    const canonical = post.seo?.canonicalUrl || `${siteUrl}/blogs/${slug}`;
+    const canonical = resolveCanonicalUrl(post.seo?.canonicalUrl, `${siteUrl}/blogs/${slug}`);
     return {
       title,
       description,
       alternates: { canonical },
-      openGraph: { title, description, type: 'article', images: ogImage ? [{ url: ogImage }] : undefined },
+      openGraph: { title, description, type: 'article', url: canonical, images: ogImage ? [{ url: ogImage }] : undefined },
     };
   } catch {
     return { title: 'Post Not Found' };
@@ -106,14 +106,44 @@ export default async function BlogPostPage({ params }: Readonly<Props>) {
       dateModified: post.updatedAt || post.createdAt || undefined,
       mainEntityOfPage: { '@type': 'WebPage', '@id': postUrl },
     };
+  const breadcrumbSchemaJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: `${siteUrl}/`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Blog',
+        item: `${siteUrl}/blogs`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: post.title || 'Article',
+        item: postUrl,
+      },
+    ],
+  };
 
   return (
     <div className="min-h-screen bg-white">
       {!SEO_HOLD && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJsonLd) }}
-        />
+        <>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: serializeJsonLd(schemaJsonLd) }}
+          />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbSchemaJsonLd) }}
+          />
+        </>
       )}
       {/* Hero */}
       <section className="bg-[#0D1B3E] py-10 sm:py-14">

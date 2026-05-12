@@ -6,7 +6,8 @@ import { CollegeHero } from '@/components/ui/CollegeHero';
 import { CollegeGallery } from '@/components/ui/CollegeGallery';
 import { FeeCard } from '@/components/ui/FeeCard';
 import { SafeImage } from '@/components/ui/SafeImage';
-import { pickUniversityImageSource } from '@/lib/utils';
+import { pickUniversityImageSource, sanitizeHtml } from '@/lib/utils';
+import { sanitizeAndOptimizeMobileContent } from '@/lib/contentValidation';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -98,7 +99,7 @@ export default function UniversityDetailClient({
                 <button
                   key={item.id}
                   onClick={() => { setActiveNav(item.id); scrollTo(item.id); }}
-                  className={`cursor-pointer whitespace-nowrap border-b-2 px-3 py-3.5 text-[13px] font-medium transition-colors sm:px-5 sm:text-sm ${
+                  className={`inline-flex min-h-11 items-center cursor-pointer whitespace-nowrap border-b-2 px-3 py-3.5 text-[13px] font-medium transition-colors sm:px-5 sm:text-sm ${
                     activeNav === item.id
                       ? 'border-[#F26419] text-[#F26419]'
                       : 'border-transparent text-[#4A4742] hover:border-[#F26419] hover:text-[#F26419]'
@@ -123,11 +124,10 @@ export default function UniversityDetailClient({
               </h2>
 
               {university.description ? (
-                <div className="mt-6 space-y-4 text-[15px] leading-relaxed text-[#4A4742]">
-                  {university.description.split('\n').filter(Boolean).map((p: string, i: number) => (
-                    <p key={`desc-${i}`} className="break-words">{p}</p>
-                  ))}
-                </div>
+                <div
+                  className="blog-content prose prose-sm sm:prose-base max-w-none mt-6 text-[#4A4742] leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: sanitizeAndOptimizeMobileContent(sanitizeHtml(university.description)) }}
+                />
               ) : (
                 <p className="mt-6 text-[15px] leading-relaxed text-[#4A4742]">
                   {university.name} offers world-class medical education with affordable fees, modern infrastructure,
@@ -141,7 +141,7 @@ export default function UniversityDetailClient({
                   {highlights.map((h: any, i: number) => (
                     <span key={`hl-${i}`} className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-[#DDD9D2] bg-white px-4 py-2 text-sm text-[#0D1B3E]">
                       <span className="shrink-0 font-semibold text-[#F26419]">{h.label}</span>
-                      {h.value && <span className="min-w-0 truncate text-[#4A4742]">— {h.value}</span>}
+                      {h.value && <span className="min-w-0 whitespace-normal break-words line-clamp-2 text-[#4A4742]">— {h.value}</span>}
                     </span>
                   ))}
                 </div>
@@ -264,7 +264,7 @@ export default function UniversityDetailClient({
               <button
                 key={`ct-${i}`}
                 onClick={() => setCurrTab(i)}
-                className={`cursor-pointer whitespace-nowrap rounded-full px-4 py-2 text-[13px] font-medium transition-colors sm:px-5 sm:py-2.5 sm:text-sm ${
+                className={`inline-flex min-h-11 items-center cursor-pointer whitespace-nowrap rounded-full px-4 py-2.5 text-[13px] font-medium transition-colors sm:px-5 sm:py-2.5 sm:text-sm ${
                   currTab === i
                     ? 'bg-[#0D1B3E] text-white'
                     : 'border border-[#DDD9D2] bg-[#F9F8F6] text-[#4A4742] hover:border-[#0D1B3E]'
@@ -421,7 +421,7 @@ export default function UniversityDetailClient({
             </div>
 
             <p className="mt-6 text-center text-sm text-[#4A4742]">
-              Admission Helpline — <Link href="/contact" className="font-semibold text-[#F26419] hover:underline">Contact our counsellors</Link> for step-by-step assistance.
+              Admission Helpline — <Link href="/contact" className="inline-flex min-h-11 items-center px-1 font-semibold text-[#F26419] hover:underline">Contact our counsellors</Link> for step-by-step assistance.
             </p>
           </div>
         </section>

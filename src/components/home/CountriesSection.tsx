@@ -57,7 +57,7 @@ export function CountriesSection() {
   const [totalCountries, setTotalCountries] = useState(fallbackCountries.length);
 
   useEffect(() => {
-    getCountries({ limit: 10 })
+    getCountries({ limit: 8 })
       .then((res) => {
         const items = extractCollectionData<any>(res, ['countries']);
         if (items.length > 0) {
@@ -88,8 +88,8 @@ export function CountriesSection() {
           <p className="mt-3 text-[15px] text-text-body max-w-2xl mx-auto">World-class medical education at affordable costs across {countLabel}+ countries.</p>
         </div>
 
-        <div className="px-4 sm:px-5">
-          <Carousel slideClass="basis-full sm:basis-1/2 lg:basis-1/3 pl-4 sm:pl-5">
+        <div className="px-1 sm:px-5">
+          <Carousel slideClass="basis-full px-1 sm:basis-1/2 sm:pl-5 sm:pr-0 lg:basis-1/3">
             {usingFallback ? countries.map((c: any) => (
               <div key={`${c.code}-${c.name}`} className="rounded-xl border border-border bg-white overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
                 <div className="bg-navy px-4 py-3 text-white">
@@ -130,7 +130,7 @@ export function CountriesSection() {
                     ))}
                   </ul>
                   <div className="mt-auto">
-                    <Link href={`/countries/${getCountrySlugFromObject(c)}`} className="block w-full text-center py-2.5 sm:py-2 rounded-full bg-orange text-white text-sm sm:text-[13px] font-bold hover:bg-orange-hover transition-colors">
+                    <Link href={`/countries/${getCountrySlugFromObject(c)}`} className="block w-full min-h-11 text-center py-3 rounded-full bg-orange text-white text-sm sm:text-[13px] font-bold hover:bg-orange-hover transition-colors">
                       View Universities
                     </Link>
                   </div>
@@ -225,7 +225,7 @@ export function CountriesSection() {
                   </ul>
                   )}
                   <div className="mt-auto">
-                    <Link href={`/countries/${c.slug}`} className="block w-full text-center py-2.5 sm:py-2 rounded-full bg-orange text-white text-sm sm:text-[13px] font-bold hover:bg-orange-hover transition-colors">
+                    <Link href={`/countries/${c.slug}`} className="block w-full min-h-11 text-center py-3 rounded-full bg-orange text-white text-sm sm:text-[13px] font-bold hover:bg-orange-hover transition-colors">
                       View Universities
                     </Link>
                   </div>
@@ -236,7 +236,7 @@ export function CountriesSection() {
         </div>
 
         <div className="text-center mt-8 sm:mt-10">
-          <Link href="/countries" className="w-full sm:w-auto inline-flex items-center justify-center h-10 sm:h-11 px-7 rounded-full border-2 border-navy text-navy text-[13px] sm:text-sm font-bold hover:bg-navy hover:text-white transition-colors">
+          <Link href="/countries" className="w-full sm:w-auto inline-flex items-center justify-center h-11 px-7 rounded-full border-2 border-navy text-navy text-[13px] sm:text-sm font-bold hover:bg-navy hover:text-white transition-colors">
             View All {countLabel} Countries →
           </Link>
         </div>

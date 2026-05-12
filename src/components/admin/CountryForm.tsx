@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ImageUploader from '@/components/admin/ImageUploader';
+import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { createCountry, updateCountry } from '@/lib/countries';
 import { handleApiError } from '@/lib/handleApiError';
 import { validateCountryForm, getFieldError, LIMITS, type ValidationError } from '@/lib/validation';
@@ -665,16 +666,12 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
           </div>
 
           <div>
-            <label htmlFor="country-description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-            <textarea
-              id="country-description"
-              rows={4}
-              maxLength={L.description.max}
-              value={form.description}
-              onChange={(e) => updateField('description', e.target.value)}
-              className={textAreaClass}
+            <label htmlFor="country-description" className="block text-sm font-medium text-gray-700 mb-1">Description / Page Content</label>
+            <RichTextEditor
+              content={form.description}
+              onChange={(html) => updateField('description', html)}
             />
-            <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'description')} /><CharCount current={form.description.length} max={L.description.max} /></div>
+            <FieldError message={getFieldError(validationErrors, 'description')} />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1437,6 +1434,7 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
           <div>
             <label htmlFor="seo-schema" className="block text-sm font-medium text-gray-700 mb-1">Schema Markup (JSON-LD)</label>
             <textarea id="seo-schema" rows={6} value={form.seo.schemaMarkup} onChange={(e) => setForm((p) => ({ ...p, seo: { ...p.seo, schemaMarkup: e.target.value } }))} placeholder='{"@context":"https://schema.org","@type":"Country",...}' className={`${textAreaClass} font-mono resize-y`} />
+            <FieldError message={getFieldError(validationErrors, 'schemaMarkup')} />
             <p className="text-xs text-gray-400 mt-1">Optional. Paste valid JSON-LD schema. Leave empty for auto-generated schema.</p>
           </div>
         </section>

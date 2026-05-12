@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getUniversityBySlug, getUniversities } from '@/lib/universities';
 import { getCountryBySlug } from '@/lib/countries';
-import { extractCollectionData, pickUniversityImageSource, resolveMediaUrl } from '@/lib/utils';
+import { clampSeoDescription, extractCollectionData, pickUniversityImageSource, resolveCanonicalUrl, resolveMediaUrl, serializeJsonLd } from '@/lib/utils';
 import { getPublicFaqs } from '@/lib/server/faqs';
 import { SEO_HOLD } from '@/lib/seoHold';
 import UniversityDetailClient from './UniversityDetailClient';
@@ -34,14 +34,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const university = res.data || res;
     if (!university) return { title: 'University Not Found' };
     const title = university.seo?.metaTitle || `${university.name} - MBBS Admission`;
-    const description = university.seo?.metaDescription || `Study MBBS at ${university.name}. ${university.description || ''} Get complete admission details, fees, and eligibility.`;
+    const description = clampSeoDescription(
+      university.seo?.metaDescription || university.description,
+      `Study MBBS at ${university.name}. Get complete admission details, fees, eligibility, and counselling support.`
+    );
     const ogImage = resolveMediaUrl(pickUniversityImageSource(university));
-    const canonical = university.seo?.canonicalUrl || `${siteUrl}/universities/${slug}`;
+    const canonical = resolveCanonicalUrl(university.seo?.canonicalUrl, `${siteUrl}/universities/${slug}`);
     return {
       title,
       description,
       alternates: { canonical },
-      openGraph: { title, description, type: 'article', images: ogImage ? [{ url: ogImage }] : undefined },
+      openGraph: { title, description, type: 'article', url: canonical, images: ogImage ? [{ url: ogImage }] : undefined },
     };
   } catch {
     return { title: 'University Not Found' };
@@ -71,11 +74,35 @@ export default async function UniversityDetailPage({ params }: Readonly<Props>) 
       '@context': 'https://schema.org',
       '@type': 'EducationalOrganization',
       name: university.name || '',
-      description: university.description || '',
+      description: clampSeoDescription(university.description, `Study MBBS at ${university.name} with AMW Career Point.`),
       url: `${siteUrl}/universities/${slug}`,
       image: resolveMediaUrl(pickUniversityImageSource(university)) || undefined,
       address: university.country?.name ? { '@type': 'PostalAddress', addressCountry: university.country.name } : undefined,
     };
+  const breadcrumbSchemaJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: `${siteUrl}/`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Universities',
+        item: `${siteUrl}/universities`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: university.name || 'University',
+        item: `${siteUrl}/universities/${slug}`,
+      },
+    ],
+  };
 
   // Parallelize independent data fetches
   const [countryResult, relatedResult, apiFaqs] = await Promise.all([
@@ -99,10 +126,16 @@ export default async function UniversityDetailPage({ params }: Readonly<Props>) 
   return (
     <>
       {!SEO_HOLD && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJsonLd) }}
-        />
+        <>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: serializeJsonLd(schemaJsonLd) }}
+          />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbSchemaJsonLd) }}
+          />
+        </>
       )}
       <UniversityDetailClient
         university={university}

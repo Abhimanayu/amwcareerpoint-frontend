@@ -61,7 +61,7 @@ const normalizeEditorLink = (value: string) => {
   return null;
 };
 
-export function RichTextEditor({ content, onChange, placeholder, className = '' }: Readonly<RichTextEditorProps>) {
+export function RichTextEditor({ content, onChange, className = '' }: Readonly<RichTextEditorProps>) {
   const [fontSize, setFontSize] = useState('16px');
   const [fontFamily, setFontFamily] = useState('Calibri, sans-serif');
   const [showImageDialog, setShowImageDialog] = useState(false);
@@ -133,9 +133,9 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
     },
   });
 
-  const insertImage = useCallback((url: string) => {
+  const insertImage = useCallback((url: string, altText?: string) => {
     if (url && editor) {
-      editor.chain().focus().setImage({ src: url, alt: 'Blog image' }).run();
+      editor.chain().focus().setImage({ src: url, alt: altText || 'Editor image' }).run();
       console.log('🖼️ Image inserted into editor:', url.substring(0, 50) + '...');
     }
   }, [editor]);
@@ -464,8 +464,8 @@ export function RichTextEditor({ content, onChange, placeholder, className = '' 
       {/* Enhanced Image Upload Dialog */}
       {showImageDialog && (
         <ImageUploadDialog
-          onInsert={(url) => {
-            insertImage(url);
+          onInsert={(url, altText) => {
+            insertImage(url, altText);
             setShowImageDialog(false);
           }}
           onClose={() => setShowImageDialog(false)}

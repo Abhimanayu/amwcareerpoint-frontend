@@ -12,7 +12,7 @@ export function PredictorSection() {
         </div>
 
         <div className="text-center">
-          <button className="w-full sm:w-auto h-10 px-8 rounded-full bg-[#F26419] text-white text-[13px] font-bold hover:bg-[#FF8040] transition-colors">
+          <button className="w-full sm:w-auto h-11 px-8 rounded-full bg-[#F26419] text-white text-[13px] font-bold hover:bg-[#FF8040] transition-colors">
             Predict College
           </button>
         </div>

@@ -18,10 +18,7 @@ export function Carousel({ children, slideClass = '', dots = true }: CarouselPro
     loop: true,
   });
 
-  const [canScrollPrev, setCanScrollPrev] = useState(false);
-  const [canScrollNext, setCanScrollNext] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
@@ -30,14 +27,10 @@ export function Carousel({ children, slideClass = '', dots = true }: CarouselPro
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
     setSelectedIndex(emblaApi.selectedScrollSnap());
-    setCanScrollPrev(emblaApi.canScrollPrev());
-    setCanScrollNext(emblaApi.canScrollNext());
   }, [emblaApi]);
 
   useEffect(() => {
     if (!emblaApi) return;
-    setScrollSnaps(emblaApi.scrollSnapList());
-    onSelect();
     emblaApi.on('select', onSelect);
     emblaApi.on('reInit', onSelect);
     return () => {
@@ -68,7 +61,7 @@ export function Carousel({ children, slideClass = '', dots = true }: CarouselPro
             type="button"
             onClick={scrollPrev}
             aria-label="Previous slide"
-            className="absolute top-1/2 -translate-y-1/2 -left-3 sm:-left-4 z-10 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-[#DDD9D2] shadow-md flex items-center justify-center text-[#0D1B3E] hover:bg-[#F9F8F6] transition-colors"
+            className="absolute top-1/2 -translate-y-1/2 -left-3 sm:-left-4 z-10 w-11 h-11 sm:w-11 sm:h-11 rounded-full bg-white border border-[#DDD9D2] shadow-md flex items-center justify-center text-[#0D1B3E] hover:bg-[#F9F8F6] transition-colors"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -78,7 +71,7 @@ export function Carousel({ children, slideClass = '', dots = true }: CarouselPro
             type="button"
             onClick={scrollNext}
             aria-label="Next slide"
-            className="absolute top-1/2 -translate-y-1/2 -right-3 sm:-right-4 z-10 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-[#DDD9D2] shadow-md flex items-center justify-center text-[#0D1B3E] hover:bg-[#F9F8F6] transition-colors"
+            className="absolute top-1/2 -translate-y-1/2 -right-3 sm:-right-4 z-10 w-11 h-11 sm:w-11 sm:h-11 rounded-full bg-white border border-[#DDD9D2] shadow-md flex items-center justify-center text-[#0D1B3E] hover:bg-[#F9F8F6] transition-colors"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -88,18 +81,22 @@ export function Carousel({ children, slideClass = '', dots = true }: CarouselPro
       )}
 
       {/* Dots */}
-      {dots && scrollSnaps.length > 1 && (
-        <div className="flex justify-center gap-1.5 mt-5">
-          {scrollSnaps.map((_, i) => (
+      {dots && children.length > 1 && (
+        <div className="mt-5 flex flex-wrap justify-center gap-x-1 gap-y-1 px-1">
+          {children.map((_, i) => (
             <button
               key={i}
               type="button"
               onClick={() => scrollTo(i)}
               aria-label={`Go to slide group ${i + 1}`}
-              className={`w-2 h-2 rounded-full transition-colors ${
-                i === selectedIndex ? 'bg-[#F26419]' : 'bg-[#DDD9D2]'
-              }`}
-            />
+              className="inline-flex h-7 w-7 shrink-0 items-center justify-center sm:h-11 sm:w-11"
+              >
+                <span
+                  className={`h-3 w-3 rounded-full transition-colors sm:h-4 sm:w-4 ${
+                    i === selectedIndex ? 'bg-[#F26419]' : 'bg-[#DDD9D2]'
+                  }`}
+                />
+              </button>
           ))}
         </div>
       )}

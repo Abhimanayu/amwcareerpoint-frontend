@@ -18,11 +18,11 @@ export function FeeCard({ label, value, sub, accent, dark }: FeeCardProps) {
           : 'border border-[#DDD9D2] bg-[#F9F8F6]'
       }`}
     >
-      <p className={`mb-2 truncate text-xs ${dark ? 'text-white/70' : 'text-[#4A4742]'}`}>
+      <p className={`mb-2 whitespace-normal break-words line-clamp-1 text-xs ${dark ? 'text-white/70' : 'text-[#4A4742]'}`}>
         {label || 'Fee'}
       </p>
       <p
-        className={`truncate text-lg font-bold leading-tight sm:text-xl ${
+        className={`whitespace-normal break-words line-clamp-2 text-lg font-bold leading-tight sm:text-xl ${
           accent
             ? 'text-[#F26419]'
             : dark
@@ -34,7 +34,7 @@ export function FeeCard({ label, value, sub, accent, dark }: FeeCardProps) {
         {value || '—'}
       </p>
       {sub && (
-        <p className={`mt-1 truncate text-[11px] ${dark ? 'text-white/60' : 'text-[#4A4742]/60'}`}>
+        <p className={`mt-1 whitespace-normal break-words line-clamp-1 text-[11px] ${dark ? 'text-white/60' : 'text-[#4A4742]/60'}`}>
           {sub}
         </p>
       )}

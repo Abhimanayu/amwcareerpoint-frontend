@@ -6,7 +6,8 @@ import { getCountryBySlug, getCountries } from '@/lib/countries';
 import { getPublicFaqs } from '@/lib/server/faqs';
 import { getUniversities, getUniversityBySlug } from '@/lib/universities';
 import { CounsellingForm } from '@/components/home/CounsellingForm';
-import { extractCollectionData, pickUniversityImageSource, resolveMediaUrl } from '@/lib/utils';
+import { clampSeoDescription, extractCollectionData, pickUniversityImageSource, resolveCanonicalUrl, resolveMediaUrl, sanitizeHtml, serializeJsonLd, stripHtml } from '@/lib/utils';
+import { sanitizeAndOptimizeMobileContent } from '@/lib/contentValidation';
 import { SEO_HOLD } from '@/lib/seoHold';
 import { CountryFAQSection } from './CountryFAQSection';
 
@@ -199,13 +200,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const country = res?.data || res;
   if (!country) return { title: 'Country not found' };
   const title = country.seo?.metaTitle || `${country.name} | MBBS Abroad`;
-  const description = country.seo?.metaDescription || country.metaDescription || country.tagline || country.description || '';
-  const canonical = country.seo?.canonicalUrl || `${siteUrl}/countries/${slug}`;
+  const description = clampSeoDescription(
+    country.seo?.metaDescription || country.metaDescription || country.tagline || country.description,
+    `Study MBBS in ${country.name} with AMW Career Point. Get details on fees, universities, admission, and student support.`
+  );
+  const canonical = resolveCanonicalUrl(country.seo?.canonicalUrl, `${siteUrl}/countries/${slug}`);
+  const ogImage = resolveMediaUrl(country.heroImage || country.cardImage || country.bannerImage || country.flagImage || '');
   return {
     title,
     description,
     alternates: { canonical },
-    openGraph: { title, description, type: 'website' },
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      url: canonical,
+      images: ogImage ? [{ url: ogImage }] : undefined,
+    },
   };
 }
 
@@ -257,7 +268,8 @@ function resolveLifeCards(
 
 function getCountryHeroParagraphs(description: string | undefined, countryName: string) {
   const fallback = `${countryName} offers international medical education with practical guidance on fees, admission, documentation, and university selection.`;
-  const source = (description || fallback).trim();
+  const plain = stripHtml(description || '').trim();
+  const source = (plain || fallback).trim();
   const paragraphBreaks = source
     .split(/\n{2,}/)
     .map((item) => item.trim())
@@ -334,10 +346,48 @@ export default async function CountryPage({ params }: Props) {
       '@context': 'https://schema.org',
       '@type': 'WebPage',
       name: `MBBS in ${country.name}`,
-      description: country.description || country.tagline || '',
+      description: clampSeoDescription(country.description || country.tagline, `Study MBBS in ${country.name} with AMW Career Point.`),
       url: `${siteUrl}/countries/${slug}`,
       publisher: { '@type': 'Organization', name: 'AMW Career Point', url: siteUrl },
     };
+  const breadcrumbSchemaJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: `${siteUrl}/`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Countries',
+        item: `${siteUrl}/countries`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: `MBBS in ${country.name}`,
+        item: `${siteUrl}/countries/${slug}`,
+      },
+    ],
+  };
+  const faqSchemaJsonLd = mergedFaqs.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: mergedFaqs.slice(0, 20).map((faq: { question: string; answer: string }) => ({
+          '@type': 'Question',
+          name: faq.question.trim(),
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: faq.answer.trim(),
+          },
+        })),
+      }
+    : null;
 
   const countryId = typeof country._id === 'string' ? country._id : '';
   const heroImage = resolveMediaUrl(country.heroImage);
@@ -429,7 +479,7 @@ export default async function CountryPage({ params }: Props) {
           title: feature.title || 'Why choose this destination',
           description:
             feature.description ||
-            country.description ||
+            stripHtml(country.description || '') ||
             `Students choose ${country.name} for quality medical education and structured support.`,
           icon: feature.icon || '+',
         }))
@@ -510,10 +560,22 @@ export default async function CountryPage({ params }: Props) {
   return (
     <div className="overflow-x-hidden bg-[#F8F4EC] text-[#0D1B3E]">
       {!SEO_HOLD && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJsonLd) }}
-        />
+        <>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: serializeJsonLd(schemaJsonLd) }}
+          />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbSchemaJsonLd) }}
+          />
+          {faqSchemaJsonLd && (
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqSchemaJsonLd) }}
+            />
+          )}
+        </>
       )}
       <section className="relative overflow-hidden border-b border-[#E6DFD3] bg-[#F8F4EC] px-4 py-8 sm:px-6 sm:py-10 lg:min-h-[calc(100svh-112px)] lg:px-8 lg:py-12 xl:min-h-[820px]">
         <div className="absolute inset-0 z-0 bg-[#F8F4EC]" />
@@ -660,6 +722,23 @@ export default async function CountryPage({ params }: Props) {
         </div>
       </section>
 
+      {country.description && (
+        <section className="px-4 py-14 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-4xl">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F26419]">
+              About {country.name}
+            </span>
+            <h2 className="mt-3 font-heading text-2xl sm:text-3xl font-bold text-[#0D1B3E]">
+              MBBS in {country.name} — an overview
+            </h2>
+            <div
+              className="blog-content prose prose-sm sm:prose-base max-w-none mt-6 text-[#4A4742] leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: sanitizeAndOptimizeMobileContent(sanitizeHtml(country.description)) }}
+            />
+          </div>
+        </section>
+      )}
+
       {reasonCards.length > 0 && (
         <section className="px-4 py-14 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl">
@@ -710,7 +789,7 @@ export default async function CountryPage({ params }: Props) {
               </div>
               <Link
                 href={`/universities?country=${encodeURIComponent(country.name || '')}`}
-                className="inline-flex items-center justify-center rounded-full border border-[#0D1B3E] px-5 py-2.5 text-sm font-semibold text-[#0D1B3E] transition-colors hover:bg-[#0D1B3E] hover:text-white"
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#0D1B3E] px-5 py-3 text-sm font-semibold text-[#0D1B3E] transition-colors hover:bg-[#0D1B3E] hover:text-white"
               >
                 Explore all universities
               </Link>
@@ -762,7 +841,7 @@ export default async function CountryPage({ params }: Props) {
                         </div>
 
                         <p className="mt-4 line-clamp-3 text-sm leading-7 text-[#4A4742]">
-                          {university.description ||
+                          {stripHtml(university.description || '') ||
                             `Find course duration, fees, eligibility, and application guidance for ${university.name || 'this university'}.`}
                         </p>
 
@@ -803,13 +882,13 @@ export default async function CountryPage({ params }: Props) {
                         <div className="mt-6 flex flex-wrap gap-3">
                           <Link
                             href={`/universities/${university.slug}`}
-                            className="inline-flex flex-1 items-center justify-center rounded-full border border-[#0D1B3E] px-4 py-2.5 text-sm font-semibold text-[#0D1B3E] transition-colors hover:bg-[#0D1B3E] hover:text-white"
+                            className="inline-flex min-h-11 flex-1 items-center justify-center rounded-full border border-[#0D1B3E] px-4 py-3 text-sm font-semibold text-[#0D1B3E] transition-colors hover:bg-[#0D1B3E] hover:text-white"
                           >
                             View details
                           </Link>
                           <Link
                             href="#counselling"
-                            className="inline-flex flex-1 items-center justify-center rounded-full bg-[#F26419] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#FF8040]"
+                            className="inline-flex min-h-11 flex-1 items-center justify-center rounded-full bg-[#F26419] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#FF8040]"
                           >
                             Apply now
                           </Link>

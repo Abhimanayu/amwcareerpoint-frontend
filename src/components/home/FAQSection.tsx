@@ -31,7 +31,7 @@ export function FAQSection({ faqs }: FAQSectionProps) {
 
         <div className="text-center mt-6 sm:mt-8">
           <p className="text-[13px] text-[#4A4742] mb-2.5">Still have questions?</p>
-          <Link href="/contact" className="w-full sm:w-auto inline-flex items-center justify-center h-9 px-5 rounded-full bg-[#F26419] text-white text-[13px] font-bold hover:bg-[#FF8040] transition-colors">
+          <Link href="/contact" className="w-full sm:w-auto inline-flex items-center justify-center h-11 px-5 rounded-full bg-[#F26419] text-white text-[13px] font-bold hover:bg-[#FF8040] transition-colors">
             Ask Our Experts →
           </Link>
         </div>

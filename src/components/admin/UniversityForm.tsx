@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ImageUploader from '@/components/admin/ImageUploader';
+import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { createUniversity, updateUniversity } from '@/lib/universities';
 import { adminGetCountries } from '@/lib/countries';
 import { handleApiError } from '@/lib/handleApiError';
@@ -39,9 +40,51 @@ const emptyForm = {
   seo: { metaTitle: '', metaDescription: '', keywords: '', canonicalUrl: '', schemaMarkup: '' },
 };
 
+function buildUniversityForm(initialData?: Record<string, unknown>) {
+  if (!initialData) return emptyForm;
+
+  const countryId = typeof initialData.country === 'object'
+    ? (initialData.country as Record<string, unknown>)?._id as string
+    : initialData.country as string;
+
+  return {
+    name: (initialData.name as string) || '',
+    slug: (initialData.slug as string) || '',
+    country: countryId || '',
+    description: (initialData.description as string) || '',
+    logo: (initialData.logo as string) || '',
+    heroImage: (initialData.heroImage as string) || '',
+    gallery: (initialData.gallery as string[])?.length ? (initialData.gallery as string[]) : [''],
+    establishedYear: String(initialData.establishedYear || ''),
+    ranking: (initialData.ranking as string) || '',
+    accreditation: (initialData.accreditation as string) || '',
+    courseDuration: (initialData.courseDuration as string) || '',
+    annualFees: (initialData.annualFees as string) || '',
+    medium: (initialData.medium as string) || '',
+    hostelFees: (initialData.hostelFees as string) || '',
+    eligibility: (initialData.eligibility as string) || '',
+    recognition: (initialData.recognition as string[])?.length ? (initialData.recognition as string[]) : [''],
+    status: (initialData.status as string) || 'active',
+    featured: !!initialData.featured,
+    highlights: (initialData.highlights as { label: string; value: string }[])?.length
+      ? (initialData.highlights as { label: string; value: string }[])
+      : [{ label: '', value: '' }],
+    faqs: (initialData.faqs as { question: string; answer: string }[])?.length
+      ? (initialData.faqs as { question: string; answer: string }[])
+      : [{ question: '', answer: '' }],
+    seo: {
+      metaTitle: ((initialData.seo as Record<string, string>)?.metaTitle) || '',
+      metaDescription: ((initialData.seo as Record<string, string>)?.metaDescription) || '',
+      keywords: ((initialData.seo as Record<string, string>)?.keywords) || '',
+      canonicalUrl: ((initialData.seo as Record<string, string>)?.canonicalUrl) || '',
+      schemaMarkup: ((initialData.seo as Record<string, string>)?.schemaMarkup) || '',
+    },
+  };
+}
+
 export default function UniversityForm({ initialData, isEdit }: UniversityFormProps) {
   const router = useRouter();
-  const [form, setForm] = useState(emptyForm);
+  const [form, setForm] = useState(() => buildUniversityForm(initialData));
   const [countries, setCountries] = useState<{ _id: string; name: string }[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -54,47 +97,6 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
       setCountries(list);
     }).catch(() => {});
   }, []);
-
-  useEffect(() => {
-    if (initialData) {
-      const countryId = typeof initialData.country === 'object'
-        ? (initialData.country as Record<string, unknown>)?._id as string
-        : initialData.country as string;
-      setForm({
-        name: (initialData.name as string) || '',
-        slug: (initialData.slug as string) || '',
-        country: countryId || '',
-        description: (initialData.description as string) || '',
-        logo: (initialData.logo as string) || '',
-        heroImage: (initialData.heroImage as string) || '',
-        gallery: (initialData.gallery as string[])?.length ? (initialData.gallery as string[]) : [''],
-        establishedYear: String(initialData.establishedYear || ''),
-        ranking: (initialData.ranking as string) || '',
-        accreditation: (initialData.accreditation as string) || '',
-        courseDuration: (initialData.courseDuration as string) || '',
-        annualFees: (initialData.annualFees as string) || '',
-        medium: (initialData.medium as string) || '',
-        hostelFees: (initialData.hostelFees as string) || '',
-        eligibility: (initialData.eligibility as string) || '',
-        recognition: (initialData.recognition as string[])?.length ? (initialData.recognition as string[]) : [''],
-        status: (initialData.status as string) || 'active',
-        featured: !!initialData.featured,
-        highlights: (initialData.highlights as { label: string; value: string }[])?.length
-          ? (initialData.highlights as { label: string; value: string }[])
-          : [{ label: '', value: '' }],
-        faqs: (initialData.faqs as { question: string; answer: string }[])?.length
-          ? (initialData.faqs as { question: string; answer: string }[])
-          : [{ question: '', answer: '' }],
-        seo: {
-          metaTitle: ((initialData.seo as Record<string, string>)?.metaTitle) || '',
-          metaDescription: ((initialData.seo as Record<string, string>)?.metaDescription) || '',
-          keywords: ((initialData.seo as Record<string, string>)?.keywords) || '',
-          canonicalUrl: ((initialData.seo as Record<string, string>)?.canonicalUrl) || '',
-          schemaMarkup: ((initialData.seo as Record<string, string>)?.schemaMarkup) || '',
-        },
-      });
-    }
-  }, [initialData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -161,10 +163,12 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-            <textarea rows={6} maxLength={L.description.max} value={form.description} onChange={(e) => updateField('description', e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none resize-y" />
-            <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'description')} /><CharCount current={form.description.length} max={L.description.max} /></div>
-            <p className="text-xs text-gray-400 mt-1">Longer copy is supported, but keep the first 2-3 lines clear for card previews.</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Description / Page Content</label>
+            <RichTextEditor
+              content={form.description}
+              onChange={(html) => updateField('description', html)}
+            />
+            <FieldError message={getFieldError(validationErrors, 'description')} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
@@ -330,6 +334,7 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Schema Markup (JSON-LD)</label>
             <textarea rows={6} value={form.seo.schemaMarkup} onChange={(e) => setForm((p) => ({ ...p, seo: { ...p.seo, schemaMarkup: e.target.value } }))} placeholder='{"@context":"https://schema.org","@type":"EducationalOrganization",...}' className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm font-mono focus:ring-2 focus:ring-[#F26419] outline-none resize-y" />
+            <FieldError message={getFieldError(validationErrors, 'schemaMarkup')} />
             <p className="text-xs text-gray-400 mt-1">Optional. Paste valid JSON-LD schema. Leave empty for auto-generated schema.</p>
           </div>
         </section>

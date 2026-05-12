@@ -139,7 +139,7 @@ export function ExpertCounsellorsSection() {
                       <div className="text-[10px] text-[#4A4742]">Rating</div>
                     </div>
                   </div>
-                  <Link href="#counselling" className="block w-full text-center py-2.5 rounded-full bg-[#F26419] text-white text-[13px] font-bold hover:bg-[#FF8040] transition-colors">
+                  <Link href="#counselling" className="block w-full min-h-11 text-center py-3 rounded-full bg-[#F26419] text-white text-[13px] font-bold hover:bg-[#FF8040] transition-colors">
                     Book Session
                   </Link>
                 </div>
