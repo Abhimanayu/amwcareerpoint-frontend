@@ -923,13 +923,9 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
 
           <div>
             <label htmlFor="student-life-description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-            <textarea
-              id="student-life-description"
-              rows={4}
-              maxLength={L.studentLife.descriptionMax}
-              value={form.studentLife.description}
-              onChange={(e) => updateStudentLife({ ...form.studentLife, description: e.target.value })}
-              className={textAreaClass}
+            <RichTextEditor
+              content={form.studentLife.description}
+              onChange={(html) => updateStudentLife({ ...form.studentLife, description: html })}
             />
             <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'studentLife.description')} /><CharCount current={form.studentLife.description.length} max={L.studentLife.descriptionMax} /></div>
           </div>

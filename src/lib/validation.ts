@@ -47,7 +47,7 @@ export const LIMITS = {
     studentLife: {
       eyebrowMax: 80,
       titleMax: 180,
-      descriptionMax: 1200,
+      descriptionMax: 5000,
       cardsMax: 6,
       cardIconMax: 8,
       cardTitleMax: 90,

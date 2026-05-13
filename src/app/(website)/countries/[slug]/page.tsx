@@ -520,6 +520,9 @@ export default async function CountryPage({ params }: Props) {
       )
     : [];
   const lifeCards = resolveLifeCards(country.name || 'this destination', studentLifeCards, reasonCards);
+  const studentLifeDescriptionHtml = studentLife.description
+    ? sanitizeAndOptimizeMobileContent(sanitizeHtml(studentLife.description))
+    : '';
 
   const resolvedDocumentsChecklistItems = Array.isArray(documentsChecklist.items)
     ? documentsChecklist.items
@@ -1088,9 +1091,16 @@ export default async function CountryPage({ params }: Props) {
               <h2 className="mt-3 font-heading text-2xl sm:text-3xl font-bold text-[#0D1B3E]">
                 {studentLife.title || `What is life like in ${country.name} for Indian students?`}
               </h2>
-              <p className="mt-3 text-[15px] leading-7 text-[#4A4742]">
-                {studentLife.description || 'Beyond admission, students want clarity on accommodation, classroom culture, practical training, and day-to-day comfort abroad.'}
-              </p>
+              {studentLifeDescriptionHtml ? (
+                <div
+                  className="blog-content prose prose-sm sm:prose-base mt-3 max-w-none text-[#4A4742] prose-a:text-[#F26419] prose-a:no-underline hover:prose-a:underline"
+                  dangerouslySetInnerHTML={{ __html: studentLifeDescriptionHtml }}
+                />
+              ) : (
+                <p className="mt-3 text-[15px] leading-7 text-[#4A4742]">
+                  Beyond admission, students want clarity on accommodation, classroom culture, practical training, and day-to-day comfort abroad.
+                </p>
+              )}
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
