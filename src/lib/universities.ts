@@ -64,7 +64,7 @@ export const getUniversityBySlug = cache(async (slug: string) => {
 
 // ─── ADMIN PANEL ──────────────────────────────────────────────
 export const adminGetUniversities = async (params = {}) => {
-  const res = await adminApi.get("/universities", { params: { status: "all", ...params } });
+  const res = await adminApi.get("/universities/admin/list", { params: { status: "all", ...params } });
   return res.data;
 };
 

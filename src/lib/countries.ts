@@ -173,7 +173,7 @@ export const getCountryBySlugFresh = async (slug: string) => {
 
 // ─── ADMIN PANEL ──────────────────────────────────────────────
 export const adminGetCountries = async (params = {}) => {
-  const res = await adminApi.get("/countries", { params: { status: "all", ...params } });
+  const res = await adminApi.get("/countries/admin/list", { params: { status: "all", ...params } });
   return res.data;
 };
 

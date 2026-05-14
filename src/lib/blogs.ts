@@ -69,7 +69,7 @@ export const getBlogCategories = async () => {
 
 // ─── ADMIN PANEL ──────────────────────────────────────────────
 export const adminGetBlogs = async (params = {}) => {
-  const res = await adminApi.get("/blogs", { params: { status: "all", ...params } });
+  const res = await adminApi.get("/blogs/admin/list", { params: { status: "all", ...params } });
   return res.data;
 };
 
