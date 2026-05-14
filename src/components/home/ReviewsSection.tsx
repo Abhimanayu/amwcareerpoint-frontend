@@ -43,6 +43,8 @@
   },
 ];
 
+const GOOGLE_REVIEWS_URL = 'https://www.google.com/search?q=AMW+Career+Point+Jaipur+reviews';
+
 function getInitials(name: string) {
   return name
     .replace(/^Dr\.\s*/i, '')
@@ -72,7 +74,7 @@ export function ReviewsSection() {
         </div>
 
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5">
-          {reviews.map((review) => (
+          {reviews.slice(0, 6).map((review) => (
             <div key={review.name} className="rounded-xl border border-[#DDD9D2] bg-white p-4 sm:p-5">
               <div className="flex items-center gap-3 mb-2.5">
                 <div className="w-9 h-9 rounded-full bg-[#0D1B3E] flex items-center justify-center text-white text-[11px] font-bold">
@@ -87,6 +89,18 @@ export function ReviewsSection() {
               <p className="text-[13px] text-[#4A4742] leading-relaxed">{review.text}</p>
             </div>
           ))}
+        </div>
+
+        <div className="mt-8 text-center">
+          <a
+            href={GOOGLE_REVIEWS_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#0D1B3E] px-7 py-3 text-sm font-bold text-white transition-colors hover:bg-[#142a5a]"
+            aria-label="View all reviews on Google"
+          >
+            View All Reviews on Google
+          </a>
         </div>
       </div>
     </section>
