@@ -14,6 +14,11 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        source: '/index.php',
+        destination: '/',
+        permanent: true,
+      },
+      {
         source: '/contact-us',
         destination: '/contact',
         permanent: true,
