@@ -5,7 +5,7 @@ import { getCountrySlug } from '@/lib/slugUtils';
 export function Footer() {
   const year = getCurrentYear();
 
-  const destinations = ['Russia', 'Ukraine', 'Georgia', 'Kazakhstan', 'Uzbekistan', 'Kyrgyzstan'];
+  const destinations = ['Russia', 'UK', 'Georgia', 'Kazakhstan', 'Uzbekistan', 'Kyrgyzstan'];
 
   return (
     <footer className="bg-[#0A1128] text-gray-300">

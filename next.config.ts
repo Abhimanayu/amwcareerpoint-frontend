@@ -13,6 +13,56 @@ const nextConfig: NextConfig = {
         destination: '/college/:slug',
         permanent: true,
       },
+      {
+        source: '/contact-us',
+        destination: '/contact',
+        permanent: true,
+      },
+      {
+        source: '/contact-us/',
+        destination: '/contact',
+        permanent: true,
+      },
+      {
+        source: '/colleges',
+        destination: '/college',
+        permanent: true,
+      },
+      {
+        source: '/colleges/',
+        destination: '/college',
+        permanent: true,
+      },
+      {
+        source: '/blog/:slug',
+        destination: '/blogs/:slug',
+        permanent: true,
+      },
+      {
+        source: '/blog/:slug/',
+        destination: '/blogs/:slug',
+        permanent: true,
+      },
+      {
+        source: '/mbbs-in-kazakhstan-for-indian-students',
+        destination: '/countries/mbbs-in-kazakhstan',
+        permanent: true,
+      },
+      {
+        source: '/mbbs-in-kazakhstan-for-indian-students/',
+        destination: '/countries/mbbs-in-kazakhstan',
+        permanent: true,
+      },
+      {
+        source: '/mbbs-in-:country',
+        destination: '/countries/mbbs-in-:country',
+        permanent: true,
+      },
+      {
+        source: '/mbbs-in-:country/',
+        destination: '/countries/mbbs-in-:country',
+        permanent: true,
+      },
     ];
   },
   async headers() {
