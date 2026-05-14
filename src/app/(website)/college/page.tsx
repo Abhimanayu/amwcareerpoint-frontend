@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { getUniversities } from '@/lib/universities';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SafeImage } from '@/components/ui/SafeImage';
-import { clampText, extractCollectionData, pickUniversityImageSource } from '@/lib/utils';
+import { clampText, extractCollectionData, pickUniversityImageSource, stripHtml } from '@/lib/utils';
 import { SEO_HOLD } from '@/lib/seoHold';
 
 export const metadata: Metadata = {
@@ -96,7 +96,7 @@ export default async function CollegesPage({ searchParams }: Readonly<Props>) {
                 const universityName = clampText(uni.name || 'University', 62);
                 const countryName = clampText(uni.country?.name, 24);
                 const accreditation = clampText(uni.accreditation, 38);
-                const description = clampText(uni.description, 120);
+                const description = clampText(stripHtml(uni.description || ''), 120);
                 const annualFees = clampText(uni.annualFees, 18, {
                   fallback: 'On request',
                   preserveWords: false,

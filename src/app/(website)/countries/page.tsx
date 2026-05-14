@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { getCountries } from '@/lib/countries';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SafeImage } from '@/components/ui/SafeImage';
-import { clampList, clampText, extractCollectionData } from '@/lib/utils';
+import { clampList, clampText, extractCollectionData, stripHtml } from '@/lib/utils';
 import { SEO_HOLD } from '@/lib/seoHold';
 
 export const metadata: Metadata = {
@@ -85,7 +85,7 @@ export default async function CountriesPage() {
               {countries.map((country: any) => {
                 const countryName = clampText(country.name || 'Country', 42);
                 const tagline = clampText(country.tagline, 40);
-                const description = clampText(country.description, 140);
+                const description = clampText(stripHtml(country.description || ''), 140);
                 const feeRange = clampText(country.feeRange, 18, {
                   fallback: 'On request',
                   preserveWords: false,

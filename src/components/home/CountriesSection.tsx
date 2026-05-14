@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Carousel } from '@/components/ui/Carousel';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { getCountries } from '@/lib/countries';
-import { extractCollectionData } from '@/lib/utils';
+import { extractCollectionData, stripHtml } from '@/lib/utils';
 import { getCountrySlugFromObject } from '@/lib/slugUtils';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -211,7 +211,7 @@ export function CountriesSection() {
                   )}
                   {/* Description snippet */}
                   {c.description && (
-                    <p className="text-[13px] text-text-body leading-relaxed line-clamp-2 mb-3">{c.description}</p>
+                    <p className="text-[13px] text-text-body leading-relaxed line-clamp-2 mb-3">{stripHtml(c.description)}</p>
                   )}
                   {/* Highlights */}
                   {c.highlights && c.highlights.length > 0 && (

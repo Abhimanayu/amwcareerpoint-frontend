@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { SafeImage } from '@/components/ui/SafeImage';
-import { pickUniversityImageSource } from '@/lib/utils';
+import { pickUniversityImageSource, stripHtml } from '@/lib/utils';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -19,7 +19,7 @@ export function CollegeCard({ university }: CollegeCardProps) {
   const fees = university?.annualFees || '';
   const duration = university?.courseDuration || '';
   const heroImage = pickUniversityImageSource(university);
-  const description = university?.description || '';
+  const description = stripHtml(university?.description || '');
   const accreditation = university?.accreditation || '';
 
   const content = (

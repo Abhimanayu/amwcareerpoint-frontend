@@ -286,29 +286,6 @@ function resolveLifeCards(
   return getFallbackLifeCards(countryName);
 }
 
-function getCountryHeroParagraphs(description: string | undefined, countryName: string) {
-  const fallback = `${countryName} offers international medical education with practical guidance on fees, admission, documentation, and university selection.`;
-  const plain = stripHtml(description || '').trim();
-  const source = (plain || fallback).trim();
-  const paragraphBreaks = source
-    .split(/\n{2,}/)
-    .map((item) => item.trim())
-    .filter(Boolean);
-
-  if (paragraphBreaks.length > 1) {
-    return paragraphBreaks.slice(0, 4);
-  }
-
-  const sentences = source.match(/[^.!?]+[.!?]+(?:\s|$)/g)?.map((item) => item.trim()) || [source];
-  const paragraphs: string[] = [];
-
-  for (let index = 0; index < sentences.length && paragraphs.length < 4; index += 2) {
-    paragraphs.push(sentences.slice(index, index + 2).join(' '));
-  }
-
-  return paragraphs.filter(Boolean);
-}
-
 function normalizeObjectPosition(value?: string) {
   if (!value) return undefined;
 
@@ -539,7 +516,6 @@ export default async function CountryPage({ params }: Props) {
           'Affordable fee planning',
           'Visa and travel guidance',
         ];
-  const heroParagraphs = getCountryHeroParagraphs(country.description, country.name || 'this destination');
   const heroTrustItems = [
     { title: 'Trusted by 18,500+ Students', subtitle: 'Successful admissions across top universities' },
     { title: '10+ Years of Experience', subtitle: 'Expert guidance you can rely on' },
@@ -670,12 +646,6 @@ export default async function CountryPage({ params }: Props) {
                   />
                 </div>
               )}
-
-              <div className="mt-7 max-w-[700px] space-y-3 text-[15px] leading-7 text-[#26334D] sm:text-[16px]">
-                {heroParagraphs.slice(0, 3).map((paragraph, index) => (
-                  <p key={paragraph} className={index > 1 ? 'hidden sm:block' : undefined}>{paragraph}</p>
-                ))}
-              </div>
 
               <div className="mt-6 grid grid-cols-2 gap-3 xl:grid-cols-4">
                 {heroStats.map((item, index) => (
