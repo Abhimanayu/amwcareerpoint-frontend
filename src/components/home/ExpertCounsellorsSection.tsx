@@ -10,6 +10,7 @@ const counsellors = [
     role: 'Senior Counselor - Study Abroad Guidance',
     rating: '5.0',
     students: '18,500+',
+    statLabel: 'Students Guided',
     image: '/experts/dr-yashpal.png',
     bio: 'Dr. Yashpal is a highly experienced medical education advisor specializing in MBBS abroad counseling. Being an FMG himself and an Indian registered doctor, he brings firsthand experience and deep insight into international medical education. With years of expertise, he helps students choose the right university based on their budget, academic profile, and future career goals.',
     tags: ['MBBS Abroad Counseling', 'University Selection', 'Career Guidance', 'Admission Assistance'],
@@ -19,6 +20,7 @@ const counsellors = [
     role: 'Senior Counselor - Study India and Abroad Guidance',
     rating: '5.0',
     students: '15+ Years',
+    statLabel: 'Experience',
     image: '/experts/dr-lalit-bhardwaj.png',
     bio: 'Dr. Lalit Bhardwaj is an FMG graduate, an Indian registered Sonologist Doctor, and a highly experienced medical education advisor with over 15 years of expertise in guiding medical aspirants for studies in India and abroad. He supports NEET counseling, private medical colleges, MBBS abroad opportunities, and long-term career planning.',
     tags: ['MBBS in India Guidance', 'NEET Counseling', 'College Selection', 'Parent Counseling'],
@@ -28,6 +30,7 @@ const counsellors = [
     role: 'Counselor',
     rating: '5.0',
     students: 'FMG Doctor',
+    statLabel: 'Qualification',
     image: '/experts/dr-niharika-singh.png',
     bio: 'Dr. Niharika Singh is an FMG graduate, an Indian registered doctor, and a DGO specialist who helps students and parents understand the complete MBBS admission journey with clarity and confidence. Her friendly communication style and student-first approach make the process simple, transparent, and stress-free.',
     tags: ['Student Counseling', 'University Guidance', 'NEET Guidance', 'Admission Support'],
@@ -37,6 +40,7 @@ const counsellors = [
     role: 'Counselor',
     rating: '5.0',
     students: 'FMG Doctor',
+    statLabel: 'Qualification',
     image: '/experts/dr-preeti-thakur.png',
     bio: 'Dr. Preeti Thakur is an FMG graduate and an Indian registered doctor who assists students throughout their admission journey and helps them make informed career decisions. She provides step-by-step guidance for university applications, documentation, and the complete MBBS admission process.',
     tags: ['Personalized Counseling', 'Documentation Support', 'MBBS Career Planning', 'Student Assistance'],
@@ -46,6 +50,7 @@ const counsellors = [
     role: 'Accounts & Documents Department',
     rating: '5.0',
     students: 'Documentation',
+    statLabel: 'Department',
     image: '/experts/brij-mohan-soni.png',
     bio: 'Brij Mohan Soni manages the complete counseling and documentation process for students and parents. From initial counseling to document verification and application assistance, he ensures the entire admission experience remains smooth, reliable, and stress-free.',
     tags: ['Fee Transfer Guide', 'Documentation Support', 'Counselling', 'Admin Coordination'],
@@ -55,6 +60,7 @@ const counsellors = [
     role: 'Student Coordinator',
     rating: '5.0',
     students: 'Onboarding',
+    statLabel: 'Specialization',
     image: '/experts/manish-katariya.png',
     bio: 'Manish Katariya works closely with students from admission to university onboarding. He helps students with travel coordination, hostel assistance, airport pickup arrangements, and continuous support during their MBBS journey.',
     tags: ['Student Coordination', 'Travel Assistance', 'Hostel Support', 'Student Support'],
@@ -132,7 +138,7 @@ export function ExpertCounsellorsSection() {
                   <div className="flex items-center justify-between rounded-lg bg-[#F9F8F6] px-4 py-2.5 mb-3">
                     <div className="text-center">
                       <div className="text-[15px] font-bold text-[#0D1B3E]">{counsellor.students}</div>
-                      <div className="text-[10px] text-[#4A4742]">Experience</div>
+                      <div className="text-[10px] text-[#4A4742]">{counsellor.statLabel}</div>
                     </div>
                     <div className="text-center">
                       <div className="text-[15px] font-bold text-[#0D1B3E]">{counsellor.rating}/5</div>
