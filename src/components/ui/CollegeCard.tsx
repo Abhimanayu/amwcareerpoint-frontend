@@ -12,7 +12,7 @@ interface CollegeCardProps {
  * Protected university card for listing grids.
  * Handles: missing images, long names, missing fields.
  */
-export function CollegeCard({ university }: CollegeCardProps) {
+export function CollegeCard({ university }: Readonly<CollegeCardProps>) {
   const name = university?.name || 'University';
   const slug = university?.slug;
   const country = university?.country?.name || '';
@@ -23,9 +23,9 @@ export function CollegeCard({ university }: CollegeCardProps) {
   const accreditation = university?.accreditation || '';
 
   const content = (
-    <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[#DDD9D2] bg-white transition-shadow hover:shadow-lg">
+    <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[#DDD9D2] bg-white transition-shadow hover:shadow-lg lg:flex-row">
       {/* Image */}
-      <div className="relative aspect-[16/10] flex-shrink-0 overflow-hidden bg-[#0D1B3E]">
+      <div className="relative aspect-[16/10] flex-shrink-0 overflow-hidden bg-[#0D1B3E] lg:aspect-auto lg:w-[58%] lg:min-w-[58%]">
         {heroImage ? (
           <SafeImage
             src={heroImage}
@@ -47,7 +47,7 @@ export function CollegeCard({ university }: CollegeCardProps) {
       </div>
 
       {/* Body */}
-      <div className="flex flex-1 flex-col p-5">
+      <div className="flex flex-1 flex-col p-5 lg:min-w-0 lg:w-[42%] lg:p-6">
         <h3 className="line-clamp-2 break-words text-base font-semibold text-[#0D1B3E] transition-colors group-hover:text-[#F26419]">
           {name}
         </h3>

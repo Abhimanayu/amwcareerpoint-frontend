@@ -24,12 +24,12 @@ export function CollegeGallery({ images, universityName = 'Campus', fallbackSrc 
   return (
     <div className="max-w-full overflow-hidden">
       {/* Main image */}
-      <div className="relative mb-4 aspect-[16/7] overflow-hidden rounded-2xl bg-[#DDD9D2]">
+      <div className="relative mb-4 aspect-[4/3] overflow-hidden rounded-2xl bg-[#DDD9D2] sm:aspect-[16/9] lg:aspect-[16/7]">
         <SafeImage
           src={gallery[safeIndex]}
           alt={`${universityName} campus`}
           fill
-          className="object-cover"
+          className="object-contain"
           fallbackSrc={fallbackSrc}
           fallbackElement={
             <div className="flex h-full w-full items-center justify-center bg-[#DDD9D2] text-sm text-[#4A4742]">

@@ -800,25 +800,25 @@ export default async function CountryPage({ params }: Props) {
                     key={university._id || university.slug || university.name}
                     className="overflow-hidden rounded-[28px] border border-[#E7DECF] bg-[#FFFDF9] shadow-[0_18px_55px_rgba(13,27,62,0.05)]"
                   >
-                    <div className="grid gap-0 md:grid-cols-[180px_minmax(0,1fr)]">
-                      <div className="relative min-h-[170px] bg-[#10244B]">
+                    <div className="grid gap-0 md:grid-cols-2">
+                      <div className="relative min-h-[220px] overflow-hidden bg-[#F8F4EC] md:min-h-full">
                         {imageSrc ? (
                           <SafeImage
                             src={imageSrc}
                             alt={university.name || 'University'}
                             fill
-                            sizes="(min-width: 768px) 180px, 100vw"
-                            className="object-cover"
+                            sizes="(min-width: 768px) 50vw, 100vw"
+                            className="object-contain p-2"
                             fallbackElement={
-                              <div className="flex h-full items-center justify-center text-5xl text-white/20">ðŸ«</div>
+                              <div className="flex h-full items-center justify-center text-5xl text-[#0D1B3E]/20">🏫</div>
                             }
                           />
                         ) : (
-                          <div className="flex h-full items-center justify-center text-5xl text-white/20">ðŸ«</div>
+                          <div className="flex h-full items-center justify-center text-5xl text-[#0D1B3E]/20">🏫</div>
                         )}
                       </div>
 
-                      <div className="flex flex-col p-6">
+                      <div className="flex flex-col p-5 sm:p-6">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
                             <h3 className="text-lg font-semibold text-[#0D1B3E]">
