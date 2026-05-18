@@ -3,8 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { SafeImage } from '../ui/SafeImage';
-import { getCountries } from '@/lib/countries';
-import { extractCollectionData } from '@/lib/utils';
+import { getMbbsDestinationLinks } from '@/lib/mbbsDestinations';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -16,48 +15,30 @@ type MenuItem = {
   dropdown?: DropdownItem[];
 };
 
+const mbbsDestinationDropdownItems: DropdownItem[] = getMbbsDestinationLinks().map((item) => ({
+  href: item.href,
+  label: item.label,
+}));
+
 const staticMenuItems: MenuItem[] = [
   { href: '/', label: 'Home' },
   { href: '/countries/india', label: 'MBBS India' },
   {
     href: '/countries',
     label: 'MBBS Abroad',
-    dropdown: [], // populated dynamically
+    dropdown: mbbsDestinationDropdownItems,
   },
   { href: '#', label: 'College Predictor' },
   { href: '/blogs', label: 'Blog' },
   { href: '/about', label: 'About Us' },
 ];
 
-const HEADER_COUNTRY_LIMIT = 5;
-
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
-  const [menuItems, setMenuItems] = useState<MenuItem[]>(staticMenuItems);
   const dropdownTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Fetch countries for MBBS Abroad dropdown
-  useEffect(() => {
-    getCountries({ limit: HEADER_COUNTRY_LIMIT })
-      .then((res) => {
-        const countries = extractCollectionData<any>(res, ['countries']);
-        if (countries.length > 0) {
-          const countryLinks: DropdownItem[] = countries
-            .filter((c: any) => c.slug && c.name)
-            .slice(0, HEADER_COUNTRY_LIMIT)
-            .map((c: any) => ({ href: `/countries/${c.slug}`, label: c.name }));
-          setMenuItems((prev) =>
-            prev.map((item) =>
-              item.label === 'MBBS Abroad' ? { ...item, dropdown: countryLinks } : item
-            )
-          );
-        }
-      })
-      .catch(() => {});
-  }, []);
 
   // Close desktop dropdown when clicking outside
   useEffect(() => {
@@ -102,7 +83,7 @@ export function Header() {
 
             {/* Desktop Nav */}
             <nav className="hidden xl:flex items-center gap-5" ref={dropdownRef}>
-              {menuItems.map((item) =>
+              {staticMenuItems.map((item) =>
                 item.dropdown ? (
                   <div
                     key={item.label}
@@ -180,7 +161,7 @@ export function Header() {
       {isMenuOpen && (
         <div className="fixed inset-x-0 top-[48px] sm:top-[56px] z-40 bg-white border-b border-gray-200 shadow-md xl:hidden max-h-[calc(100vh-56px)] overflow-y-auto">
           <nav className="max-w-7xl mx-auto px-4 py-3 space-y-0.5">
-            {menuItems.map((item) =>
+            {staticMenuItems.map((item) =>
               item.dropdown ? (
                 <div key={item.label}>
                   <button
