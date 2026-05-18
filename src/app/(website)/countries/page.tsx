@@ -40,13 +40,19 @@ export default async function CountriesPage() {
     countries = extractCollectionData<any>(res, ['countries']);
   } catch { /* API unavailable */ }
 
+  const hasCountries = countries.length > 0;
+  const countryUnitLabel = countries.length === 1 ? 'Country' : 'Countries';
+  const availableCountriesLabel = hasCountries
+    ? `${countries.length} ${countryUnitLabel} Available`
+    : 'Countries Available';
+
   return (
     <div className="bg-white">
       {/* ── Hero ── */}
       <section className="bg-[#0D1B3E] py-10 sm:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <span className="inline-block text-xs font-semibold text-[#F26419] uppercase tracking-wider mb-3">
-            16+ Countries Available
+            {availableCountriesLabel}
           </span>
           <h1 className="font-heading text-[1.75rem] sm:text-[2.1rem] lg:text-[2.65rem] font-bold leading-[1.15] text-white mb-3">
             Study MBBS <span className="text-[#F26419]">Abroad</span>
