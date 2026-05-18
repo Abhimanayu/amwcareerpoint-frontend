@@ -4,6 +4,12 @@ import { SEO_HOLD } from '@/lib/seoHold';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
 
+const siteIcons: Metadata['icons'] = {
+  icon: [{ url: '/favicon.svg', type: 'image/svg+xml' }],
+  shortcut: ['/favicon.svg'],
+  apple: '/favicon.svg',
+};
+
 const defaultMetadata: Metadata = {
   title: {
     template: "%s | AMW Career Point",
@@ -41,6 +47,7 @@ const defaultMetadata: Metadata = {
   alternates: {
     canonical: '/',
   },
+  icons: siteIcons,
 };
 
 const holdMetadata: Metadata = {
@@ -57,6 +64,7 @@ const holdMetadata: Metadata = {
       follow: false,
     },
   },
+  icons: siteIcons,
 };
 
 export const metadata: Metadata = SEO_HOLD ? holdMetadata : defaultMetadata;
@@ -74,9 +82,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
-      <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-      </head>
       <body className="min-h-full flex flex-col bg-white font-sans" suppressHydrationWarning>
         {children}
       </body>
