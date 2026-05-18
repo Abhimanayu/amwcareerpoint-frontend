@@ -1,5 +1,7 @@
 import { Metadata } from 'next';
+import { FAQSection } from '@/components/home/FAQSection';
 import { SEO_HOLD } from '@/lib/seoHold';
+import { getPublicFaqs } from '@/lib/server/faqs';
 
 export const metadata: Metadata = {
   ...(SEO_HOLD
@@ -18,7 +20,24 @@ export const metadata: Metadata = {
       }),
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const faqs = SEO_HOLD ? [] : await getPublicFaqs('about', {
+    fallback: [
+      {
+        question: 'What does AMW Career Point do?',
+        answer: 'We guide students through MBBS abroad admissions, university selection, documentation, and visa support.',
+      },
+      {
+        question: 'How long has AMW Career Point been helping students?',
+        answer: 'We have been guiding medical aspirants for more than 15 years with a student-first approach.',
+      },
+      {
+        question: 'Is the About Us FAQ section managed from admin?',
+        answer: 'Yes. Create FAQs under the About Us page in the admin FAQ screen and they will appear here.',
+      },
+    ],
+  });
+
   return (
     <div className="min-h-screen bg-white">
       {/* ── Hero ── */}
@@ -146,6 +165,9 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+
+      {/* ── FAQ ── */}
+      {faqs.length > 0 && <FAQSection faqs={faqs} />}
 
       {/* ── Mission CTA ── */}
       <section className="bg-[#0D1B3E] py-10 sm:py-14">

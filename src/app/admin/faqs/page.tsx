@@ -17,6 +17,7 @@ const PAGE_LABELS: Record<string, string> = {
   general: 'General',
   country: 'Country',
   university: 'University',
+  about: 'About Us',
 };
 
 interface AdminFaqItem extends Record<string, unknown> {
@@ -178,6 +179,7 @@ export default function AdminFaqsPage() {
               <option value="general">General</option>
               <option value="country">Country</option>
               <option value="university">University</option>
+              <option value="about">About Us</option>
             </select>
             <button
               onClick={() => router.push('/admin/faqs/new')}

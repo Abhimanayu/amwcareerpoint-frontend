@@ -21,7 +21,7 @@ const emptyForm = {
   status: 'active' as 'active' | 'inactive',
 };
 
-export default function FaqForm({ initialData, isEdit }: FaqFormProps) {
+export default function FaqForm({ initialData, isEdit }: Readonly<FaqFormProps>) {
   const router = useRouter();
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
@@ -29,7 +29,7 @@ export default function FaqForm({ initialData, isEdit }: FaqFormProps) {
 
   useEffect(() => {
     if (initialData) {
-      const validPages = ['home', 'contact', 'general', 'country', 'university'];
+      const validPages = ['home', 'contact', 'general', 'country', 'university', 'about'];
       setForm({
         question: (initialData.question as string) || '',
         answer: (initialData.answer as string) || '',
@@ -48,7 +48,11 @@ export default function FaqForm({ initialData, isEdit }: FaqFormProps) {
     setError('');
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  let submitLabel = 'Create FAQ';
+  if (isEdit) submitLabel = 'Update FAQ';
+  if (saving) submitLabel = 'Saving...';
+
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!form.question.trim()) { setError('Question is required'); return; }
     if (!form.answer.trim()) { setError('Answer is required'); return; }
@@ -103,10 +107,11 @@ export default function FaqForm({ initialData, isEdit }: FaqFormProps) {
           <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
             {/* Question */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="faq-question" className="block text-sm font-medium text-gray-700 mb-1">
                 Question <span className="text-red-500">*</span>
               </label>
               <input
+                id="faq-question"
                 type="text"
                 maxLength={300}
                 value={form.question}
@@ -119,10 +124,11 @@ export default function FaqForm({ initialData, isEdit }: FaqFormProps) {
 
             {/* Answer */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="faq-answer" className="block text-sm font-medium text-gray-700 mb-1">
                 Answer <span className="text-red-500">*</span>
               </label>
               <textarea
+                id="faq-answer"
                 maxLength={2000}
                 rows={4}
                 value={form.answer}
@@ -135,10 +141,11 @@ export default function FaqForm({ initialData, isEdit }: FaqFormProps) {
 
             {/* Page */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="faq-page" className="block text-sm font-medium text-gray-700 mb-1">
                 Page <span className="text-red-500">*</span>
               </label>
               <select
+                id="faq-page"
                 value={form.page}
                 onChange={(e) => { updateField('page', e.target.value); if (e.target.value !== 'country' && e.target.value !== 'university') updateField('pageSlug', ''); }}
                 className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419]/30 focus:border-[#F26419] outline-none"
@@ -148,16 +155,18 @@ export default function FaqForm({ initialData, isEdit }: FaqFormProps) {
                 <option value="general">General</option>
                 <option value="country">Country</option>
                 <option value="university">University</option>
+                <option value="about">About Us</option>
               </select>
             </div>
 
             {/* Page Slug — shown for country/university */}
             {(form.page === 'country' || form.page === 'university') && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="faq-pageSlug" className="block text-sm font-medium text-gray-700 mb-1">
                   Page Slug <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="faq-pageSlug"
                   type="text"
                   value={form.pageSlug}
                   onChange={(e) => updateField('pageSlug', e.target.value)}
@@ -172,8 +181,9 @@ export default function FaqForm({ initialData, isEdit }: FaqFormProps) {
 
             {/* Status */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <label htmlFor="faq-status" className="block text-sm font-medium text-gray-700 mb-1">Status</label>
               <select
+                id="faq-status"
                 value={form.status}
                 onChange={(e) => updateField('status', e.target.value)}
                 className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419]/30 focus:border-[#F26419] outline-none"
@@ -198,7 +208,7 @@ export default function FaqForm({ initialData, isEdit }: FaqFormProps) {
               disabled={saving}
               className="px-5 py-2 bg-[#F26419] hover:bg-[#FF8040] text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-50"
             >
-              {saving ? 'Saving...' : isEdit ? 'Update FAQ' : 'Create FAQ'}
+              {submitLabel}
             </button>
           </div>
         </form>
