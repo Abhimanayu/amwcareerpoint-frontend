@@ -1,7 +1,10 @@
 import Link from 'next/link';
 import { CounsellingForm } from './CounsellingForm';
+import { defaultHomeSettings, type HomeHeroSettings } from '@/lib/homeSettings';
 
-export function HeroSection() {
+export function HeroSection({ settings }: { settings?: HomeHeroSettings }) {
+  const hero = settings ?? defaultHomeSettings.hero;
+
   return (
     <section className="bg-[#F9F8F6] py-6 sm:py-8 lg:py-12 px-4">
       <div className="max-w-7xl mx-auto">
@@ -12,29 +15,33 @@ export function HeroSection() {
               <span className="mb-3 sm:mb-4 inline-flex items-center gap-2 rounded-full bg-orange-50 border border-orange-200 px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold text-[#F26419]">
                 <span className="w-1.5 h-1.5 bg-[#F26419] rounded-full" />
                 {' '}
-                India&apos;s #1 Trusted Medical Consultancy
+                {hero.badge}
               </span>
 
               <h1
-                aria-label="Dream of Becoming a Doctor? MBBS Abroad Might Be Your Smartest Move."
+                aria-label={`${hero.heading} ${hero.highlightedText} ${hero.trailingText}`}
                 className="font-heading text-[1.75rem] sm:text-[2.1rem] lg:text-[2.65rem] font-bold leading-[1.15] sm:leading-[1.12] text-[#0D1B3E] mb-3 sm:mb-4"
               >
-                Dream of Becoming a Doctor?{' '}
-                <span className="block text-[#F26419]">MBBS Abroad</span>
-                <span className="block">Might Be Your Smartest Move.</span>
+                {hero.heading}{' '}
+                <span className="block text-[#F26419]">{hero.highlightedText}</span>
+                <span className="block">{hero.trailingText}</span>
               </h1>
 
               <p className="text-[13px] sm:text-[14px] leading-[1.65] sm:leading-[1.7] text-[#4A4742] mb-4 sm:mb-5 max-w-md">
-                India has one MBBS seat for every ten NEET-qualified students. Studying MBBS abroad at universities that follow the NMC FMGL Gazette 2021 provides students with a proven path to their dream of becoming a doctor, and we have helped 18,500+ students make that dream a reality since 2009.
+                {hero.description}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 mb-5 sm:mb-6">
-                <Link href="#predictor" className="h-11 px-6 sm:px-7 rounded-full bg-[#F26419] text-white text-[13px] sm:text-sm font-bold inline-flex items-center justify-center hover:bg-[#FF8040] transition-colors">
-                  Use College Predictor
-                </Link>
-                <Link href="#experts" className="h-11 px-6 sm:px-7 rounded-full border-2 border-[#0D1B3E] text-[#0D1B3E] text-[13px] sm:text-sm font-bold inline-flex items-center justify-center hover:bg-[#0D1B3E] hover:text-white transition-colors">
-                  Meet Our Experts
-                </Link>
+                {hero.primaryCtaText && hero.primaryCtaHref && (
+                  <Link href={hero.primaryCtaHref} className="h-11 px-6 sm:px-7 rounded-full bg-[#F26419] text-white text-[13px] sm:text-sm font-bold inline-flex items-center justify-center hover:bg-[#FF8040] transition-colors">
+                    {hero.primaryCtaText}
+                  </Link>
+                )}
+                {hero.secondaryCtaText && hero.secondaryCtaHref && (
+                  <Link href={hero.secondaryCtaHref} className="h-11 px-6 sm:px-7 rounded-full border-2 border-[#0D1B3E] text-[#0D1B3E] text-[13px] sm:text-sm font-bold inline-flex items-center justify-center hover:bg-[#0D1B3E] hover:text-white transition-colors">
+                    {hero.secondaryCtaText}
+                  </Link>
+                )}
               </div>
 
               {/* Trust row */}

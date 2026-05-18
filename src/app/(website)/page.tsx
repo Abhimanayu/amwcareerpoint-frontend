@@ -1,4 +1,4 @@
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 import { 
   HeroSection,
   StatsSection,
@@ -17,6 +17,13 @@ import {
 } from '@/components/home';
 import { getPublicFaqs, homeFallbackFaqs } from '@/lib/server/faqs';
 import { SEO_HOLD } from '@/lib/seoHold';
+import { getHomeSettings } from '@/lib/home';
+import {
+  defaultHomeSettings,
+  mergeHomeSettings,
+  parseSchemaMarkup,
+  type HomeSettings,
+} from '@/lib/homeSettings';
 
 export const revalidate = 60;
 
@@ -177,40 +184,94 @@ const homeJsonLd = {
   ],
 };
 
-export const metadata: Metadata = {
-  ...(SEO_HOLD
-    ? {
-        title: 'AMW Career Point',
-        description: 'AMW Career Point official website.',
-        robots: {
-          index: false,
-          follow: false,
+async function readHomeSettings() {
+  try {
+    return mergeHomeSettings(await getHomeSettings());
+  } catch {
+    return defaultHomeSettings;
+  }
+}
+
+function splitKeywords(keywords: string) {
+  return keywords
+    .split(',')
+    .map((keyword) => keyword.trim())
+    .filter(Boolean);
+}
+
+function buildHomeJsonLd(settings: HomeSettings) {
+  const customSchema = parseSchemaMarkup(settings.seo.schemaMarkup);
+  if (customSchema) return customSchema;
+
+  if (settings.sections.faq) return homeJsonLd;
+
+  return {
+    ...homeJsonLd,
+    '@graph': homeJsonLd['@graph'].filter((item) => item['@type'] !== 'FAQPage'),
+  };
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  if (SEO_HOLD) {
+    return {
+      title: {
+        absolute: 'AMW Career Point',
+      },
+      description: 'AMW Career Point official website.',
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
+  const settings = await readHomeSettings();
+  const title = settings.seo.metaTitle || defaultHomeSettings.seo.metaTitle;
+  const description =
+    settings.seo.metaDescription || defaultHomeSettings.seo.metaDescription;
+  const canonicalUrl =
+    settings.seo.canonicalUrl || defaultHomeSettings.seo.canonicalUrl;
+  const keywords = splitKeywords(settings.seo.keywords);
+
+  return {
+    title: {
+      absolute: title,
+    },
+    description,
+    keywords: keywords.length > 0 ? keywords : undefined,
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      url: canonicalUrl,
+      images: [
+        {
+          url: '/og-image.png',
+          width: 1200,
+          height: 630,
+          alt: 'AMW Career Point - MBBS Abroad Consultancy',
         },
-      }
-    : {
-        title: 'Study MBBS Abroad for Indian Students',
-        description: 'AMW Career Point helps Indian students study MBBS abroad in Russia, Kazakhstan, Georgia, Kyrgyzstan, and Europe at affordable fees with complete admission support.',
-        openGraph: {
-          title: 'AMW Career Point - MBBS Abroad Consultancy',
-          description: 'India\'s most trusted MBBS abroad consultancy since 2009. 20,000+ students placed in top NMC-approved universities.',
-          type: 'website',
-          images: [
-            {
-              url: '/og-image.png',
-              width: 1200,
-              height: 630,
-              alt: 'AMW Career Point - MBBS Abroad Consultancy',
-            },
-          ],
-        },
-        alternates: {
-          canonical: 'https://amwcareerpoint.com/',
-        },
-      }),
-};
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/og-image.png'],
+    },
+    alternates: {
+      canonical: canonicalUrl,
+    },
+  };
+}
 
 export default async function Home() {
-  const faqs = await getPublicFaqs('home', { fallback: homeFallbackFaqs });
+  const settings = await readHomeSettings();
+  const sections = settings.sections;
+  const faqs = sections.faq
+    ? await getPublicFaqs('home', { fallback: homeFallbackFaqs })
+    : [];
+  const jsonLd = buildHomeJsonLd(settings);
 
   return (
     <>
@@ -218,24 +279,24 @@ export default async function Home() {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(homeJsonLd).replace(/</g, '\\u003c'),
+            __html: JSON.stringify(jsonLd).replaceAll('<', String.raw`\u003c`),
           }}
         />
       )}
-      <HeroSection />
-      <StatsSection />
-      <WhyChooseSection />
-      <ExpertCounsellorsSection />
-      <UniversitiesSection />
-      <CountriesSection />
-      <ComparisonSection />
-      <ProcessSection />
-      <PredictorSection />
-      <ReviewsSection />
-      <VideosSection />
-      <BlogsSection />
-      <CTASection />
-      <FAQSection faqs={faqs} />
+      {sections.hero && <HeroSection settings={settings.hero} />}
+      {sections.stats && <StatsSection items={settings.stats} />}
+      {sections.whyChoose && <WhyChooseSection />}
+      {sections.experts && <ExpertCounsellorsSection />}
+      {sections.universities && <UniversitiesSection items={settings.homeUniversities} />}
+      {sections.countries && <CountriesSection items={settings.homeCountries} />}
+      {sections.comparison && <ComparisonSection />}
+      {sections.process && <ProcessSection />}
+      {sections.predictor && <PredictorSection />}
+      {sections.reviews && <ReviewsSection />}
+      {sections.videos && <VideosSection />}
+      {sections.blogs && <BlogsSection items={settings.homeBlogs} />}
+      {sections.cta && <CTASection />}
+      {sections.faq && <FAQSection faqs={faqs} />}
     </>
   );
 }

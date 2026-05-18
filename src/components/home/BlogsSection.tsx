@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Carousel } from '@/components/ui/Carousel';
 import { getBlogs } from '@/lib/blogs';
 import { SafeImage } from '@/components/ui/SafeImage';
+import type { HomeCuratedBlog } from '@/lib/homeSettings';
 import { extractCollectionData, formatDate, pickBlogImageSource } from '@/lib/utils';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -15,27 +16,39 @@ const fallbackBlogs = [
   { title: 'NEET Cutoff for MBBS Abroad 2025 — Country-wise Complete List', category: 'NEET GUIDE', readTime: '5 min read', date: 'December 2024', slug: 'neet-cutoff-mbbs-abroad-2025', image: '/blogs/neet-cutoff-2025.jpg', excerpt: 'Complete country-wise NEET cutoff list for MBBS abroad admissions...' },
 ];
 
-export function BlogsSection() {
-  const [blogs, setBlogs] = useState<any[]>(fallbackBlogs);
-  const [usingFallback, setUsingFallback] = useState(true);
+type BlogsSectionProps = {
+  readonly items?: readonly HomeCuratedBlog[];
+};
+
+export function BlogsSection({ items }: BlogsSectionProps) {
+  const hasCuratedItems = (items?.length ?? 0) > 0;
+  const [fetchedBlogs, setFetchedBlogs] = useState<any[]>(fallbackBlogs);
+  const [usingFetchedFallback, setUsingFetchedFallback] = useState(true);
 
   useEffect(() => {
+    if (hasCuratedItems) {
+      return;
+    }
+
     getBlogs({ limit: 6 })
       .then((res) => {
         const items = extractCollectionData<any>(res, ['blogs']);
         if (items.length > 0) {
-          setBlogs(items);
-          setUsingFallback(false);
+          setFetchedBlogs(items);
+          setUsingFetchedFallback(false);
         } else {
-          setBlogs(fallbackBlogs);
-          setUsingFallback(true);
+          setFetchedBlogs(fallbackBlogs);
+          setUsingFetchedFallback(true);
         }
       })
       .catch(() => {
-        setBlogs(fallbackBlogs);
-        setUsingFallback(true);
+        setFetchedBlogs(fallbackBlogs);
+        setUsingFetchedFallback(true);
       });
-  }, []);
+  }, [hasCuratedItems]);
+
+  const blogs = hasCuratedItems ? (items ?? []) : fetchedBlogs;
+  const usingFallback = hasCuratedItems ? false : usingFetchedFallback;
 
   return (
     <section className="py-16 sm:py-20 bg-bg-light">
@@ -66,7 +79,7 @@ export function BlogsSection() {
                 className="block rounded-xl border border-border bg-white overflow-hidden hover:shadow-lg transition-shadow group h-full"
               >
                 {/* Image */}
-                <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
+                <div className="relative aspect-16/10 overflow-hidden bg-gray-100">
                   <SafeImage
                     src={imageSource}
                     alt={blog.title || 'Blog post'}

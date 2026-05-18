@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Carousel } from '@/components/ui/Carousel';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { getUniversities } from '@/lib/universities';
+import type { HomeCuratedUniversity } from '@/lib/homeSettings';
 import { extractCollectionData, pickUniversityImageSource } from '@/lib/utils';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -18,27 +19,39 @@ const fallbackUniversities = [
   { name: 'Bogomolets National Medical University', country: 'Ukraine', image: '/universities/bogomolets.jpg' },
 ];
 
-export function UniversitiesSection() {
-  const [universities, setUniversities] = useState<any[]>(fallbackUniversities);
-  const [usingFallback, setUsingFallback] = useState(true);
+type UniversitiesSectionProps = {
+  readonly items?: readonly HomeCuratedUniversity[];
+};
+
+export function UniversitiesSection({ items }: UniversitiesSectionProps) {
+  const hasCuratedItems = (items?.length ?? 0) > 0;
+  const [fetchedUniversities, setFetchedUniversities] = useState<any[]>(fallbackUniversities);
+  const [usingFetchedFallback, setUsingFetchedFallback] = useState(true);
 
   useEffect(() => {
+    if (hasCuratedItems) {
+      return;
+    }
+
     getUniversities({ limit: 8 })
       .then((res) => {
         const items = extractCollectionData<any>(res, ['universities']);
         if (items.length > 0) {
-          setUniversities(items);
-          setUsingFallback(false);
+          setFetchedUniversities(items);
+          setUsingFetchedFallback(false);
         } else {
-          setUniversities(fallbackUniversities);
-          setUsingFallback(true);
+          setFetchedUniversities(fallbackUniversities);
+          setUsingFetchedFallback(true);
         }
       })
       .catch(() => {
-        setUniversities(fallbackUniversities);
-        setUsingFallback(true);
+        setFetchedUniversities(fallbackUniversities);
+        setUsingFetchedFallback(true);
       });
-  }, []);
+  }, [hasCuratedItems]);
+
+  const universities = hasCuratedItems ? (items ?? []) : fetchedUniversities;
+  const usingFallback = hasCuratedItems ? false : usingFetchedFallback;
 
   return (
     <section className="bg-[#F9F8F6] py-10 sm:py-14">

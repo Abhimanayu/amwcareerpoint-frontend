@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Carousel } from '@/components/ui/Carousel';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { getCountries } from '@/lib/countries';
+import type { HomeCuratedCountry } from '@/lib/homeSettings';
 import { extractCollectionData, stripHtml } from '@/lib/utils';
 import { getCountrySlugFromObject } from '@/lib/slugUtils';
 
@@ -18,6 +19,10 @@ const fallbackCountries = [
   { name: 'Kyrgyzstan', slug: 'mbbs-in-kyrgyzstan', code: 'kg', unis: '20+', fees: '₹2L – 4L', dur: '6 Yrs', highlights: ['Most Affordable', 'Indian Food', 'Easy Admission'] },
   { name: 'Philippines', slug: 'philippines', code: 'ph', unis: '18+', fees: '₹3L – 6L', dur: '4 Yrs', highlights: ['English Speaking', 'US Curriculum', 'USMLE Prep'] },
 ];
+
+type CountriesSectionProps = {
+  readonly items?: readonly HomeCuratedCountry[];
+};
 
 function readCountryTotal(payload: unknown, fallbackCount: number) {
   if (!payload || typeof payload !== 'object') {
@@ -51,32 +56,40 @@ function readCountryTotal(payload: unknown, fallbackCount: number) {
   return fallbackCount;
 }
 
-export function CountriesSection() {
-  const [countries, setCountries] = useState<any[]>(fallbackCountries);
-  const [usingFallback, setUsingFallback] = useState(true);
-  const [totalCountries, setTotalCountries] = useState(fallbackCountries.length);
+export function CountriesSection({ items }: CountriesSectionProps) {
+  const hasCuratedItems = (items?.length ?? 0) > 0;
+  const [fetchedCountries, setFetchedCountries] = useState<any[]>(fallbackCountries);
+  const [usingFetchedFallback, setUsingFetchedFallback] = useState(true);
+  const [fetchedTotalCountries, setFetchedTotalCountries] = useState(fallbackCountries.length);
 
   useEffect(() => {
+    if (hasCuratedItems) {
+      return;
+    }
+
     getCountries({ limit: 8 })
       .then((res) => {
         const items = extractCollectionData<any>(res, ['countries']);
         if (items.length > 0) {
-          setCountries(items);
-          setUsingFallback(false);
-          setTotalCountries(readCountryTotal(res, items.length));
+          setFetchedCountries(items);
+          setUsingFetchedFallback(false);
+          setFetchedTotalCountries(readCountryTotal(res, items.length));
         } else {
-          setCountries(fallbackCountries);
-          setUsingFallback(true);
-          setTotalCountries(fallbackCountries.length);
+          setFetchedCountries(fallbackCountries);
+          setUsingFetchedFallback(true);
+          setFetchedTotalCountries(fallbackCountries.length);
         }
       })
       .catch(() => {
-        setCountries(fallbackCountries);
-        setUsingFallback(true);
-        setTotalCountries(fallbackCountries.length);
+        setFetchedCountries(fallbackCountries);
+        setUsingFetchedFallback(true);
+        setFetchedTotalCountries(fallbackCountries.length);
       });
-  }, []);
+  }, [hasCuratedItems]);
 
+  const countries = hasCuratedItems ? (items ?? []) : fetchedCountries;
+  const usingFallback = hasCuratedItems ? false : usingFetchedFallback;
+  const totalCountries = hasCuratedItems ? (items?.length ?? 0) : fetchedTotalCountries;
   const countLabel = totalCountries;
 
   return (
@@ -124,7 +137,7 @@ export function CountriesSection() {
                   <ul className="space-y-1 mb-3">
                     {c.highlights.map((h: string) => (
                       <li key={`${c.code}-${h}`} className="flex items-center gap-2 text-[13px] text-text-body">
-                        <span className="w-1.5 h-1.5 rounded-full bg-orange flex-shrink-0" />
+                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-orange" />
                         {h}
                       </li>
                     ))}
@@ -136,19 +149,25 @@ export function CountriesSection() {
                   </div>
                 </div>
               </div>
-            )) : countries.map((c: any) => (
+            )) : countries.map((c: any) => {
+              const imageSource = c.heroImage || c.cardImage;
+              const feeRange = c.feeRange || c.fees || c.annualFeeRange;
+              const duration = c.duration || c.dur;
+              const highlights = Array.isArray(c.highlights) ? c.highlights : [];
+
+              return (
               <div key={c._id} className="rounded-xl border border-border bg-white overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
                 {/* Hero image area — shown when heroImage is available */}
-                {c.heroImage ? (
+                {imageSource ? (
                   <div className="relative h-36 sm:h-40 overflow-hidden bg-navy">
                     <SafeImage
-                      src={c.heroImage}
+                      src={imageSource}
                       alt={`${c.name || 'Country'} – MBBS study destination`}
                       fill
                       className="object-cover"
-                      fallbackElement={<div className="absolute inset-0 bg-gradient-to-br from-navy to-navy/80" />}
+                      fallbackElement={<div className="absolute inset-0 bg-linear-to-br from-navy to-navy/80" />}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-navy/80 via-navy/30 to-transparent" />
+                    <div className="absolute inset-0 bg-linear-to-t from-navy/80 via-navy/30 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 px-4 pb-3 flex items-end justify-between text-white">
                       <div className="min-w-0">
                         <h3 className="font-heading text-lg sm:text-xl font-bold truncate drop-shadow-sm">{c.name || 'Country'}</h3>
@@ -160,9 +179,9 @@ export function CountriesSection() {
                           alt={`${c.name} flag`}
                           width={36}
                           height={26}
-                          className="w-9 h-[26px] rounded-sm object-cover flex-shrink-0 ring-1 ring-white/30"
+                          className="h-6.5 w-9 shrink-0 rounded-sm object-cover ring-1 ring-white/30"
                           fallbackElement={
-                            <div className="w-9 h-[26px] rounded-sm bg-white/20 flex items-center justify-center text-xs flex-shrink-0">🏳️</div>
+                            <div className="flex h-6.5 w-9 shrink-0 items-center justify-center rounded-sm bg-white/20 text-xs">🏳️</div>
                           }
                         />
                       )}
@@ -182,9 +201,9 @@ export function CountriesSection() {
                           alt={`${c.name} flag`}
                           width={36}
                           height={26}
-                          className="w-9 h-[26px] rounded-sm object-cover flex-shrink-0"
+                          className="h-6.5 w-9 shrink-0 rounded-sm object-cover"
                           fallbackElement={
-                            <div className="w-9 h-[26px] rounded-sm bg-white/20 flex items-center justify-center text-xs flex-shrink-0">🏳️</div>
+                            <div className="flex h-6.5 w-9 shrink-0 items-center justify-center rounded-sm bg-white/20 text-xs">🏳️</div>
                           }
                         />
                       )}
@@ -193,18 +212,18 @@ export function CountriesSection() {
                 )}
                 <div className="p-4 flex flex-col flex-1">
                   {/* Fee & Duration */}
-                  {(c.feeRange || c.duration) && (
+                  {(feeRange || duration) && (
                     <div className="grid grid-cols-2 gap-2.5 mb-3">
-                      {c.feeRange && (
+                      {feeRange && (
                         <div className="min-w-0 rounded-lg bg-bg-light px-2.5 py-1.5 text-center">
                           <div className="text-[10px] uppercase text-text-body">Annual Fees</div>
-                          <div className="text-[13px] font-bold text-orange truncate" title={c.feeRange}>{c.feeRange}</div>
+                          <div className="text-[13px] font-bold text-orange truncate" title={feeRange}>{feeRange}</div>
                         </div>
                       )}
-                      {c.duration && (
+                      {duration && (
                         <div className="min-w-0 rounded-lg bg-bg-light px-2.5 py-1.5 text-center">
                           <div className="text-[10px] uppercase text-text-body">Duration</div>
-                          <div className="text-[13px] font-bold text-navy truncate" title={c.duration}>{c.duration}</div>
+                          <div className="text-[13px] font-bold text-navy truncate" title={duration}>{duration}</div>
                         </div>
                       )}
                     </div>
@@ -214,11 +233,11 @@ export function CountriesSection() {
                     <p className="text-[13px] text-text-body leading-relaxed line-clamp-2 mb-3">{stripHtml(c.description)}</p>
                   )}
                   {/* Highlights */}
-                  {c.highlights && c.highlights.length > 0 && (
+                  {highlights.length > 0 && (
                   <ul className="space-y-1 mb-3">
-                    {c.highlights.slice(0, 4).map((h: string) => (
+                    {highlights.slice(0, 4).map((h: string) => (
                       <li key={`${c.slug || c.name}-${h}`} className="flex items-center gap-2 text-[13px] text-text-body">
-                        <span className="w-1.5 h-1.5 rounded-full bg-orange flex-shrink-0" />
+                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-orange" />
                         {h}
                       </li>
                     ))}
@@ -231,7 +250,8 @@ export function CountriesSection() {
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </Carousel>
         </div>
 

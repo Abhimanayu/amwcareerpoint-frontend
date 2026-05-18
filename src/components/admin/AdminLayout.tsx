@@ -7,6 +7,7 @@ import { isLoggedIn, getAdminUser, logoutAdmin } from '@/lib/auth';
 
 const navItems = [
   { label: 'Dashboard', href: '/admin', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+  { label: 'Home Page', href: '/admin/home', icon: 'M4 5a2 2 0 012-2h12a2 2 0 012 2v14a1 1 0 01-1.447.894L12 16.118l-6.553 3.776A1 1 0 014 19V5z' },
   { label: 'Countries', href: '/admin/countries', icon: 'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
   { label: 'Universities', href: '/admin/universities', icon: 'M12 14l9-5-9-5-9 5 9 5z M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z' },
   { label: 'Blogs', href: '/admin/blogs', icon: 'M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z' },
@@ -22,12 +23,16 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    if (!isLoggedIn()) {
-      router.push('/admin/login');
-      return;
-    }
-    setUser(getAdminUser());
+    const timeoutId = globalThis.setTimeout(() => {
+      setMounted(true);
+      if (!isLoggedIn()) {
+        router.push('/admin/login');
+        return;
+      }
+      setUser(getAdminUser());
+    }, 0);
+
+    return () => globalThis.clearTimeout(timeoutId);
   }, [router]);
 
   if (!mounted) return null;
