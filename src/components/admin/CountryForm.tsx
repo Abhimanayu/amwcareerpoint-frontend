@@ -45,6 +45,14 @@ type SupportExperienceForm = {
   supportCards: SupportCardItem[];
 };
 
+// Keep this in sync with backend validation until backend is upgraded.
+const BACKEND_STUDENT_LIFE_DESCRIPTION_MAX = 5000;
+
+function getBackendStudentLifeDescriptionLength(value: string) {
+  // Backend currently validates the raw trimmed string length (including HTML tags).
+  return value.trim().length;
+}
+
 function createLocalId(prefix: string) {
   const uuid = globalThis.crypto?.randomUUID?.();
   if (uuid) {
@@ -507,6 +515,7 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
   const compactInputClass = 'w-full px-3 py-2 rounded-lg border border-gray-200 text-sm';
   const addButtonClass = 'text-sm text-orange font-medium';
   const submitButtonLabel = getSubmitButtonLabel(saving, isEdit);
+  const studentLifeDescriptionBackendLength = getBackendStudentLifeDescriptionLength(form.studentLife.description);
 
   const updateStudentLife = (value: StudentLifeForm) => {
     setForm((prev) => ({ ...prev, studentLife: value }));
@@ -523,6 +532,12 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     const errors = validateCountryForm(buildCountryValidationInput(form));
+    if (studentLifeDescriptionBackendLength > BACKEND_STUDENT_LIFE_DESCRIPTION_MAX) {
+      errors.push({
+        field: 'studentLife.description',
+        message: `Student life description must be <= ${BACKEND_STUDENT_LIFE_DESCRIPTION_MAX} characters to save (backend limit).`,
+      });
+    }
     setValidationErrors(errors);
     if (errors.length > 0) return;
     setSaving(true);
@@ -927,7 +942,18 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
               content={form.studentLife.description}
               onChange={(html) => updateStudentLife({ ...form.studentLife, description: html })}
             />
-            <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'studentLife.description')} /><CharCount current={form.studentLife.description.length} max={L.studentLife.descriptionMax} /></div>
+            <div className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+              <FieldError message={getFieldError(validationErrors, 'studentLife.description')} />
+              <div className="flex min-w-0 flex-wrap items-center gap-2 sm:justify-end">
+                <CharCount current={form.studentLife.description.length} max={L.studentLife.descriptionMax} />
+                <span className={`text-[11px] break-words ${studentLifeDescriptionBackendLength > BACKEND_STUDENT_LIFE_DESCRIPTION_MAX ? 'text-amber-600 font-medium' : 'text-gray-400'}`}>
+                  Backend count: {studentLifeDescriptionBackendLength}/{BACKEND_STUDENT_LIFE_DESCRIPTION_MAX}
+                </span>
+              </div>
+            </div>
+            <p className="mt-1 text-[11px] text-gray-400 break-words">
+              Editor supports up to {L.studentLife.descriptionMax} characters. Current backend save limit is {BACKEND_STUDENT_LIFE_DESCRIPTION_MAX} raw string characters.
+            </p>
           </div>
 
           <div className="space-y-3">
