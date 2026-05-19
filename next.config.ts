@@ -68,6 +68,66 @@ const nextConfig: NextConfig = {
         destination: '/countries/mbbs-in-:country',
         permanent: true,
       },
+      {
+        source: '/countries/uk',
+        destination: '/countries/mbbs-in-uk',
+        permanent: true,
+      },
+      {
+        source: '/countries/russia',
+        destination: '/countries/mbbs-in-russia',
+        permanent: true,
+      },
+      {
+        source: '/countries/georgia',
+        destination: '/countries/mbbs-in-georgia',
+        permanent: true,
+      },
+      {
+        source: '/countries/kazakhstan',
+        destination: '/countries/mbbs-in-kazakhstan',
+        permanent: true,
+      },
+      {
+        source: '/countries/uzbekistan',
+        destination: '/countries/mbbs-in-uzbekistan',
+        permanent: true,
+      },
+      {
+        source: '/countries/kyrgyzstan',
+        destination: '/countries/mbbs-in-kyrgyzstan',
+        permanent: true,
+      },
+      {
+        source: '/countries/uk/',
+        destination: '/countries/mbbs-in-uk',
+        permanent: true,
+      },
+      {
+        source: '/countries/russia/',
+        destination: '/countries/mbbs-in-russia',
+        permanent: true,
+      },
+      {
+        source: '/countries/georgia/',
+        destination: '/countries/mbbs-in-georgia',
+        permanent: true,
+      },
+      {
+        source: '/countries/kazakhstan/',
+        destination: '/countries/mbbs-in-kazakhstan',
+        permanent: true,
+      },
+      {
+        source: '/countries/uzbekistan/',
+        destination: '/countries/mbbs-in-uzbekistan',
+        permanent: true,
+      },
+      {
+        source: '/countries/kyrgyzstan/',
+        destination: '/countries/mbbs-in-kyrgyzstan',
+        permanent: true,
+      },
     ];
   },
   async headers() {
