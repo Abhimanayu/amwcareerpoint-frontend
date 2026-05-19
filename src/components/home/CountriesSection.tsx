@@ -84,25 +84,65 @@ export function CountriesSection({ items }: CountriesSectionProps) {
   const [usingFetchedFallback, setUsingFetchedFallback] = useState(false);
   const [fetchedTotalCountries, setFetchedTotalCountries] = useState(Math.max(fallbackCountries.length, curatedCount));
 
-  const dedupeCountries = (entries: any[]) => {
-    const seen = new Set<string>();
+  const isMeaningfulValue = (value: unknown) => {
+    if (Array.isArray(value)) return value.length > 0;
+    if (typeof value === 'string') return value.trim().length > 0;
+    return value !== null && value !== undefined;
+  };
 
-    return entries.filter((country) => {
-      if (!country || typeof country !== 'object') return false;
+  const mergeCountryRecords = (existing: any, incoming: any) => {
+    const merged = { ...incoming, ...existing };
+
+    const enrichKeys = [
+      'heroImage',
+      'cardImage',
+      'flagImage',
+      'description',
+      'highlights',
+      'feeRange',
+      'annualFeeRange',
+      'duration',
+      'tagline',
+    ];
+
+    for (const key of enrichKeys) {
+      if (!isMeaningfulValue(merged[key]) && isMeaningfulValue(incoming[key])) {
+        merged[key] = incoming[key];
+      }
+    }
+
+    return merged;
+  };
+
+  const dedupeCountries = (entries: any[]) => {
+    const unique: any[] = [];
+
+    for (const country of entries) {
+      if (!country || typeof country !== 'object') continue;
 
       const idKey = typeof country._id === 'string' && country._id.trim() ? `id:${country._id}` : '';
       const slugKey = typeof country.slug === 'string' && country.slug.trim() ? `slug:${country.slug.toLowerCase()}` : '';
       const nameKey = typeof country.name === 'string' && country.name.trim() ? `name:${country.name.toLowerCase()}` : '';
-
       const keys = [idKey, slugKey, nameKey].filter(Boolean);
-      if (keys.length === 0) return false;
 
-      const isDuplicate = keys.some((key) => seen.has(key));
-      if (isDuplicate) return false;
+      if (keys.length === 0) continue;
 
-      keys.forEach((key) => seen.add(key));
-      return true;
-    });
+      const existingIndex = unique.findIndex((item) => {
+        const existingIdKey = typeof item?._id === 'string' && item._id.trim() ? `id:${item._id}` : '';
+        const existingSlugKey = typeof item?.slug === 'string' && item.slug.trim() ? `slug:${item.slug.toLowerCase()}` : '';
+        const existingNameKey = typeof item?.name === 'string' && item.name.trim() ? `name:${item.name.toLowerCase()}` : '';
+        const existingKeys = [existingIdKey, existingSlugKey, existingNameKey].filter(Boolean);
+        return keys.some((key) => existingKeys.includes(key));
+      });
+
+      if (existingIndex === -1) {
+        unique.push(country);
+      } else {
+        unique[existingIndex] = mergeCountryRecords(unique[existingIndex], country);
+      }
+    }
+
+    return unique;
   };
 
   useEffect(() => {
