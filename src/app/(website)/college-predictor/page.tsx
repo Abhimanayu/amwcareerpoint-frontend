@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { CollegePredictorClient } from './CollegePredictorClient';
+import { CollegePredictorClient } from '@/components/college/CollegePredictorClient';
 
 export const metadata: Metadata = {
   title: 'NEET College Predictor 2025 | MBBS Admission Predictor | AMW Career Point',

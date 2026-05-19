@@ -5,12 +5,12 @@ export type MbbsDestinationLink = {
 };
 
 export const MBBS_DESTINATION_LINKS: MbbsDestinationLink[] = [
-  { country: 'Russia', href: '/countries/russia', label: 'MBBS in Russia' },
-  { country: 'Georgia', href: '/countries/georgia', label: 'MBBS in Georgia' },
-  { country: 'Kazakhstan', href: '/countries/kazakhstan', label: 'MBBS in Kazakhstan' },
-  { country: 'Uzbekistan', href: '/countries/uzbekistan', label: 'MBBS in Uzbekistan' },
-  { country: 'Kyrgyzstan', href: '/countries/kyrgyzstan', label: 'MBBS in Kyrgyzstan' },
-  { country: 'Philippines', href: '/countries/philippines', label: 'MBBS in Philippines' },
+  { country: 'Russia', href: '/countries/mbbs-in-russia', label: 'MBBS in Russia' },
+  { country: 'UK', href: '/countries/mbbs-in-uk', label: 'MBBS in UK' },
+  { country: 'Georgia', href: '/countries/mbbs-in-georgia', label: 'MBBS in Georgia' },
+  { country: 'Kazakhstan', href: '/countries/mbbs-in-kazakhstan', label: 'MBBS in Kazakhstan' },
+  { country: 'Uzbekistan', href: '/countries/mbbs-in-uzbekistan', label: 'MBBS in Uzbekistan' },
+  { country: 'Kyrgyzstan', href: '/countries/mbbs-in-kyrgyzstan', label: 'MBBS in Kyrgyzstan' },
 ];
 
 export function getMbbsDestinationLinks() {

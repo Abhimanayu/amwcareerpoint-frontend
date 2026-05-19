@@ -219,12 +219,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const res = await getCountryBySlug(slug).catch(() => null);
   const country = res?.data || res;
   if (!country) return { title: 'Country not found' };
+  const resolvedSlug = country.slug || slug;
   const title = country.seo?.metaTitle || `${country.name} | MBBS Abroad`;
   const description = clampSeoDescription(
     country.seo?.metaDescription || country.metaDescription || country.tagline || country.description,
     `Study MBBS in ${country.name} with AMW Career Point. Get details on fees, universities, admission, and student support.`
   );
-  const canonical = resolveCanonicalUrl(country.seo?.canonicalUrl, `${siteUrl}/countries/${slug}`);
+  const canonical = resolveCanonicalUrl(country.seo?.canonicalUrl, `${siteUrl}/countries/${resolvedSlug}`);
   const ogImage = resolveMediaUrl(country.heroImage || country.cardImage || country.bannerImage || country.flagImage || '');
   return {
     title,
@@ -317,11 +318,12 @@ export default async function CountryPage({ params }: Props) {
   const country = res?.data || res;
 
   if (!country) return notFound();
+  const resolvedSlug = country.slug || slug;
 
   // Load FAQs from both sources in parallel
   let apiFaqs: Array<{ question: string; answer: string }> = [];
   try {
-    apiFaqs = await getPublicFaqs('country', { pageSlug: slug });
+    apiFaqs = await getPublicFaqs('country', { pageSlug: resolvedSlug });
   } catch { /* FAQ admin records may not exist */ }
 
   // Merge FAQs: prefer API admin records first, then append embedded FAQs not already present by question

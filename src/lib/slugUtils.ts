@@ -26,3 +26,20 @@ export const getCountrySlugFromObject = (country: { slug?: string; name?: string
   if (country?.slug) return country.slug;
   return getCountrySlug(country?.name);
 };
+
+export const stripMbbsSlugPrefix = (slug?: string): string => {
+  const normalized = getCountrySlug(slug);
+  if (!normalized) return '';
+
+  return normalized.startsWith('mbbs-in-') ? normalized.slice('mbbs-in-'.length) : normalized;
+};
+
+export const getCountrySlugCandidates = (slug?: string): string[] => {
+  const normalized = getCountrySlug(slug);
+  const baseSlug = stripMbbsSlugPrefix(normalized);
+  const candidates = [normalized, baseSlug && `mbbs-in-${baseSlug}`, baseSlug].filter(
+    (value): value is string => Boolean(value)
+  );
+
+  return Array.from(new Set(candidates));
+};
