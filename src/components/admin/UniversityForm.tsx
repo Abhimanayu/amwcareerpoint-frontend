@@ -254,7 +254,40 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
               </div>
             ))}
           </div>
-        </section>
+              <div>
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-sm font-medium text-gray-700">Gallery Images <span className="text-xs text-gray-400">({form.gallery.filter(Boolean).length}/{L.gallery.maxItems})</span></label>
+                {form.gallery.filter(Boolean).length < L.gallery.maxItems && (
+                  <button type="button" onClick={() => updateField('gallery', [...form.gallery, ''])} className="text-sm text-[#F26419] font-medium">+ Add</button>
+                )}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {form.gallery.map((url, i) => (
+                  <div key={i} className="relative">
+                    <ImageUploader
+                      folder="universities"
+                      currentImage={url}
+                      onUpload={(uploadedUrl) => {
+                        const arr = [...form.gallery];
+                        arr[i] = uploadedUrl;
+                        updateField('gallery', arr);
+                      }}
+                      hint={`Gallery image ${i + 1}`}
+                    />
+                    {form.gallery.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => updateField('gallery', form.gallery.filter((_, j) => j !== i))}
+                        className="absolute top-2 right-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white text-xs hover:bg-red-600"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
 
         {/* Recognition */}
         <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">

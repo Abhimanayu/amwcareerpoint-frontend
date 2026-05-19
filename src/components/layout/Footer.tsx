@@ -1,11 +1,10 @@
 import Link from 'next/link';
 import { getCurrentYear } from '@/lib/utils';
-import { getCountrySlug } from '@/lib/slugUtils';
+import { getMbbsDestinationLinks } from '@/lib/mbbsDestinations';
 
 export function Footer() {
   const year = getCurrentYear();
-
-  const destinations = ['Russia', 'UK', 'Georgia', 'Kazakhstan', 'Uzbekistan', 'Kyrgyzstan'];
+  const destinations = getMbbsDestinationLinks();
 
   return (
     <footer className="bg-[#0A1128] text-gray-300">
@@ -43,9 +42,9 @@ export function Footer() {
           <div>
             <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-2.5">MBBS Destinations</h4>
             <ul className="space-y-0.5 text-xs">
-              {destinations.map((country) => (
-                <li key={country}>
-                  <Link href={`/countries/${getCountrySlug(country)}`} className="inline-flex min-h-11 min-w-11 items-center py-1 px-1 hover:text-white transition-colors">MBBS in {country}</Link>
+              {destinations.map((destination) => (
+                <li key={destination.country}>
+                  <Link href={destination.href} className="inline-flex min-h-11 min-w-11 items-center py-1 px-1 hover:text-white transition-colors">{destination.label}</Link>
                 </li>
               ))}
             </ul>

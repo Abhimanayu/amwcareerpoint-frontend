@@ -1,6 +1,4 @@
-const fs = require('fs');
-
-const content = `'use client';
+'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -13,13 +11,19 @@ const ALL_STATES = [
 ];
 
 interface StateMeta {
-  [state: string]: { categories: string[]; quotas: string[] };
+  [state: string]: {
+    categories: string[];
+    quotas: string[];
+    subCategoriesByCategory?: Record<string, string[]>;
+  };
 }
 
 interface PredictorResult {
   state: string;
   college: string;
+  rawCategory: string;
   category: string;
+  subCategory: string | null;
   closingRank: number;
   quota: string;
 }
@@ -28,6 +32,7 @@ interface ApiResponse {
   rank: number;
   state: string;
   category: string;
+  subCategory?: string | null;
   quota: string;
   totalMatches: number;
   results: PredictorResult[];
@@ -35,10 +40,19 @@ interface ApiResponse {
 
 const ITEMS_PER_PAGE = 25;
 
+function normalizeQuotaKey(value: string): string {
+  return value.trim().replace(/\s+/g, ' ').toUpperCase();
+}
+
+function normalizeQuotaLabel(value: string): string {
+  return value.trim().replace(/\s+/g, ' ');
+}
+
 export function CollegePredictorClient() {
   const [rank, setRank] = useState('');
   const [state, setState] = useState('');
   const [category, setCategory] = useState('');
+  const [subCategory, setSubCategory] = useState('');
   const [quota, setQuota] = useState('');
   const [stateMeta, setStateMeta] = useState<StateMeta>({});
   const [loading, setLoading] = useState(false);
@@ -58,18 +72,32 @@ export function CollegePredictorClient() {
   const handleStateChange = (newState: string) => {
     setState(newState);
     setCategory('');
+    setSubCategory('');
     setQuota('');
     setResponse(null);
   };
 
   const handleCategoryChange = (newCat: string) => {
     setCategory(newCat);
+    setSubCategory('');
     setQuota('');
     setResponse(null);
   };
 
+  const handleSubCategoryChange = (sub: string) => {
+    setSubCategory(sub);
+    setResponse(null);
+  };
+
   const stateCategories = state && stateMeta[state] ? stateMeta[state].categories : [];
-  const stateQuotas: string[] = state && stateMeta[state] ? stateMeta[state].quotas : [];
+  const stateQuotasRaw: string[] = state && stateMeta[state] ? stateMeta[state].quotas : [];
+  const stateQuotas: string[] = Array.from(
+    new Map(stateQuotasRaw.map(q => [normalizeQuotaKey(q), normalizeQuotaLabel(q)])).values(),
+  );
+  const stateSubCatMap: Record<string, string[]> =
+    (state && stateMeta[state]?.subCategoriesByCategory) || {};
+  const availableSubCategories: string[] = category ? (stateSubCatMap[category] ?? []) : [];
+  const showSubCategoryControl = Boolean(category);
 
   const handlePredict = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,6 +114,7 @@ export function CollegePredictorClient() {
       const params = new URLSearchParams({ rank });
       if (state) params.set('state', state);
       if (category) params.set('category', category);
+      if (subCategory) params.set('subCategory', subCategory);
       if (quota) params.set('quota', quota);
       const res = await fetch('/api/college-predictor?' + params.toString());
       const data = await res.json();
@@ -100,7 +129,7 @@ export function CollegePredictorClient() {
     } finally {
       setLoading(false);
     }
-  }, [rank, state, category, quota]);
+  }, [rank, state, category, subCategory, quota]);
 
   const paginatedResults = response ? response.results.slice(0, page * ITEMS_PER_PAGE) : [];
   const hasMore = response ? paginatedResults.length < response.results.length : false;
@@ -200,7 +229,30 @@ export function CollegePredictorClient() {
               </div>
             </div>
 
-            {(state || category || quota) && (
+            {showSubCategoryControl && (
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  Sub Category
+                  <span className="ml-1 text-xs text-[#F26419] font-normal">
+                    ({availableSubCategories.length > 0 ? `${availableSubCategories.length} available` : 'Not available for this category'})
+                  </span>
+                </label>
+                <select
+                  value={subCategory}
+                  onChange={e => handleSubCategoryChange(e.target.value)}
+                  disabled={metaLoading || availableSubCategories.length === 0}
+                  className="w-full h-12 px-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F26419]/50 focus:border-[#F26419] text-gray-900 text-sm bg-white appearance-none cursor-pointer disabled:opacity-50"
+                >
+                  <option value="">{availableSubCategories.length > 0 ? 'All Sub Categories' : 'No sub categories for this category'}</option>
+                  {availableSubCategories.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+                {availableSubCategories.length === 0 && (
+                  <p className="mt-1 text-xs text-gray-400">This state/category combination only has base category entries in source cutoff data.</p>
+                )}
+              </div>
+            )}
+
+            {(state || category || subCategory || quota) && (
               <div className="flex flex-wrap gap-2">
                 {state && (
                   <span className="inline-flex items-center gap-1.5 bg-blue-50 border border-blue-200 text-blue-700 text-xs font-medium px-3 py-1 rounded-full">
@@ -212,6 +264,12 @@ export function CollegePredictorClient() {
                   <span className="inline-flex items-center gap-1.5 bg-purple-50 border border-purple-200 text-purple-700 text-xs font-medium px-3 py-1 rounded-full">
                     🏷 {category}
                     <button type="button" onClick={() => handleCategoryChange('')} className="hover:text-purple-900 font-bold">×</button>
+                  </span>
+                )}
+                {subCategory && (
+                  <span className="inline-flex items-center gap-1.5 bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-medium px-3 py-1 rounded-full">
+                    🔖 {subCategory}
+                    <button type="button" onClick={() => handleSubCategoryChange('')} className="hover:text-indigo-900 font-bold">×</button>
                   </span>
                 )}
                 {quota && (
@@ -259,6 +317,7 @@ export function CollegePredictorClient() {
                 <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">Rank: <strong>{response.rank.toLocaleString()}</strong></span>
                 {response.state !== 'All States' && <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-100">📍 {response.state}</span>}
                 {response.category !== 'All' && <span className="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full border border-purple-100">🏷 {response.category}</span>}
+                {response.subCategory && <span className="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-100">🔖 {response.subCategory}</span>}
                 {response.quota !== 'All' && <span className="text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full border border-green-100">🎟 {response.quota}</span>}
               </div>
             </div>
@@ -291,7 +350,8 @@ export function CollegePredictorClient() {
                         <th className="text-left px-4 py-3 font-semibold w-8">#</th>
                         <th className="text-left px-4 py-3 font-semibold min-w-[280px]">College Name</th>
                         <th className="text-left px-4 py-3 font-semibold min-w-[130px]">State</th>
-                        <th className="text-left px-4 py-3 font-semibold min-w-[120px]">Category</th>
+                        <th className="text-left px-4 py-3 font-semibold min-w-[100px]">Category</th>
+                        <th className="text-left px-4 py-3 font-semibold min-w-[110px]">Sub Category</th>
                         <th className="text-left px-4 py-3 font-semibold min-w-[110px]">Closing Rank</th>
                         <th className="text-left px-4 py-3 font-semibold min-w-[130px]">Quota</th>
                       </tr>
@@ -306,6 +366,14 @@ export function CollegePredictorClient() {
                           </td>
                           <td className="px-4 py-3">
                             <span className="inline-flex items-center bg-purple-50 text-purple-700 text-xs font-medium px-2 py-0.5 rounded-full border border-purple-100 whitespace-nowrap">{result.category}</span>
+                            {result.rawCategory !== result.category && (
+                              <div className="text-[10px] text-gray-400 mt-0.5 whitespace-nowrap">{result.rawCategory}</div>
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            {result.subCategory
+                              ? <span className="inline-flex items-center bg-indigo-50 text-indigo-700 text-xs font-medium px-2 py-0.5 rounded-full border border-indigo-100 whitespace-nowrap">{result.subCategory}</span>
+                              : <span className="text-gray-300 text-xs">—</span>}
                           </td>
                           <td className="px-4 py-3"><span className="font-semibold text-gray-800">{result.closingRank.toLocaleString()}</span></td>
                           <td className="px-4 py-3 text-gray-500 text-xs">{result.quota}</td>
@@ -357,7 +425,3 @@ export function CollegePredictorClient() {
     </div>
   );
 }
-`;
-
-fs.writeFileSync('src/app/(website)/college-predictor/CollegePredictorClient.tsx', content);
-console.log('Done, wrote', content.length, 'chars');
