@@ -64,30 +64,35 @@ export function CountriesSection({ items }: CountriesSectionProps) {
   const [fetchedTotalCountries, setFetchedTotalCountries] = useState(Math.max(fallbackCountries.length, curatedCount));
 
   useEffect(() => {
-    getCountries({ limit: hasCuratedItems ? 50 : 8 })
+    // Fetch total independently so the UI count stays accurate even when homepage uses curated items.
+    getCountries({ limit: 1 })
       .then((res) => {
         const apiCountries = extractCollectionData<any>(res, ['countries']);
         const total = readCountryTotal(res, apiCountries.length);
+        setFetchedTotalCountries(Math.max(total, curatedCount, fallbackCountries.length));
+      })
+      .catch(() => {
+        setFetchedTotalCountries(Math.max(fallbackCountries.length, curatedCount));
+      });
 
-        if (hasCuratedItems) {
-          setFetchedTotalCountries(Math.max(total, apiCountries.length, curatedCount));
-          return;
-        }
+    if (hasCuratedItems) {
+      return;
+    }
 
+    getCountries({ limit: 8 })
+      .then((res) => {
+        const apiCountries = extractCollectionData<any>(res, ['countries']);
         if (apiCountries.length > 0) {
           setFetchedCountries(apiCountries);
           setUsingFetchedFallback(false);
-          setFetchedTotalCountries(total);
         } else {
           setFetchedCountries(fallbackCountries);
           setUsingFetchedFallback(true);
-          setFetchedTotalCountries(fallbackCountries.length);
         }
       })
       .catch(() => {
         setFetchedCountries(fallbackCountries);
         setUsingFetchedFallback(true);
-        setFetchedTotalCountries(Math.max(fallbackCountries.length, curatedCount));
       });
   }, [curatedCount, hasCuratedItems]);
 
@@ -95,14 +100,15 @@ export function CountriesSection({ items }: CountriesSectionProps) {
   const usingFallback = hasCuratedItems ? false : usingFetchedFallback;
   const totalCountries = fetchedTotalCountries;
   const countLabel = totalCountries;
+  const countNoun = countLabel === 1 ? 'Country' : 'Countries';
 
   return (
     <section className="bg-white py-10 sm:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8 sm:mb-10">
-          <span className="inline-block text-xs font-semibold text-orange uppercase tracking-wider mb-2">{countLabel}+ Countries Available</span>
+          <span className="inline-block text-xs font-semibold text-orange uppercase tracking-wider mb-2">{countLabel} {countNoun} Available</span>
           <h2 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-navy">Study MBBS in Top Countries</h2>
-          <p className="mt-3 text-[15px] text-text-body max-w-2xl mx-auto">World-class medical education at affordable costs across {countLabel}+ countries.</p>
+          <p className="mt-3 text-[15px] text-text-body max-w-2xl mx-auto">World-class medical education at affordable costs across {countLabel} {countNoun.toLowerCase()}.</p>
         </div>
 
         <div className="px-1 sm:px-5">
