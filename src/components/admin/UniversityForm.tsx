@@ -24,6 +24,7 @@ const emptyForm = {
   logo: '',
   heroImage: '',
   gallery: [''],
+  sortOrder: '0',
   establishedYear: '',
   ranking: '',
   accreditation: '',
@@ -55,6 +56,7 @@ function buildUniversityForm(initialData?: Record<string, unknown>) {
     logo: (initialData.logo as string) || '',
     heroImage: (initialData.heroImage as string) || '',
     gallery: (initialData.gallery as string[])?.length ? (initialData.gallery as string[]) : [''],
+    sortOrder: String(initialData.sortOrder ?? 0),
     establishedYear: String(initialData.establishedYear || ''),
     ranking: (initialData.ranking as string) || '',
     accreditation: (initialData.accreditation as string) || '',
@@ -108,6 +110,7 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
     try {
       const payload = {
         ...form,
+        sortOrder: Number.isFinite(Number(form.sortOrder)) ? Number(form.sortOrder) : 0,
         establishedYear: parseInt(form.establishedYear) || undefined,
         gallery: form.gallery.filter(Boolean),
         recognition: form.recognition.filter(Boolean),
@@ -170,7 +173,7 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
             />
             <FieldError message={getFieldError(validationErrors, 'description')} />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
               <select value={form.status} onChange={(e) => updateField('status', e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none">
@@ -181,6 +184,11 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Established Year</label>
               <input type="number" value={form.establishedYear} onChange={(e) => updateField('establishedYear', e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Priority / Sort Order</label>
+              <input type="number" value={form.sortOrder} onChange={(e) => updateField('sortOrder', e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
+              <p className="mt-1 text-xs text-gray-500">Lower number appears first. Use -1 for top priority.</p>
             </div>
             <div className="flex items-end pb-1">
               <label className="flex items-center gap-2 cursor-pointer">
@@ -241,20 +249,39 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
             </div>
           </div>
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-gray-700">Gallery URLs <span className="text-xs text-gray-400">({form.gallery.filter(Boolean).length}/{L.gallery.maxItems})</span></label>
-              {form.gallery.length < L.gallery.maxItems && (
-              <button type="button" onClick={() => updateField('gallery', [...form.gallery, ''])} className="text-sm text-[#F26419] font-medium">+ Add</button>
-              )}
-            </div>
-            {form.gallery.map((url, i) => (
-              <div key={i} className="flex gap-2 mb-2">
-                <input value={url} onChange={(e) => { const arr = [...form.gallery]; arr[i] = e.target.value; updateField('gallery', arr); }} placeholder="Image URL" className="flex-1 px-3 py-2 rounded-xl border border-gray-200 text-sm" />
-                {form.gallery.length > 1 && <button type="button" onClick={() => updateField('gallery', form.gallery.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600 px-2">×</button>}
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-sm font-medium text-gray-700">Gallery Images <span className="text-xs text-gray-400">({form.gallery.filter(Boolean).length}/{L.gallery.maxItems})</span></label>
+                {form.gallery.filter(Boolean).length < L.gallery.maxItems && (
+                  <button type="button" onClick={() => updateField('gallery', [...form.gallery, ''])} className="text-sm text-[#F26419] font-medium">+ Add</button>
+                )}
               </div>
-            ))}
-          </div>
-        </section>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {form.gallery.map((url, i) => (
+                  <div key={i} className="relative">
+                    <ImageUploader
+                      folder="universities"
+                      currentImage={url}
+                      onUpload={(uploadedUrl) => {
+                        const arr = [...form.gallery];
+                        arr[i] = uploadedUrl;
+                        updateField('gallery', arr);
+                      }}
+                      hint={`Gallery image ${i + 1}`}
+                    />
+                    {form.gallery.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => updateField('gallery', form.gallery.filter((_, j) => j !== i))}
+                        className="absolute top-2 right-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white text-xs hover:bg-red-600"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
 
         {/* Recognition */}
         <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">

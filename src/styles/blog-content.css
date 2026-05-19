@@ -22,11 +22,20 @@
 
 /* Responsive Tables */
 .blog-content table {
-  @apply w-full border-collapse border border-gray-300 text-sm;
-  display: block;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  @apply border-collapse border border-gray-300 text-sm;
+  width: max-content;
+  min-width: 640px;
+  max-width: none;
   table-layout: auto;
+}
+
+.blog-content .overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+.blog-content .overflow-x-auto > table {
+  width: max-content;
+  min-width: 640px;
 }
 
 .blog-content th,
@@ -216,6 +225,7 @@
 
   .blog-content table {
     font-size: 0.75rem;
+    min-width: 560px;
   }
 
   .blog-content th,

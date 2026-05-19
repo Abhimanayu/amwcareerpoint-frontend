@@ -6,13 +6,13 @@ import { Carousel } from '@/components/ui/Carousel';
 
 const counsellors = [
   {
-    name: 'Dr. Yashpal',
+    name: 'Dr. Yashpal Singh',
     role: 'Senior Counselor - Study Abroad Guidance',
     rating: '5.0',
-    students: '18,500+',
-    statLabel: 'Students Guided',
+    students: '14+',
+    statLabel: 'Years of Experience',
     image: '/experts/dr-yashpal.png',
-    bio: 'Dr. Yashpal is a highly experienced medical education advisor specializing in MBBS abroad counseling. Being an FMG himself and an Indian registered doctor, he brings firsthand experience and deep insight into international medical education. With years of expertise, he helps students choose the right university based on their budget, academic profile, and future career goals.',
+    bio: 'Dr. Yashpal Singh is a highly experienced medical education advisor specializing in MBBS abroad counseling. Being an FMG himself and an Indian registered doctor, he brings firsthand experience and deep insight into international medical education. With years of expertise, he helps students choose the right university based on their budget, academic profile, and future career goals.',
     tags: ['MBBS Abroad Counseling', 'University Selection', 'Career Guidance', 'Admission Assistance'],
   },
   {
@@ -87,7 +87,7 @@ export function ExpertCounsellorsSection() {
           <h2 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0D1B3E]">Meet Our Medical Education Experts</h2>
           <p className="mt-2 text-[15px] font-semibold text-[#0D1B3E]">Trusted Guidance for Your Medical Career Journey</p>
           <p className="mt-3 text-[15px] text-[#4A4742] max-w-3xl mx-auto">
-            Personalized guidance from experienced professionals who have helped 18,500+ students achieve their dream of pursuing MBBS in India and abroad through AMW Career Point.
+            Personalized guidance from experienced professionals with 14+ years of experience helping students pursue MBBS in India and abroad through AMW Career Point.
           </p>
         </div>
 

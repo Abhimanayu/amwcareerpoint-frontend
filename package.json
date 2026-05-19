@@ -7,7 +7,9 @@
     "prebuild": "node scripts/check-seo-env.mjs",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:college-predictor": "bash ./test_college_predictor.sh",
+    "cleanup": "bash ./scripts/cleanup-temp.sh"
   },
   "dependencies": {
     "@tiptap/extension-bubble-menu": "^3.22.3",

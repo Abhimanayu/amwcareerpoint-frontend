@@ -12,11 +12,11 @@ import { getCountrySlugFromObject } from '@/lib/slugUtils';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 const fallbackCountries = [
-  { name: 'Russia', slug: 'mbbs-in-russia', code: 'ru', unis: '50+', fees: '₹2.5L – 6L', dur: '6 Yrs', highlights: ['No IELTS', 'WHO Approved', 'Low Cost'] },
+  { name: 'Russia', slug: 'russia', code: 'ru', unis: '50+', fees: '₹2.5L – 6L', dur: '6 Yrs', highlights: ['No IELTS', 'WHO Approved', 'Low Cost'] },
   { name: 'Ukraine', slug: 'ukraine', code: 'ua', unis: '30+', fees: '₹3L – 5L', dur: '6 Yrs', highlights: ['English Medium', 'EU Recognition', 'Quality Edu'] },
   { name: 'Kazakhstan', slug: 'kazakhstan', code: 'kz', unis: '25+', fees: '₹3.5L – 7L', dur: '6 Yrs', highlights: ['Advanced Infra', 'Safe', 'Cultural Similarity'] },
   { name: 'Georgia', slug: 'georgia', code: 'ge', unis: '15+', fees: '₹4L – 8L', dur: '6 Yrs', highlights: ['European Std', 'Modern', 'English Teaching'] },
-  { name: 'Kyrgyzstan', slug: 'mbbs-in-kyrgyzstan', code: 'kg', unis: '20+', fees: '₹2L – 4L', dur: '6 Yrs', highlights: ['Most Affordable', 'Indian Food', 'Easy Admission'] },
+  { name: 'Kyrgyzstan', slug: 'kyrgyzstan', code: 'kg', unis: '20+', fees: '₹2L – 4L', dur: '6 Yrs', highlights: ['Most Affordable', 'Indian Food', 'Easy Admission'] },
   { name: 'Philippines', slug: 'philippines', code: 'ph', unis: '18+', fees: '₹3L – 6L', dur: '4 Yrs', highlights: ['English Speaking', 'US Curriculum', 'USMLE Prep'] },
 ];
 
@@ -57,48 +57,71 @@ function readCountryTotal(payload: unknown, fallbackCount: number) {
 }
 
 export function CountriesSection({ items }: CountriesSectionProps) {
-  const hasCuratedItems = (items?.length ?? 0) > 0;
-  const [fetchedCountries, setFetchedCountries] = useState<any[]>(fallbackCountries);
-  const [usingFetchedFallback, setUsingFetchedFallback] = useState(true);
-  const [fetchedTotalCountries, setFetchedTotalCountries] = useState(fallbackCountries.length);
+  const curatedCount = items?.length ?? 0;
+  const curatedCountries = items ?? [];
+  const [fetchedCountries, setFetchedCountries] = useState<any[]>([]);
+  const [usingFetchedFallback, setUsingFetchedFallback] = useState(false);
+  const [fetchedTotalCountries, setFetchedTotalCountries] = useState(Math.max(fallbackCountries.length, curatedCount));
+
+  const dedupeCountries = (entries: any[]) => {
+    const seen = new Set<string>();
+
+    return entries.filter((country) => {
+      if (!country || typeof country !== 'object') return false;
+
+      const idKey = typeof country._id === 'string' && country._id.trim() ? `id:${country._id}` : '';
+      const slugKey = typeof country.slug === 'string' && country.slug.trim() ? `slug:${country.slug.toLowerCase()}` : '';
+      const nameKey = typeof country.name === 'string' && country.name.trim() ? `name:${country.name.toLowerCase()}` : '';
+
+      const keys = [idKey, slugKey, nameKey].filter(Boolean);
+      if (keys.length === 0) return false;
+
+      const isDuplicate = keys.some((key) => seen.has(key));
+      if (isDuplicate) return false;
+
+      keys.forEach((key) => seen.add(key));
+      return true;
+    });
+  };
 
   useEffect(() => {
-    if (hasCuratedItems) {
-      return;
-    }
-
-    getCountries({ limit: 8 })
+    // Fetch a larger list for count so we can still derive a reliable total when API omits pagination totals.
+    getCountries({ limit: 500 })
       .then((res) => {
-        const items = extractCollectionData<any>(res, ['countries']);
-        if (items.length > 0) {
-          setFetchedCountries(items);
-          setUsingFetchedFallback(false);
-          setFetchedTotalCountries(readCountryTotal(res, items.length));
-        } else {
-          setFetchedCountries(fallbackCountries);
-          setUsingFetchedFallback(true);
-          setFetchedTotalCountries(fallbackCountries.length);
-        }
+        const apiCountries = extractCollectionData<any>(res, ['countries']);
+        setFetchedCountries(apiCountries);
+        setUsingFetchedFallback(false);
+        const total = readCountryTotal(res, apiCountries.length);
+        setFetchedTotalCountries(Math.max(total, curatedCount, apiCountries.length, fallbackCountries.length));
       })
       .catch(() => {
-        setFetchedCountries(fallbackCountries);
+        setFetchedCountries([]);
         setUsingFetchedFallback(true);
-        setFetchedTotalCountries(fallbackCountries.length);
+        setFetchedTotalCountries(Math.max(fallbackCountries.length, curatedCount));
       });
-  }, [hasCuratedItems]);
 
-  const countries = hasCuratedItems ? (items ?? []) : fetchedCountries;
-  const usingFallback = hasCuratedItems ? false : usingFetchedFallback;
-  const totalCountries = hasCuratedItems ? (items?.length ?? 0) : fetchedTotalCountries;
+  }, [curatedCount]);
+
+  const mergedCountries = dedupeCountries([...curatedCountries, ...fetchedCountries]);
+  const countries = mergedCountries.length > 0
+    ? mergedCountries
+    : curatedCountries.length > 0
+      ? curatedCountries
+      : usingFetchedFallback
+        ? fallbackCountries
+        : fallbackCountries;
+  const usingFallback = countries === fallbackCountries;
+  const totalCountries = Math.max(fetchedTotalCountries, countries.length);
   const countLabel = totalCountries;
+  const countNoun = countLabel === 1 ? 'Country' : 'Countries';
 
   return (
     <section className="bg-white py-10 sm:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8 sm:mb-10">
-          <span className="inline-block text-xs font-semibold text-orange uppercase tracking-wider mb-2">{countLabel}+ Countries Available</span>
+          <span className="inline-block text-xs font-semibold text-orange uppercase tracking-wider mb-2">{countLabel} {countNoun} Available</span>
           <h2 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-navy">Study MBBS in Top Countries</h2>
-          <p className="mt-3 text-[15px] text-text-body max-w-2xl mx-auto">World-class medical education at affordable costs across {countLabel}+ countries.</p>
+          <p className="mt-3 text-[15px] text-text-body max-w-2xl mx-auto">World-class medical education at affordable costs across {countLabel} {countNoun.toLowerCase()}.</p>
         </div>
 
         <div className="px-1 sm:px-5">
@@ -244,7 +267,7 @@ export function CountriesSection({ items }: CountriesSectionProps) {
                   </ul>
                   )}
                   <div className="mt-auto">
-                    <Link href={`/countries/${c.slug}`} className="block w-full min-h-11 text-center py-3 rounded-full bg-orange text-white text-sm sm:text-[13px] font-bold hover:bg-orange-hover transition-colors">
+                    <Link href={`/countries/${getCountrySlugFromObject(c)}`} className="block w-full min-h-11 text-center py-3 rounded-full bg-orange text-white text-sm sm:text-[13px] font-bold hover:bg-orange-hover transition-colors">
                       View Universities
                     </Link>
                   </div>

@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { api, adminApi } from "./api";
+import { getCountrySlugCandidates } from "./slugUtils";
 
 type CountriesParams = Record<string, unknown>;
 
@@ -104,7 +105,7 @@ function sliceCountriesPayload(payload: unknown, limit: number) {
 
 // ─── FRONTEND ─────────────────────────────────────────────────
 export const getCountries = async (params = {}) => {
-  const queryParams = params as CountriesParams;
+  const queryParams: CountriesParams = params;
   const requestedLimit = getLimitValue(queryParams);
   const canUseClientSharedCache = isBrowser() && hasOnlyLimitParam(queryParams) && requestedLimit !== null;
   const networkLimit = canUseClientSharedCache
@@ -161,15 +162,24 @@ export const getCountries = async (params = {}) => {
   }
 };
 
-export const getCountryBySlug = cache(async (slug: string) => {
-  const res = await api.get(`/countries/${slug}`);
-  return res.data;
-});
+async function fetchCountryBySlugCandidates(slug: string) {
+  let lastError: unknown;
 
-export const getCountryBySlugFresh = async (slug: string) => {
-  const res = await api.get(`/countries/${slug}`);
-  return res.data;
-};
+  for (const candidate of getCountrySlugCandidates(slug)) {
+    try {
+      const res = await api.get(`/countries/${candidate}`);
+      return res.data;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError;
+}
+
+export const getCountryBySlug = cache(async (slug: string) => fetchCountryBySlugCandidates(slug));
+
+export const getCountryBySlugFresh = async (slug: string) => fetchCountryBySlugCandidates(slug);
 
 // ─── ADMIN PANEL ──────────────────────────────────────────────
 export const adminGetCountries = async (params = {}) => {

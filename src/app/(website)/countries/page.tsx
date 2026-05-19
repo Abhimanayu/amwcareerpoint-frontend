@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getCountries } from '@/lib/countries';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SafeImage } from '@/components/ui/SafeImage';
+import { getCountrySlugFromObject } from '@/lib/slugUtils';
 import { clampList, clampText, extractCollectionData, stripHtml } from '@/lib/utils';
 import { SEO_HOLD } from '@/lib/seoHold';
 
@@ -105,7 +106,7 @@ export default async function CountriesPage() {
                 return (
                   <Link
                     key={country._id}
-                    href={`/countries/${country.slug}`}
+                    href={`/countries/${getCountrySlugFromObject(country)}`}
                     className="group rounded-xl border border-[#DDD9D2] bg-white overflow-hidden hover:shadow-md transition-shadow flex flex-col h-full"
                   >
                     {/* Header with flag */}

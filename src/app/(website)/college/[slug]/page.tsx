@@ -41,7 +41,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const ogImage = resolveMediaUrl(pickUniversityImageSource(university));
     const canonical = resolveCanonicalUrl(university.seo?.canonicalUrl, `${siteUrl}/college/${slug}`);
     return {
-      title,
+      title: {
+        absolute: title,
+      },
       description,
       alternates: { canonical },
       openGraph: { title, description, type: 'article', url: canonical, images: ogImage ? [{ url: ogImage }] : undefined },
@@ -108,7 +110,7 @@ export default async function CollegeDetailPage({ params }: Readonly<Props>) {
       ? getCountryBySlug(university.country.slug).then((r) => r.data || r).catch(() => null)
       : null,
     university.country?._id
-      ? getUniversities({ country: university.country._id, limit: 6 })
+      ? getUniversities({ country: university.country._id, limit: 6, sort: 'sortOrder' })
           .then((r) => {
             const all = extractCollectionData<any>(r, ['universities']);
             return all.filter((u: any) => u._id !== university._id).slice(0, 3);

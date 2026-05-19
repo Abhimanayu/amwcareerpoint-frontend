@@ -2,22 +2,17 @@
  * Utility functions for handling country slugs
  */
 
-const countrySlugMap: Record<string, string> = {
-  'Russia': 'mbbs-in-russia',
-  'Uzbekistan': 'mbbs-in-uzbekistan',
-  'Kyrgyzstan': 'mbbs-in-kyrgyzstan',
+const COUNTRY_SLUG_FALLBACKS: Record<string, string> = {
+  russia: 'mbbs-in-russia',
+  uzbekistan: 'mbbs-in-uzbekistan',
+  kazakhstan: 'mbbs-in-kazakhstan',
+  kyrgyzstan: 'mbbs-in-kyrgyzstan',
+  georgia: 'mbbs-in-georgia',
 };
 
-/**
- * Get the URL-friendly slug for a country
- * Prefers explicit mapping, falls back to lowercase conversion
- */
-export const getCountrySlug = (countryName?: string): string => {
-  if (!countryName) return '';
-  const mapped = countrySlugMap[countryName];
-  if (mapped) return mapped;
-  // Generate slug: convert to lowercase, replace non-alphanumeric with hyphens then collapse/trim
-  return countryName
+const normalizeSlugToken = (value?: string) => {
+  if (!value) return '';
+  return value
     .toLowerCase()
     .replaceAll(/[^a-z0-9]/g, '-')
     .replaceAll(/-+/g, '-')
@@ -26,10 +21,48 @@ export const getCountrySlug = (countryName?: string): string => {
 };
 
 /**
+ * Get the URL-friendly slug for a country
+ * Converts country names to the slug format used by country detail pages.
+ */
+export const getCountrySlug = (countryName?: string): string => {
+  const normalized = normalizeSlugToken(countryName);
+  if (!normalized) return '';
+
+  if (COUNTRY_SLUG_FALLBACKS[normalized]) {
+    return COUNTRY_SLUG_FALLBACKS[normalized];
+  }
+
+  return `mbbs-in-${normalized}`;
+};
+
+/**
  * Get slug from country object (API response or fallback data)
  * Prioritizes the slug field if available
  */
 export const getCountrySlugFromObject = (country: { slug?: string; name?: string } | null | undefined): string => {
-  if (country?.slug) return country.slug;
+  if (country?.slug) {
+    const normalizedSlug = normalizeSlugToken(country.slug);
+    if (normalizedSlug.startsWith('mbbs-in-')) return normalizedSlug;
+    if (COUNTRY_SLUG_FALLBACKS[normalizedSlug]) return COUNTRY_SLUG_FALLBACKS[normalizedSlug];
+    return normalizedSlug;
+  }
+
   return getCountrySlug(country?.name);
+};
+
+export const stripMbbsSlugPrefix = (slug?: string): string => {
+  const normalized = getCountrySlug(slug);
+  if (!normalized) return '';
+
+  return normalized.startsWith('mbbs-in-') ? normalized.slice('mbbs-in-'.length) : normalized;
+};
+
+export const getCountrySlugCandidates = (slug?: string): string[] => {
+  const normalized = getCountrySlug(slug);
+  const baseSlug = stripMbbsSlugPrefix(normalized);
+  const candidates = [normalized, baseSlug && `mbbs-in-${baseSlug}`, baseSlug].filter(
+    (value): value is string => Boolean(value)
+  );
+
+  return Array.from(new Set(candidates));
 };

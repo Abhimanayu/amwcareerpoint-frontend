@@ -20,7 +20,7 @@ export function HeroSection({ settings }: { settings?: HomeHeroSettings }) {
 
               <h1
                 aria-label={`${hero.heading} ${hero.highlightedText} ${hero.trailingText}`}
-                className="font-heading text-[1.75rem] sm:text-[2.1rem] lg:text-[2.65rem] font-bold leading-[1.15] sm:leading-[1.12] text-[#0D1B3E] mb-3 sm:mb-4"
+                className="font-heading text-[clamp(1.6rem,8.2vw,1.95rem)] sm:text-[2.1rem] lg:text-[2.65rem] font-bold leading-[1.2] sm:leading-[1.12] text-[#0D1B3E] mb-3 sm:mb-4 wrap-anywhere"
               >
                 {hero.heading}{' '}
                 <span className="block text-[#F26419]">{hero.highlightedText}</span>

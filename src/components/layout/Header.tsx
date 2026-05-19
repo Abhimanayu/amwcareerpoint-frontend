@@ -22,7 +22,7 @@ const mbbsDestinationDropdownItems: DropdownItem[] = getMbbsDestinationLinks().m
 
 const staticMenuItems: MenuItem[] = [
   { href: '/', label: 'Home' },
-  { href: '/countries/india', label: 'MBBS India' },
+  { href: '/college?country=India', label: 'MBBS India' },
   {
     href: '/countries',
     label: 'MBBS Abroad',

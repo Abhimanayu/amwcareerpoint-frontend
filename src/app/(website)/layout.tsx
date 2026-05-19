@@ -1,4 +1,5 @@
 import { Header, Footer } from "@/components/layout";
+import { WhatsAppFloater } from '@/components/layout/WhatsAppFloater';
 import { AnnouncementBar } from "@/components/home";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { SEO_HOLD } from '@/lib/seoHold';
@@ -16,7 +17,7 @@ const jsonLd = {
     streetAddress: 'D 100 A, Supreme Complex, Meera Marg, Bani Park',
     addressLocality: 'Jaipur',
     addressRegion: 'Rajasthan',
-    postalCode: '302006',
+    postalCode: '302016',
     addressCountry: 'IN',
   },
   aggregateRating: {
@@ -46,6 +47,7 @@ export default function WebsiteLayout({
         <ErrorBoundary>{children}</ErrorBoundary>
       </main>
       <Footer />
+      <WhatsAppFloater />
     </>
   );
 }

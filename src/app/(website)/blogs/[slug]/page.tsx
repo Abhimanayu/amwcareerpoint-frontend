@@ -38,7 +38,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const ogImage = resolveMediaUrl(pickBlogImageSource(post));
     const canonical = resolveCanonicalUrl(post.seo?.canonicalUrl, `${siteUrl}/blogs/${slug}`);
     return {
-      title,
+      title: {
+        absolute: title,
+      },
       description,
       alternates: { canonical },
       openGraph: { title, description, type: 'article', url: canonical, images: ogImage ? [{ url: ogImage }] : undefined },

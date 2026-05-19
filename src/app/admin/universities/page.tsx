@@ -21,7 +21,7 @@ export default function AdminUniversitiesPage() {
   const fetchData = useCallback(async (page = 1) => {
     setLoading(true);
     try {
-      const res = await adminGetUniversities({ page, limit: 10 });
+      const res = await adminGetUniversities({ page, limit: 10, sort: 'sortOrder' });
       const items = Array.isArray(res.data) ? res.data : res.data?.universities || res.universities || [];
       setUniversities(items);
       const total = res.total ?? res.data?.total ?? res.pagination?.total ?? items.length;
@@ -39,7 +39,7 @@ export default function AdminUniversitiesPage() {
     (async () => {
       setLoading(true);
       try {
-        const res = await adminGetUniversities({ page: 1, limit: 10 });
+        const res = await adminGetUniversities({ page: 1, limit: 10, sort: 'sortOrder' });
         if (!active) return;
         const items = Array.isArray(res.data) ? res.data : res.data?.universities || res.universities || [];
         setUniversities(items);

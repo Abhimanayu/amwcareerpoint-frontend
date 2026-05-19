@@ -72,7 +72,7 @@ export function CollegeHero({
               </span>
             )}
 
-            <h1 className="line-clamp-4 break-words font-heading text-[clamp(2.25rem,12vw,3.5rem)] font-bold leading-[1.05] text-white sm:text-[2.75rem] md:text-[3.25rem] lg:text-[3.75rem]">
+            <h1 className="line-clamp-none sm:line-clamp-4 wrap-anywhere font-heading text-[clamp(1.7rem,8.4vw,2.35rem)] font-bold leading-[1.12] text-white sm:text-[2.75rem] md:text-[3.25rem] lg:text-[3.75rem]">
               {name || 'University'}
             </h1>
 
@@ -83,13 +83,13 @@ export function CollegeHero({
             <div className="mt-8 grid w-full grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:mt-10 lg:flex lg:flex-wrap">
               {annualFees && (
                 <div className="min-w-0 w-full min-[420px]:w-auto rounded-xl border border-white/15 bg-white/10 px-4 py-3.5 text-center backdrop-blur-sm lg:min-w-[100px] lg:px-5 lg:w-auto">
-                  <div className="whitespace-normal break-words line-clamp-2 text-base font-bold leading-tight text-[#F26419] sm:text-xl">{annualFees}</div>
+                  <div className="whitespace-normal wrap-anywhere text-base font-bold leading-snug text-[#F26419] sm:text-xl">{annualFees}</div>
                   <div className="mt-1 text-[11px] text-white/50">Annual Fees</div>
                 </div>
               )}
               {courseDuration && (
                 <div className="min-w-0 w-full min-[420px]:w-auto rounded-xl border border-white/15 bg-white/10 px-4 py-3.5 text-center backdrop-blur-sm lg:min-w-[100px] lg:px-5 lg:w-auto">
-                  <div className="whitespace-normal break-words line-clamp-2 text-base font-bold leading-tight text-white sm:text-xl">{courseDuration}</div>
+                  <div className="whitespace-normal wrap-anywhere text-base font-bold leading-snug text-white sm:text-xl">{courseDuration}</div>
                   <div className="mt-1 text-[11px] text-white/50">Duration</div>
                 </div>
               )}
@@ -99,7 +99,7 @@ export function CollegeHero({
               </div>
               {hostelFees && (
                 <div className="min-w-0 w-full min-[420px]:w-auto rounded-xl border border-white/15 bg-white/10 px-4 py-3.5 text-center backdrop-blur-sm lg:min-w-[100px] lg:px-5 lg:w-auto">
-                  <div className="whitespace-normal break-words line-clamp-2 text-base font-bold leading-tight text-white sm:text-xl">{hostelFees}</div>
+                  <div className="whitespace-normal wrap-anywhere text-base font-bold leading-snug text-white sm:text-xl">{hostelFees}</div>
                   <div className="mt-1 text-[11px] text-white/50">Hostel / yr</div>
                 </div>
               )}
