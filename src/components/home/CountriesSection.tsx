@@ -64,8 +64,8 @@ export function CountriesSection({ items }: CountriesSectionProps) {
   const [fetchedTotalCountries, setFetchedTotalCountries] = useState(Math.max(fallbackCountries.length, curatedCount));
 
   useEffect(() => {
-    // Fetch total independently so the UI count stays accurate even when homepage uses curated items.
-    getCountries({ limit: 1 })
+    // Fetch a larger list for count so we can still derive a reliable total when API omits pagination totals.
+    getCountries({ limit: 500 })
       .then((res) => {
         const apiCountries = extractCollectionData<any>(res, ['countries']);
         const total = readCountryTotal(res, apiCountries.length);
