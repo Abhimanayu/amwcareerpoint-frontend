@@ -20,6 +20,27 @@ const fallbackCountries = [
   { name: 'Philippines', slug: 'philippines', code: 'ph', unis: '18+', fees: '₹3L – 6L', dur: '4 Yrs', highlights: ['English Speaking', 'US Curriculum', 'USMLE Prep'] },
 ];
 
+const COUNTRY_HERO_FALLBACKS = [
+  '/universities/moscow.jpg',
+  '/universities/tashkent.jpg',
+  '/universities/astana.jpg',
+  '/universities/kyrgyz.jpg',
+  '/universities/china.jpg',
+  '/universities/aiims.jpg',
+] as const;
+
+function getStableCountryFallbackImage(country: { slug?: string; name?: string }) {
+  const seed = `${country.slug || ''}|${country.name || ''}`.trim();
+  if (!seed) return COUNTRY_HERO_FALLBACKS[0];
+
+  let hash = 0;
+  for (let index = 0; index < seed.length; index += 1) {
+    hash = (hash * 31 + seed.charCodeAt(index)) >>> 0;
+  }
+
+  return COUNTRY_HERO_FALLBACKS[hash % COUNTRY_HERO_FALLBACKS.length];
+}
+
 type CountriesSectionProps = {
   readonly items?: readonly HomeCuratedCountry[];
 };
@@ -125,7 +146,7 @@ export function CountriesSection({ items }: CountriesSectionProps) {
         </div>
 
         <div className="px-1 sm:px-5">
-          <Carousel slideClass="basis-full px-1 sm:basis-1/2 sm:pl-5 sm:pr-0 lg:basis-1/3">
+          <Carousel slideClass="basis-full px-1 sm:basis-1/2 sm:pl-5 sm:pr-0 lg:basis-1/3" maxDots={10}>
             {usingFallback ? countries.map((c: any) => (
               <div key={`${c.code}-${c.name}`} className="rounded-xl border border-border bg-white overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
                 <div className="bg-navy px-4 py-3 text-white">
@@ -173,7 +194,7 @@ export function CountriesSection({ items }: CountriesSectionProps) {
                 </div>
               </div>
             )) : countries.map((c: any) => {
-              const imageSource = c.heroImage || c.cardImage;
+              const imageSource = c.heroImage || c.cardImage || getStableCountryFallbackImage(c);
               const feeRange = c.feeRange || c.fees || c.annualFeeRange;
               const duration = c.duration || c.dur;
               const highlights = Array.isArray(c.highlights) ? c.highlights : [];

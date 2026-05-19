@@ -9,9 +9,11 @@ interface CarouselProps {
   slideClass?: string;
   /** Show pagination dots */
   dots?: boolean;
+  /** Maximum visible dot buttons. Use a smaller number for large carousels. */
+  maxDots?: number;
 }
 
-export function Carousel({ children, slideClass = '', dots = true }: CarouselProps) {
+export function Carousel({ children, slideClass = '', dots = true, maxDots }: CarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
     slidesToScroll: 1,
@@ -40,6 +42,22 @@ export function Carousel({ children, slideClass = '', dots = true }: CarouselPro
   }, [emblaApi, onSelect]);
 
   const hasMultipleSlides = children.length > 1;
+
+  const totalSlides = children.length;
+  const effectiveMaxDots = typeof maxDots === 'number' && Number.isFinite(maxDots) && maxDots > 0
+    ? Math.floor(maxDots)
+    : totalSlides;
+
+  const shouldCompactDots = totalSlides > effectiveMaxDots;
+  const halfWindow = Math.floor(effectiveMaxDots / 2);
+  const compactStart = shouldCompactDots
+    ? Math.min(Math.max(selectedIndex - halfWindow, 0), totalSlides - effectiveMaxDots)
+    : 0;
+  const compactEnd = shouldCompactDots ? compactStart + effectiveMaxDots : totalSlides;
+  const visibleDotIndices = Array.from(
+    { length: Math.max(compactEnd - compactStart, 0) },
+    (_, offset) => compactStart + offset
+  );
 
   return (
     <div className="relative">
@@ -82,22 +100,28 @@ export function Carousel({ children, slideClass = '', dots = true }: CarouselPro
 
       {/* Dots */}
       {dots && children.length > 1 && (
-        <div className="mt-5 flex flex-wrap justify-center gap-x-1 gap-y-1 px-1">
-          {children.map((_, i) => (
+        <div className="mt-5 flex items-center justify-center gap-1 px-1 sm:gap-1.5">
+          {shouldCompactDots && (
+            <span aria-hidden="true" className="px-1 text-xs text-[#B5B0A8] sm:text-sm">...</span>
+          )}
+          {visibleDotIndices.map((i) => (
             <button
               key={i}
               type="button"
               onClick={() => scrollTo(i)}
               aria-label={`Go to slide group ${i + 1}`}
-              className="inline-flex h-7 w-7 shrink-0 items-center justify-center sm:h-11 sm:w-11"
+              className="inline-flex h-7 w-7 shrink-0 items-center justify-center sm:h-9 sm:w-9"
               >
                 <span
-                  className={`h-3 w-3 rounded-full transition-colors sm:h-4 sm:w-4 ${
+                  className={`h-2.5 w-2.5 rounded-full transition-colors sm:h-3 sm:w-3 ${
                     i === selectedIndex ? 'bg-[#F26419]' : 'bg-[#DDD9D2]'
                   }`}
                 />
               </button>
           ))}
+          {shouldCompactDots && (
+            <span aria-hidden="true" className="px-1 text-xs text-[#B5B0A8] sm:text-sm">...</span>
+          )}
         </div>
       )}
     </div>
