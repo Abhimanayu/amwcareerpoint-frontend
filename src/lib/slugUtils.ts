@@ -2,20 +2,13 @@
  * Utility functions for handling country slugs
  */
 
-const countrySlugMap: Record<string, string> = {
-  'Russia': 'mbbs-in-russia',
-  'Uzbekistan': 'mbbs-in-uzbekistan',
-  'Kyrgyzstan': 'mbbs-in-kyrgyzstan',
-};
-
 /**
  * Get the URL-friendly slug for a country
- * Prefers explicit mapping, falls back to lowercase conversion
+ * Converts country names to the slug format used by country detail pages.
  */
 export const getCountrySlug = (countryName?: string): string => {
   if (!countryName) return '';
-  const mapped = countrySlugMap[countryName];
-  if (mapped) return mapped;
+
   // Generate slug: convert to lowercase, replace non-alphanumeric with hyphens then collapse/trim
   return countryName
     .toLowerCase()

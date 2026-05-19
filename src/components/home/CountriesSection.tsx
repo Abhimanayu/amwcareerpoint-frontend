@@ -12,11 +12,11 @@ import { getCountrySlugFromObject } from '@/lib/slugUtils';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 const fallbackCountries = [
-  { name: 'Russia', slug: 'mbbs-in-russia', code: 'ru', unis: '50+', fees: '₹2.5L – 6L', dur: '6 Yrs', highlights: ['No IELTS', 'WHO Approved', 'Low Cost'] },
+  { name: 'Russia', slug: 'russia', code: 'ru', unis: '50+', fees: '₹2.5L – 6L', dur: '6 Yrs', highlights: ['No IELTS', 'WHO Approved', 'Low Cost'] },
   { name: 'Ukraine', slug: 'ukraine', code: 'ua', unis: '30+', fees: '₹3L – 5L', dur: '6 Yrs', highlights: ['English Medium', 'EU Recognition', 'Quality Edu'] },
   { name: 'Kazakhstan', slug: 'kazakhstan', code: 'kz', unis: '25+', fees: '₹3.5L – 7L', dur: '6 Yrs', highlights: ['Advanced Infra', 'Safe', 'Cultural Similarity'] },
   { name: 'Georgia', slug: 'georgia', code: 'ge', unis: '15+', fees: '₹4L – 8L', dur: '6 Yrs', highlights: ['European Std', 'Modern', 'English Teaching'] },
-  { name: 'Kyrgyzstan', slug: 'mbbs-in-kyrgyzstan', code: 'kg', unis: '20+', fees: '₹2L – 4L', dur: '6 Yrs', highlights: ['Most Affordable', 'Indian Food', 'Easy Admission'] },
+  { name: 'Kyrgyzstan', slug: 'kyrgyzstan', code: 'kg', unis: '20+', fees: '₹2L – 4L', dur: '6 Yrs', highlights: ['Most Affordable', 'Indian Food', 'Easy Admission'] },
   { name: 'Philippines', slug: 'philippines', code: 'ph', unis: '18+', fees: '₹3L – 6L', dur: '4 Yrs', highlights: ['English Speaking', 'US Curriculum', 'USMLE Prep'] },
 ];
 
@@ -57,23 +57,27 @@ function readCountryTotal(payload: unknown, fallbackCount: number) {
 }
 
 export function CountriesSection({ items }: CountriesSectionProps) {
-  const hasCuratedItems = (items?.length ?? 0) > 0;
+  const curatedCount = items?.length ?? 0;
+  const hasCuratedItems = curatedCount > 0;
   const [fetchedCountries, setFetchedCountries] = useState<any[]>(fallbackCountries);
   const [usingFetchedFallback, setUsingFetchedFallback] = useState(true);
-  const [fetchedTotalCountries, setFetchedTotalCountries] = useState(fallbackCountries.length);
+  const [fetchedTotalCountries, setFetchedTotalCountries] = useState(Math.max(fallbackCountries.length, curatedCount));
 
   useEffect(() => {
-    if (hasCuratedItems) {
-      return;
-    }
-
-    getCountries({ limit: 8 })
+    getCountries({ limit: hasCuratedItems ? 50 : 8 })
       .then((res) => {
-        const items = extractCollectionData<any>(res, ['countries']);
-        if (items.length > 0) {
-          setFetchedCountries(items);
+        const apiCountries = extractCollectionData<any>(res, ['countries']);
+        const total = readCountryTotal(res, apiCountries.length);
+
+        if (hasCuratedItems) {
+          setFetchedTotalCountries(Math.max(total, apiCountries.length, curatedCount));
+          return;
+        }
+
+        if (apiCountries.length > 0) {
+          setFetchedCountries(apiCountries);
           setUsingFetchedFallback(false);
-          setFetchedTotalCountries(readCountryTotal(res, items.length));
+          setFetchedTotalCountries(total);
         } else {
           setFetchedCountries(fallbackCountries);
           setUsingFetchedFallback(true);
@@ -83,13 +87,13 @@ export function CountriesSection({ items }: CountriesSectionProps) {
       .catch(() => {
         setFetchedCountries(fallbackCountries);
         setUsingFetchedFallback(true);
-        setFetchedTotalCountries(fallbackCountries.length);
+        setFetchedTotalCountries(Math.max(fallbackCountries.length, curatedCount));
       });
-  }, [hasCuratedItems]);
+  }, [curatedCount, hasCuratedItems]);
 
   const countries = hasCuratedItems ? (items ?? []) : fetchedCountries;
   const usingFallback = hasCuratedItems ? false : usingFetchedFallback;
-  const totalCountries = hasCuratedItems ? (items?.length ?? 0) : fetchedTotalCountries;
+  const totalCountries = fetchedTotalCountries;
   const countLabel = totalCountries;
 
   return (

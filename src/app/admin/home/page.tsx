@@ -130,6 +130,7 @@ function CuratedItemsEditor<T extends { _id: string }>({
 }: CuratedItemsEditorProps<T>) {
   const selectedIds = new Set(selectedItems.map((item) => item._id));
   const availableResults = searchResults.filter((item) => !selectedIds.has(item._id));
+  const isLimitReached = selectedItems.length >= limit;
 
   return (
     <details open className="rounded-xl border border-gray-200 bg-gray-50/70">
@@ -145,18 +146,22 @@ function CuratedItemsEditor<T extends { _id: string }>({
           <input
             value={searchQuery}
             onChange={(event) => onSearchQueryChange(event.target.value)}
-            placeholder={placeholder}
-            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange/30"
+            placeholder={isLimitReached ? 'Limit reached. Remove an item to add another.' : placeholder}
+            disabled={isLimitReached}
+            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange/30 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
           />
           <div className="mt-2 min-h-10 rounded-xl border border-dashed border-gray-200 bg-white/80 p-2">
-            {searchLoading && <p className="text-xs text-gray-500">Searching...</p>}
-            {!searchLoading && !searchQuery.trim() && (
+            {isLimitReached && (
+              <p className="text-xs font-medium text-amber-700">Limit reached. Remove an item to add another.</p>
+            )}
+            {!isLimitReached && searchLoading && <p className="text-xs text-gray-500">Searching...</p>}
+            {!isLimitReached && !searchLoading && !searchQuery.trim() && (
               <p className="text-xs text-gray-500">Type at least one keyword to search.</p>
             )}
-            {!searchLoading && searchQuery.trim() && availableResults.length === 0 && (
+            {!isLimitReached && !searchLoading && searchQuery.trim() && availableResults.length === 0 && (
               <p className="text-xs text-gray-500">No matching items found.</p>
             )}
-            {!searchLoading && availableResults.length > 0 && (
+            {!isLimitReached && !searchLoading && availableResults.length > 0 && (
               <div className="space-y-2">
                 {availableResults.map((item) => {
                   const thumbnail = getItemThumbnail(item);
@@ -183,7 +188,7 @@ function CuratedItemsEditor<T extends { _id: string }>({
                       <button
                         type="button"
                         onClick={() => onAdd(item)}
-                        disabled={selectedItems.length >= limit}
+                        disabled={isLimitReached}
                         className="rounded-lg bg-orange px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-orange-hover disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         Add
