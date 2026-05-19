@@ -28,6 +28,10 @@ export const getCountrySlug = (countryName?: string): string => {
   const normalized = normalizeSlugToken(countryName);
   if (!normalized) return '';
 
+  if (normalized.startsWith('mbbs-in-')) {
+    return normalized;
+  }
+
   if (COUNTRY_SLUG_FALLBACKS[normalized]) {
     return COUNTRY_SLUG_FALLBACKS[normalized];
   }
@@ -51,16 +55,23 @@ export const getCountrySlugFromObject = (country: { slug?: string; name?: string
 };
 
 export const stripMbbsSlugPrefix = (slug?: string): string => {
-  const normalized = getCountrySlug(slug);
+  const normalized = normalizeSlugToken(slug);
   if (!normalized) return '';
 
   return normalized.startsWith('mbbs-in-') ? normalized.slice('mbbs-in-'.length) : normalized;
 };
 
 export const getCountrySlugCandidates = (slug?: string): string[] => {
-  const normalized = getCountrySlug(slug);
+  const normalized = normalizeSlugToken(slug);
+  if (!normalized) return [];
+
+  const direct = normalized;
+  const prefixed = normalized.startsWith('mbbs-in-') ? normalized : `mbbs-in-${normalized}`;
   const baseSlug = stripMbbsSlugPrefix(normalized);
-  const candidates = [normalized, baseSlug && `mbbs-in-${baseSlug}`, baseSlug].filter(
+  const canonical = COUNTRY_SLUG_FALLBACKS[baseSlug] ?? prefixed;
+  const canonicalBase = stripMbbsSlugPrefix(canonical);
+
+  const candidates = [direct, canonical, prefixed, baseSlug, canonicalBase].filter(
     (value): value is string => Boolean(value)
   );
 

@@ -26,6 +26,7 @@ export const metadata: Metadata = {
 
 export const revalidate = 60;
 const LATEST_PAGE_SIZE = 8;
+const BLOG_FETCH_LIMITS = [120, 60, 24] as const;
 
 type BlogPost = {
   _id?: string;
@@ -146,16 +147,28 @@ export default async function BlogPage({
   let blogPosts: BlogPost[] = [];
   let categorySeed: string[] = [];
 
-  const blogParams: Record<string, unknown> = { limit: 120 };
-
-  const [blogsResult, catResult] = await Promise.all([
-    getBlogs(blogParams).catch(() => null),
+  const [catResult] = await Promise.all([
     getBlogCategories().catch(() => null),
   ]);
 
-  if (blogsResult) {
-    blogPosts = extractCollectionData<BlogPost>(blogsResult, ['blogs']);
+  for (const limit of BLOG_FETCH_LIMITS) {
+    const blogsResult = await getBlogs({ limit }).catch(() => null);
+    if (!blogsResult) continue;
+
+    const extracted = extractCollectionData<BlogPost>(blogsResult, ['blogs']);
+    if (extracted.length > 0) {
+      blogPosts = extracted;
+      break;
+    }
   }
+
+  if (blogPosts.length === 0) {
+    const fallbackBlogsResult = await getBlogs().catch(() => null);
+    if (fallbackBlogsResult) {
+      blogPosts = extractCollectionData<BlogPost>(fallbackBlogsResult, ['blogs']);
+    }
+  }
+
   if (catResult) {
     const catData = extractCollectionData<BlogCategory | string>(catResult, ['categories']);
     categorySeed = Array.isArray(catData)
