@@ -43,7 +43,7 @@ export default async function CollegesPage({ searchParams }: Readonly<Props>) {
   const isIndia = country?.toLowerCase() === 'india';
   let universities: any[] = [];
   try {
-    const params: Record<string, any> = { limit: 50 };
+    const params: Record<string, any> = { limit: 50, sort: 'sortOrder' };
     if (country) params.country = country;
     const res = await getUniversities(params);
     universities = extractCollectionData<any>(res, ['universities']);

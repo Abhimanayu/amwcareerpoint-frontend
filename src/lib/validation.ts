@@ -90,7 +90,7 @@ export const LIMITS = {
     medium: { max: 120 },
     hostelFees: { max: 140 },
     eligibility: { max: 3000 },
-    gallery: { maxItems: 10 },
+    gallery: { maxItems: 4 },
     recognition: { maxItems: 10, maxLen: 180 },
     highlights: { maxItems: 15, labelMax: 120, valueMax: 240 },
     faqs: { maxItems: 15, questionMax: 400, answerMax: 3500 },

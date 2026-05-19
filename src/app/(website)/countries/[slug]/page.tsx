@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { getCountryBySlug, getCountries } from '@/lib/countries';
+import { getCountrySlugFromObject } from '@/lib/slugUtils';
 import { getPublicFaqs } from '@/lib/server/faqs';
 import { getUniversities, getUniversityBySlug } from '@/lib/universities';
 import { CounsellingForm } from '@/components/home/CounsellingForm';
@@ -10,6 +11,7 @@ import { clampSeoDescription, extractCollectionData, pickUniversityImageSource, 
 import { sanitizeAndOptimizeMobileContent } from '@/lib/contentValidation';
 import { SEO_HOLD } from '@/lib/seoHold';
 import { CountryFAQSection } from './CountryFAQSection';
+import { CountryScrollTop } from './CountryScrollTop';
 
 export const revalidate = 10;
 
@@ -228,7 +230,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const canonical = resolveCanonicalUrl(country.seo?.canonicalUrl, `${siteUrl}/countries/${resolvedSlug}`);
   const ogImage = resolveMediaUrl(country.heroImage || country.cardImage || country.bannerImage || country.flagImage || '');
   return {
-    title,
+    title: {
+      absolute: title,
+    },
     description,
     alternates: { canonical },
     openGraph: {
@@ -420,7 +424,7 @@ export default async function CountryPage({ params }: Props) {
 
   // Parallelize independent data fetches
   const [universityRes, countriesRes] = await Promise.all([
-    countryId ? getUniversities({ country: countryId, limit: 12 }).catch(() => null) : null,
+    countryId ? getUniversities({ country: countryId, limit: 12, sort: 'sortOrder' }).catch(() => null) : null,
     getCountries({ limit: 12 }).catch(() => null),
   ]);
 
@@ -469,7 +473,6 @@ export default async function CountryPage({ params }: Props) {
 
   const countrySnapshot = [
     { value: `${universities.length || 0}+`, label: 'Partner universities' },
-    { value: `${features.length || highlights.length || 0}+`, label: 'Why students choose it' },
     { value: `${admissionSteps.length || 0}`, label: 'Admission steps' },
     { value: `${eligibility.length || 0}+`, label: 'Eligibility checkpoints' },
   ];
@@ -562,6 +565,7 @@ export default async function CountryPage({ params }: Props) {
 
   return (
     <div className="overflow-x-hidden bg-[#F8F4EC] text-[#0D1B3E]">
+      <CountryScrollTop />
       {!SEO_HOLD && (
         <>
           <script
@@ -708,7 +712,7 @@ export default async function CountryPage({ params }: Props) {
             </span>
             <h2 className="mt-3 font-heading text-2xl sm:text-3xl font-bold">AMW&apos;s {country.name} MBBS overview</h2>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {countrySnapshot.map((item) => (
               <div key={item.label} className="rounded-2xl border border-white/10 bg-white/6 px-5 py-6 backdrop-blur">
                 <div className="text-2xl sm:text-3xl font-heading font-bold text-[#F7B37E]">{item.value}</div>
@@ -1176,7 +1180,7 @@ export default async function CountryPage({ params }: Props) {
                 return (
                   <Link
                     key={item._id || item.slug || item.name}
-                    href={`/countries/${item.slug}`}
+                    href={`/countries/${getCountrySlugFromObject(item)}`}
                     className={`block rounded-[22px] p-5 text-white shadow-[0_10px_24px_rgba(13,27,62,0.08)] transition-transform hover:-translate-y-1 ${backgrounds[index % backgrounds.length]}`}
                   >
                     <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70">{item.slug?.toUpperCase()}</div>

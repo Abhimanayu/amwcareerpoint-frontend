@@ -94,7 +94,7 @@ export default async function ContactPage() {
 
               <div className="space-y-5 mb-8">
                 {[
-                  { icon: '📍', title: 'Address', content: 'D 100 A, Supreme Complex,\nMeera Marg, Bani Park,\nJaipur, Rajasthan 302006' },
+                  { icon: '📍', title: 'Address', content: 'D 100 A, Supreme Complex,\nMeera Marg, Bani Park,\nJaipur, Rajasthan 302016' },
                   { icon: '📞', title: 'Phone', content: '+91 9929299268', href: 'tel:+919929299268' },
                   { icon: '✉️', title: 'Email', content: 'support@amwcareerpoint.com', href: 'mailto:support@amwcareerpoint.com' },
                   { icon: '🕒', title: 'Office Hours', content: 'Monday - Saturday: 9:00 AM - 7:00 PM\nSunday: Closed' },

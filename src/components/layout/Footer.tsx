@@ -56,7 +56,7 @@ export function Footer() {
             <p className="text-xs text-gray-400 leading-relaxed mb-2">
               D 100 A, Supreme Complex,<br />
               Meera Marg, Bani Park,<br />
-              Jaipur, Rajasthan 302006
+              Jaipur, Rajasthan 302016
             </p>
             <div className="space-y-1 text-xs">
               <a href="tel:+919929299268" className="inline-flex min-h-11 w-full items-center py-1 hover:text-white transition-colors">+91-9929299268</a>

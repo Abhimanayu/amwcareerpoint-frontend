@@ -58,47 +58,60 @@ function readCountryTotal(payload: unknown, fallbackCount: number) {
 
 export function CountriesSection({ items }: CountriesSectionProps) {
   const curatedCount = items?.length ?? 0;
-  const hasCuratedItems = curatedCount > 0;
-  const [fetchedCountries, setFetchedCountries] = useState<any[]>(fallbackCountries);
-  const [usingFetchedFallback, setUsingFetchedFallback] = useState(true);
+  const curatedCountries = items ?? [];
+  const [fetchedCountries, setFetchedCountries] = useState<any[]>([]);
+  const [usingFetchedFallback, setUsingFetchedFallback] = useState(false);
   const [fetchedTotalCountries, setFetchedTotalCountries] = useState(Math.max(fallbackCountries.length, curatedCount));
+
+  const dedupeCountries = (entries: any[]) => {
+    const seen = new Set<string>();
+
+    return entries.filter((country) => {
+      if (!country || typeof country !== 'object') return false;
+
+      const idKey = typeof country._id === 'string' && country._id.trim() ? `id:${country._id}` : '';
+      const slugKey = typeof country.slug === 'string' && country.slug.trim() ? `slug:${country.slug.toLowerCase()}` : '';
+      const nameKey = typeof country.name === 'string' && country.name.trim() ? `name:${country.name.toLowerCase()}` : '';
+
+      const keys = [idKey, slugKey, nameKey].filter(Boolean);
+      if (keys.length === 0) return false;
+
+      const isDuplicate = keys.some((key) => seen.has(key));
+      if (isDuplicate) return false;
+
+      keys.forEach((key) => seen.add(key));
+      return true;
+    });
+  };
 
   useEffect(() => {
     // Fetch a larger list for count so we can still derive a reliable total when API omits pagination totals.
     getCountries({ limit: 500 })
       .then((res) => {
         const apiCountries = extractCollectionData<any>(res, ['countries']);
+        setFetchedCountries(apiCountries);
+        setUsingFetchedFallback(false);
         const total = readCountryTotal(res, apiCountries.length);
-        setFetchedTotalCountries(Math.max(total, curatedCount, fallbackCountries.length));
+        setFetchedTotalCountries(Math.max(total, curatedCount, apiCountries.length, fallbackCountries.length));
       })
       .catch(() => {
+        setFetchedCountries([]);
+        setUsingFetchedFallback(true);
         setFetchedTotalCountries(Math.max(fallbackCountries.length, curatedCount));
       });
 
-    if (hasCuratedItems) {
-      return;
-    }
+  }, [curatedCount]);
 
-    getCountries({ limit: 8 })
-      .then((res) => {
-        const apiCountries = extractCollectionData<any>(res, ['countries']);
-        if (apiCountries.length > 0) {
-          setFetchedCountries(apiCountries);
-          setUsingFetchedFallback(false);
-        } else {
-          setFetchedCountries(fallbackCountries);
-          setUsingFetchedFallback(true);
-        }
-      })
-      .catch(() => {
-        setFetchedCountries(fallbackCountries);
-        setUsingFetchedFallback(true);
-      });
-  }, [curatedCount, hasCuratedItems]);
-
-  const countries = hasCuratedItems ? (items ?? []) : fetchedCountries;
-  const usingFallback = hasCuratedItems ? false : usingFetchedFallback;
-  const totalCountries = fetchedTotalCountries;
+  const mergedCountries = dedupeCountries([...curatedCountries, ...fetchedCountries]);
+  const countries = mergedCountries.length > 0
+    ? mergedCountries
+    : curatedCountries.length > 0
+      ? curatedCountries
+      : usingFetchedFallback
+        ? fallbackCountries
+        : fallbackCountries;
+  const usingFallback = countries === fallbackCountries;
+  const totalCountries = Math.max(fetchedTotalCountries, countries.length);
   const countLabel = totalCountries;
   const countNoun = countLabel === 1 ? 'Country' : 'Countries';
 
@@ -254,7 +267,7 @@ export function CountriesSection({ items }: CountriesSectionProps) {
                   </ul>
                   )}
                   <div className="mt-auto">
-                    <Link href={`/countries/${c.slug}`} className="block w-full min-h-11 text-center py-3 rounded-full bg-orange text-white text-sm sm:text-[13px] font-bold hover:bg-orange-hover transition-colors">
+                    <Link href={`/countries/${getCountrySlugFromObject(c)}`} className="block w-full min-h-11 text-center py-3 rounded-full bg-orange text-white text-sm sm:text-[13px] font-bold hover:bg-orange-hover transition-colors">
                       View Universities
                     </Link>
                   </div>

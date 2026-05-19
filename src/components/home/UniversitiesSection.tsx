@@ -33,7 +33,7 @@ export function UniversitiesSection({ items }: UniversitiesSectionProps) {
       return;
     }
 
-    getUniversities({ limit: 8 })
+    getUniversities({ limit: 8, sort: 'sortOrder' })
       .then((res) => {
         const items = extractCollectionData<any>(res, ['universities']);
         if (items.length > 0) {

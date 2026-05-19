@@ -96,6 +96,9 @@ export function RichTextEditor({ content, onChange, className = '' }: Readonly<R
         },
       }),
       Link.configure({
+        autolink: false,
+        linkOnPaste: false,
+        openOnClick: false,
         HTMLAttributes: {
           class: 'text-blue-600 hover:text-blue-800 underline',
         },
@@ -191,7 +194,8 @@ export function RichTextEditor({ content, onChange, className = '' }: Readonly<R
   }, [editor]);
 
   const removeLink = useCallback(() => {
-    editor?.chain().focus().extendMarkRange('link').unsetLink().run();
+    if (!editor) return;
+    editor.chain().focus().unsetLink().run();
   }, [editor]);
 
   if (!editor) {
