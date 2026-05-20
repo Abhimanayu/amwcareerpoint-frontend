@@ -22,17 +22,30 @@ type CountryFaq = { question?: string; answer?: string };
 function removeStructuredDataType(value: unknown, typeToRemove: string): object | null {
   if (!value || typeof value !== 'object') return null;
 
+  if (Array.isArray(value)) {
+    const filtered = value
+      .map((entry) => removeStructuredDataType(entry, typeToRemove))
+      .filter((entry): entry is object => Boolean(entry));
+    return filtered.length > 0 ? ({ '@graph': filtered } as object) : null;
+  }
+
   const item = value as Record<string, unknown>;
   const type = item['@type'];
-  const matchesType = Array.isArray(type) ? type.includes(typeToRemove) : type === typeToRemove;
-  if (matchesType) return null;
+
+  if (Array.isArray(type)) {
+    const filteredTypes = type.filter((entry) => entry !== typeToRemove);
+    if (filteredTypes.length === 0) return null;
+    if (filteredTypes.length !== type.length) {
+      item['@type'] = filteredTypes;
+    }
+  } else if (type === typeToRemove) {
+    return null;
+  }
 
   if (Array.isArray(item['@graph'])) {
-    const graph = item['@graph'].filter((entry) => {
-      if (!entry || typeof entry !== 'object') return true;
-      const entryType = (entry as Record<string, unknown>)['@type'];
-      return Array.isArray(entryType) ? !entryType.includes(typeToRemove) : entryType !== typeToRemove;
-    });
+    const graph = item['@graph']
+      .map((entry) => removeStructuredDataType(entry, typeToRemove))
+      .filter((entry): entry is object => Boolean(entry));
     return graph.length > 0 ? { ...item, '@graph': graph } : null;
   }
 
