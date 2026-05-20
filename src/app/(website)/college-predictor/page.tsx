@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import { CollegePredictorClient } from '@/components/college/CollegePredictorClient';
 
 export const metadata: Metadata = {
-  title: 'NEET College Predictor 2025 | MBBS Admission Predictor | AMW Career Point',
+  title: {
+    absolute: 'NEET College Predictor 2025 | MBBS Admission Predictor | AMW Career Point',
+  },
   description:
     'Find MBBS colleges you can get admission in based on your NEET 2025 rank and category. State-wise cutoff data for 21 states — Andhra Pradesh, Bihar, Gujarat, Karnataka, Maharashtra, Rajasthan & more.',
   alternates: { canonical: 'https://amwcareerpoint.com/college-predictor' },

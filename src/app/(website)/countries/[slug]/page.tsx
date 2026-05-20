@@ -22,34 +22,64 @@ type CountryFaq = { question?: string; answer?: string };
 function removeStructuredDataType(value: unknown, typeToRemove: string): object | null {
   if (!value || typeof value !== 'object') return null;
 
-  if (Array.isArray(value)) {
-    const filtered = value
-      .map((entry) => removeStructuredDataType(entry, typeToRemove))
-      .filter((entry): entry is object => Boolean(entry));
-    return filtered.length > 0 ? ({ '@graph': filtered } as object) : null;
-  }
-
-  const item = value as Record<string, unknown>;
-  const type = item['@type'];
-
-  if (Array.isArray(type)) {
-    const filteredTypes = type.filter((entry) => entry !== typeToRemove);
-    if (filteredTypes.length === 0) return null;
-    if (filteredTypes.length !== type.length) {
-      item['@type'] = filteredTypes;
+  const normalizeTypes = (typeValue: unknown): string[] => {
+    if (Array.isArray(typeValue)) {
+      return typeValue.filter((entry): entry is string => typeof entry === 'string');
     }
-  } else if (type === typeToRemove) {
+
+    if (typeof typeValue === 'string') {
+      return [typeValue];
+    }
+
+    return [];
+  };
+
+  const visit = (node: unknown): unknown => {
+    if (Array.isArray(node)) {
+      const next = node
+        .map((entry) => visit(entry))
+        .filter((entry) => entry !== null && entry !== undefined);
+      return next.length > 0 ? next : null;
+    }
+
+    if (!node || typeof node !== 'object') {
+      return node;
+    }
+
+    const record = node as Record<string, unknown>;
+    const types = normalizeTypes(record['@type']);
+    if (types.includes(typeToRemove)) {
+      const keptTypes = types.filter((entry) => entry !== typeToRemove);
+      if (keptTypes.length === 0) {
+        return null;
+      }
+
+      record['@type'] = keptTypes.length === 1 ? keptTypes[0] : keptTypes;
+    }
+
+    const nextRecord: Record<string, unknown> = {};
+
+    for (const [key, entry] of Object.entries(record)) {
+      if (key === '@type') {
+        nextRecord[key] = record[key];
+        continue;
+      }
+
+      const nextValue = visit(entry);
+      if (nextValue !== null && nextValue !== undefined) {
+        nextRecord[key] = nextValue;
+      }
+    }
+
+    return Object.keys(nextRecord).length > 0 ? nextRecord : null;
+  };
+
+  const sanitized = visit(value);
+  if (!sanitized || typeof sanitized !== 'object' || Array.isArray(sanitized)) {
     return null;
   }
 
-  if (Array.isArray(item['@graph'])) {
-    const graph = item['@graph']
-      .map((entry) => removeStructuredDataType(entry, typeToRemove))
-      .filter((entry): entry is object => Boolean(entry));
-    return graph.length > 0 ? { ...item, '@graph': graph } : null;
-  }
-
-  return item;
+  return sanitized as object;
 }
 
 type CountryFeature = {

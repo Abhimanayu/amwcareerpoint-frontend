@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Admin Panel | AMW Career Point',
+  title: {
+    absolute: 'Admin Panel | AMW Career Point',
+  },
   robots: {
     index: false,
     follow: false,
