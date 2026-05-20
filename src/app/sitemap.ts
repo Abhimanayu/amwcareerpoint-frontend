@@ -63,7 +63,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   } catch { /* API unavailable */ }
 
   try {
-    const res = await getUniversities({ limit: 200 });
+    const res = await getUniversities({ limit: 1000 });
     const universities = extractCollectionData<{ slug?: unknown; updatedAt?: string }>(res, ['universities']);
     universityPages = universities.reduce<MetadataRoute.Sitemap>((pages, u) => {
         const slug = normalizeSlug(u.slug);
