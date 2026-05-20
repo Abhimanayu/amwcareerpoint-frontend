@@ -10,6 +10,8 @@ const jsonLd = {
   name: 'AMW Career Point',
   description: 'India\'s most trusted MBBS abroad consultancy since 2009.',
   url: 'https://amwcareerpoint.com',
+  logo: 'https://amwcareerpoint.com/favicon-32x32.png?v=20260520a',
+  image: 'https://amwcareerpoint.com/android-chrome-512x512.png?v=20260520a',
   telephone: '+91-9929299268',
   email: 'support@amwcareerpoint.com',
   address: {

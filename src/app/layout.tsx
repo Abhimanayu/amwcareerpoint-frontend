@@ -3,11 +3,17 @@ import "./globals.css";
 import { SEO_HOLD } from '@/lib/seoHold';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
+const iconVersion = '20260520a';
 
 const siteIcons: Metadata['icons'] = {
-  icon: [{ url: '/favicon.svg', type: 'image/svg+xml' }],
-  shortcut: ['/favicon.svg'],
-  apple: '/favicon.svg',
+  icon: [
+    { url: `/favicon.ico?v=${iconVersion}`, sizes: 'any' },
+    { url: `/favicon-32x32.png?v=${iconVersion}`, sizes: '32x32', type: 'image/png' },
+    { url: `/favicon-16x16.png?v=${iconVersion}`, sizes: '16x16', type: 'image/png' },
+    { url: `/favicon.svg?v=${iconVersion}`, type: 'image/svg+xml' },
+  ],
+  shortcut: [`/favicon.ico?v=${iconVersion}`],
+  apple: [{ url: `/apple-touch-icon.png?v=${iconVersion}`, sizes: '180x180', type: 'image/png' }],
 };
 
 const defaultMetadata: Metadata = {

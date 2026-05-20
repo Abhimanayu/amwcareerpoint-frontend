@@ -1,6 +1,8 @@
 import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
+  const iconVersion = '20260520a';
+
   return {
     name: 'AMW Career Point',
     short_name: 'AMW',
@@ -11,7 +13,17 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: '#0D1B3E',
     icons: [
       {
-        src: '/favicon.svg',
+        src: `/android-chrome-192x192.png?v=${iconVersion}`,
+        sizes: '192x192',
+        type: 'image/png',
+      },
+      {
+        src: `/android-chrome-512x512.png?v=${iconVersion}`,
+        sizes: '512x512',
+        type: 'image/png',
+      },
+      {
+        src: `/favicon.svg?v=${iconVersion}`,
         sizes: 'any',
         type: 'image/svg+xml',
       },
