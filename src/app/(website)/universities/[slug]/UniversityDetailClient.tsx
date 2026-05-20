@@ -306,7 +306,7 @@ export default function UniversityDetailClient({
                   src={gallery[Math.min(1, gallery.length - 1)]}
                   alt="Campus life"
                   fill
-                  className="object-fill"
+                  className="object-contain object-center"
                   fallbackElement={
                     <div className="flex h-full w-full items-center justify-center bg-[#DDD9D2] text-sm text-[#4A4742]">Campus Image</div>
                   }
