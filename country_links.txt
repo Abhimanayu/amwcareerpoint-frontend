@@ -1,8 +1,0 @@
-/countries/india
-/countries/mbbs-in-france
-/countries/mbbs-in-georgia
-/countries/mbbs-in-kazakhstan
-/countries/mbbs-in-kyrgyzstan
-/countries/mbbs-in-russia
-/countries/mbbs-in-uk
-/countries/mbbs-in-uzbekistan
