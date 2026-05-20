@@ -36,10 +36,13 @@ const COUNTRY_PAGE_FEATURES = [
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export default async function CountriesPage() {
   let countries: any[] = [];
-  try {
-    const res = await getCountries({ limit: 50 });
-    countries = extractCollectionData<any>(res, ['countries']);
-  } catch { /* API unavailable */ }
+  for (const limit of [50, 24, 12]) {
+    try {
+      const res = await getCountries({ limit });
+      countries = extractCollectionData<any>(res, ['countries']);
+      if (countries.length > 0) break;
+    } catch { /* try next limit */ }
+  }
 
   const hasCountries = countries.length > 0;
   const countryUnitLabel = countries.length === 1 ? 'Country' : 'Countries';

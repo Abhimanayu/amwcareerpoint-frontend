@@ -42,12 +42,15 @@ export default async function CollegesPage({ searchParams }: Readonly<Props>) {
   const { country } = await searchParams;
   const isIndia = country?.toLowerCase() === 'india';
   let universities: any[] = [];
-  try {
-    const params: Record<string, any> = { limit: 1000, sort: 'sortOrder' };
-    if (country) params.country = country;
-    const res = await getUniversities(params);
-    universities = extractCollectionData<any>(res, ['universities']);
-  } catch { /* API unavailable */ }
+  for (const limit of [1000, 200, 50]) {
+    try {
+      const params: Record<string, any> = { limit, sort: 'sortOrder' };
+      if (country) params.country = country;
+      const res = await getUniversities(params);
+      universities = extractCollectionData<any>(res, ['universities']);
+      if (universities.length > 0) break;
+    } catch { /* try next limit */ }
+  }
 
   return (
     <div className="bg-white">
