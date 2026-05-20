@@ -577,7 +577,7 @@ export default async function CountryPage({ params }: Props) {
         ];
 
   return (
-    <div className="overflow-x-hidden bg-[#F8F4EC] text-[#0D1B3E]">
+    <div className="overflow-x-hidden bg-[#F8F4EC] text-[#0D1B3E]" suppressHydrationWarning>
       <CountryScrollTop />
       {!SEO_HOLD && (
         <>

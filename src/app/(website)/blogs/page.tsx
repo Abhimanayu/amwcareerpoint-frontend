@@ -26,6 +26,26 @@ export const metadata: Metadata = {
 
 export const revalidate = 60;
 const LATEST_PAGE_SIZE = 8;
+
+// Initial page skeleton for better loading UX
+const initialSkeleton = (
+  <div className="min-h-screen bg-white">
+    <div className="mx-auto max-w-[1200px] px-4 py-12 space-y-6">
+      <div className="h-8 w-48 bg-gray-200 rounded animate-pulse" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="rounded-xl overflow-hidden bg-gray-100 animate-pulse">
+            <div className="h-40 bg-gray-200" />
+            <div className="p-4 space-y-2">
+              <div className="h-4 bg-gray-200 rounded" />
+              <div className="h-4 bg-gray-200 rounded w-5/6" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
 const BLOG_FETCH_LIMITS = [120, 60, 24] as const;
 
 type BlogPost = {
