@@ -13,7 +13,7 @@ import { Image } from '@tiptap/extension-image';
 import { Link } from '@tiptap/extension-link';
 import { Underline } from '@tiptap/extension-underline';
 import { Strike } from '@tiptap/extension-strike';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import FontSize from './extensions/FontSize';
 import FontFamily from './extensions/FontFamily';
 import { ImageUploadDialog } from './ImageUploadDialog';
@@ -135,6 +135,13 @@ export function RichTextEditor({ content, onChange, className = '' }: Readonly<R
       },
     },
   });
+
+  // Sync content prop changes to editor (fixes interlinking removal persistence issue)
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content);
+    }
+  }, [content, editor]);
 
   const insertImage = useCallback((url: string, altText?: string) => {
     if (url && editor) {
