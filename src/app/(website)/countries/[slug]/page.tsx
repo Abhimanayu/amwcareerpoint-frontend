@@ -1028,7 +1028,7 @@ export default async function CountryPage({ params }: Props) {
                         </span>
                       </div>
 
-                      <div className="mt-5 h-px bg-[#F0F2F5]" />
+                      <div className="mt-auto h-px bg-[#F0F2F5]" />
 
                       <div className="mt-4 flex flex-wrap gap-2.5">
                         {hasSlug ? (
