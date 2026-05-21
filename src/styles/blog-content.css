@@ -23,10 +23,10 @@
 /* Responsive Tables */
 .blog-content table {
   @apply border-collapse border border-gray-300 text-sm;
-  width: max-content;
-  min-width: 640px;
-  max-width: none;
-  table-layout: auto;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  table-layout: fixed;
 }
 
 .blog-content .overflow-x-auto {
@@ -41,8 +41,19 @@
 .blog-content th,
 .blog-content td {
   @apply border border-gray-300 p-2 text-left;
+  min-width: 0;
   word-break: break-word;
-  min-width: 60px;
+  overflow-wrap: anywhere;
+  vertical-align: top;
+  white-space: normal;
+}
+
+.blog-content th *,
+.blog-content td * {
+  max-width: 100%;
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .blog-content th {
@@ -225,7 +236,8 @@
 
   .blog-content table {
     font-size: 0.75rem;
-    min-width: 560px;
+    width: 100%;
+    min-width: 0;
   }
 
   .blog-content th,
