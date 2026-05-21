@@ -93,6 +93,9 @@ function getCategoryName(post: Record<string, unknown>): string {
   return 'General';
 }
 
+const BLOG_BANNER_FRAME_CLASS = 'relative overflow-hidden bg-[#F9F8F6]';
+const BLOG_BANNER_IMAGE_CLASS = 'object-contain object-top';
+
 function buildBlogsHref(options: { q?: string; category?: string; page?: number }): string {
   const params = new URLSearchParams();
   if (options.q) params.set('q', options.q);
@@ -355,13 +358,13 @@ export default async function BlogPage({
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2">
                     {/* image */}
-                    <div className="relative aspect-[16/10] md:aspect-auto md:min-h-[280px] overflow-hidden bg-[#F9F8F6]">
+                    <div className={`${BLOG_BANNER_FRAME_CLASS} aspect-[1.91/1] md:aspect-auto md:min-h-[300px]`}>
                       {featuredImage ? (
                         <SafeImage
                           src={featuredImage}
                           alt={featured.title || 'Featured article'}
                           fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          className={BLOG_BANNER_IMAGE_CLASS}
                           fallbackSrc="/blogs/russia-universities-nmc.jpg"
                           fallbackElement={<div className="absolute inset-0 flex items-center justify-center text-5xl bg-[#F9F8F6]">📚</div>}
                         />
@@ -428,13 +431,13 @@ export default async function BlogPage({
                         href={`/blogs/${post.slug}`}
                         className="group rounded-xl border border-[#DDD9D2] bg-white overflow-hidden hover:shadow-md transition-shadow flex flex-col"
                       >
-                        <div className="relative aspect-[16/10] overflow-hidden bg-[#F9F8F6]">
+                        <div className={`${BLOG_BANNER_FRAME_CLASS} aspect-[1.91/1]`}>
                           {img ? (
                             <SafeImage
                               src={img}
                               alt={post.title || 'Blog post'}
                               fill
-                              className="object-cover group-hover:scale-105 transition-transform duration-500"
+                              className={BLOG_BANNER_IMAGE_CLASS}
                               fallbackElement={<div className="absolute inset-0 flex items-center justify-center text-3xl bg-[#F9F8F6]">📝</div>}
                             />
                           ) : (
@@ -486,13 +489,13 @@ export default async function BlogPage({
                         className="group flex gap-3 sm:gap-4 p-3.5 sm:p-5 hover:bg-[#F9F8F6]/60 transition-colors"
                       >
                         {/* thumbnail */}
-                        <div className="relative w-14 h-14 sm:w-20 sm:h-20 shrink-0 rounded-lg overflow-hidden bg-[#F9F8F6]">
+                        <div className="relative w-24 sm:w-28 aspect-[1.91/1] shrink-0 rounded-lg overflow-hidden bg-[#F9F8F6]">
                           {img ? (
                             <SafeImage
                               src={img}
                               alt={post.title || 'Blog'}
                               fill
-                              className="object-cover"
+                              className={BLOG_BANNER_IMAGE_CLASS}
                               fallbackElement={<div className="absolute inset-0 flex items-center justify-center text-base sm:text-lg bg-[#F9F8F6]">📝</div>}
                             />
                           ) : (

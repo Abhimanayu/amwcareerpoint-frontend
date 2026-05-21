@@ -79,12 +79,12 @@ export function BlogsSection({ items }: BlogsSectionProps) {
                 className="block rounded-xl border border-border bg-white overflow-hidden hover:shadow-lg transition-shadow group h-full"
               >
                 {/* Image */}
-                <div className="relative aspect-16/10 overflow-hidden bg-gray-100">
+                <div className="relative aspect-[1.91/1] overflow-hidden bg-[#F7F6F2]">
                   <SafeImage
                     src={imageSource}
                     alt={blog.title || 'Blog post'}
                     fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="object-contain object-top"
                     fallbackSrc="/blogs/russia-universities-nmc.jpg"
                     fallbackElement={<div className="absolute inset-0 flex items-center justify-center text-3xl bg-linear-to-br from-bg-light to-border">📝</div>}
                   />
