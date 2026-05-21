@@ -23,19 +23,54 @@ type UniversitiesSectionProps = {
   readonly items?: readonly HomeCuratedUniversity[];
 };
 
+function readUniversityTotal(payload: unknown, fallbackCount: number) {
+  if (!payload || typeof payload !== 'object') {
+    return fallbackCount;
+  }
+
+  const root = payload as Record<string, unknown>;
+  const data = typeof root.data === 'object' && root.data !== null ? root.data as Record<string, unknown> : null;
+  const pagination = typeof root.pagination === 'object' && root.pagination !== null ? root.pagination as Record<string, unknown> : null;
+  const nestedPagination = typeof data?.pagination === 'object' && data.pagination !== null ? data.pagination as Record<string, unknown> : null;
+
+  const candidates = [
+    root.total,
+    root.totalCount,
+    root.count,
+    pagination?.total,
+    pagination?.totalCount,
+    data?.total,
+    data?.totalCount,
+    data?.count,
+    nestedPagination?.total,
+    nestedPagination?.totalCount,
+  ];
+
+  for (const candidate of candidates) {
+    if (typeof candidate === 'number' && Number.isFinite(candidate) && candidate > 0) {
+      return candidate;
+    }
+  }
+
+  return fallbackCount;
+}
+
 export function UniversitiesSection({ items }: UniversitiesSectionProps) {
   const hasCuratedItems = (items?.length ?? 0) > 0;
   const [fetchedUniversities, setFetchedUniversities] = useState<any[]>(fallbackUniversities);
   const [usingFetchedFallback, setUsingFetchedFallback] = useState(true);
+  const [totalUniversities, setTotalUniversities] = useState(fallbackUniversities.length);
 
   useEffect(() => {
-    if (hasCuratedItems) {
-      return;
-    }
-
-    getUniversities({ limit: 8, sort: 'sortOrder' })
+    getUniversities({ limit: 500, sort: 'sortOrder' })
       .then((res) => {
         const items = extractCollectionData<any>(res, ['universities']);
+        setTotalUniversities(Math.max(readUniversityTotal(res, items.length), items.length));
+
+        if (hasCuratedItems) {
+          return;
+        }
+
         if (items.length > 0) {
           setFetchedUniversities(items);
           setUsingFetchedFallback(false);
@@ -45,13 +80,17 @@ export function UniversitiesSection({ items }: UniversitiesSectionProps) {
         }
       })
       .catch(() => {
-        setFetchedUniversities(fallbackUniversities);
-        setUsingFetchedFallback(true);
+        if (!hasCuratedItems) {
+          setFetchedUniversities(fallbackUniversities);
+          setUsingFetchedFallback(true);
+          setTotalUniversities(fallbackUniversities.length);
+        }
       });
   }, [hasCuratedItems]);
 
   const universities = hasCuratedItems ? (items ?? []) : fetchedUniversities;
   const usingFallback = hasCuratedItems ? false : usingFetchedFallback;
+  const visibleCount = Math.max(totalUniversities, universities.length);
 
   return (
     <section className="bg-[#F9F8F6] py-10 sm:py-14">
@@ -69,6 +108,9 @@ export function UniversitiesSection({ items }: UniversitiesSectionProps) {
           </h2>
           <p className="mt-2 text-[13px] sm:text-[14px] text-[#4A4742] max-w-2xl">
             All partner universities are NMC approved and WHO recognized — your degree will be valid to practice in India after clearing FMGE/NExT.
+          </p>
+          <p className="mt-2 text-xs sm:text-sm text-[#4A4742]/80 max-w-2xl">
+            {visibleCount}+ active university options available.
           </p>
         </div>
 

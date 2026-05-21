@@ -149,16 +149,30 @@ type UniversitySummary = {
   _id?: string;
   slug?: string;
   name?: string;
+  city?: string;
+  location?: string;
+  country?: {
+    _id?: string;
+    slug?: string;
+    name?: string;
+  };
   heroImage?: string;
   cardImage?: string;
   logo?: string;
   image?: string;
   gallery?: string[];
   annualFees?: string;
+  tuitionFee?: string;
+  feeRange?: string;
+  fees?: string;
   hostelFees?: string;
   hostelFee?: string;
+  hostel?: string;
+  accommodation?: string;
+  duration?: string;
   courseDuration?: string;
   medium?: string;
+  language?: string;
   accreditation?: string;
   description?: string;
   recognition?: string[];
@@ -292,6 +306,37 @@ function pickImageSource(university: UniversitySummary) {
   return resolveMediaUrl(pickUniversityImageSource(university as Record<string, unknown>));
 }
 
+function shouldContainUniversityImage(src?: string) {
+  if (!src) return false;
+  return /logo|poster|banner|badge|emblem/i.test(src);
+}
+
+function getUniversityCity(university: UniversitySummary, countryName?: string) {
+  return university.city || university.location || university.country?.name || countryName || 'Campus';
+}
+
+function getUniversityFee(university: UniversitySummary, countryFeeRange?: string) {
+  return university.annualFees || university.tuitionFee || university.feeRange || university.fees || countryFeeRange || 'On request';
+}
+
+function getUniversityDuration(university: UniversitySummary, countryDuration?: string) {
+  return university.duration || university.courseDuration || countryDuration || '6 years';
+}
+
+function getUniversityHostel(university: UniversitySummary) {
+  return getUniversityHostelFee(university) || university.hostel || university.accommodation || 'On-campus hostel';
+}
+
+function getUniversityMedium(university: UniversitySummary) {
+  return university.medium || university.language || 'English';
+}
+
+function hasNmcMention(university: UniversitySummary) {
+  const accreditation = university.accreditation || '';
+  const recognition = Array.isArray(university.recognition) ? university.recognition.join(' ') : '';
+  return /\bnmc\b/i.test(`${accreditation} ${recognition}`);
+}
+
 function getFallbackLifeCards(countryName: string) {
   return [
     {
@@ -357,6 +402,65 @@ function normalizeObjectPosition(value?: string) {
   }
 
   return undefined;
+}
+
+function normalizeValue(value: unknown) {
+  return typeof value === 'string' ? value.trim().toLowerCase() : '';
+}
+
+function isUniversityForCountry(
+  university: UniversitySummary,
+  countryId: string,
+  countrySlug: string
+) {
+  const countryRef = university?.country;
+  if (!countryRef || typeof countryRef !== 'object') {
+    return true;
+  }
+
+  const countryRecord = countryRef as { _id?: string; slug?: string };
+  const universityCountryId = normalizeValue(countryRecord._id);
+  const universityCountrySlug = normalizeValue(countryRecord.slug);
+
+  const normalizedCountryId = normalizeValue(countryId);
+  const normalizedCountrySlug = normalizeValue(countrySlug);
+
+  if (universityCountryId && normalizedCountryId) {
+    return universityCountryId === normalizedCountryId;
+  }
+
+  if (universityCountrySlug && normalizedCountrySlug) {
+    return universityCountrySlug === normalizedCountrySlug;
+  }
+
+  return true;
+}
+
+async function fetchCountryUniversities(countryId: string, countrySlug: string) {
+  const requestAttempts: Array<{ country: string; source: 'id' | 'slug' }> = [];
+
+  if (countryId) {
+    requestAttempts.push({ country: countryId, source: 'id' });
+  }
+
+  if (countrySlug) {
+    requestAttempts.push({ country: countrySlug, source: 'slug' });
+  }
+
+  for (const attempt of requestAttempts) {
+    const response = await getUniversities({ country: attempt.country, limit: 500, sort: 'sortOrder' }).catch(() => null);
+    const list = extractCollectionData<UniversitySummary>(response, ['universities']);
+    if (list.length === 0) {
+      continue;
+    }
+
+    const filtered = list.filter((university) => isUniversityForCountry(university, countryId, countrySlug));
+    if (filtered.length > 0 || attempt.source === 'slug') {
+      return filtered;
+    }
+  }
+
+  return [] as UniversitySummary[];
 }
 
 export default async function CountryPage({ params }: Props) {
@@ -438,6 +542,7 @@ export default async function CountryPage({ params }: Props) {
     : null;
 
   const countryId = typeof country._id === 'string' ? country._id : '';
+  const countryFilterSlug = typeof country.slug === 'string' && country.slug.trim() ? country.slug : resolvedSlug;
   const heroImage = resolveMediaUrl(country.heroImage);
   const flagImage = resolveMediaUrl(country.flagImage);
   const heroImageClass = 'object-cover object-center opacity-100 saturate-110 contrast-110';
@@ -466,14 +571,12 @@ export default async function CountryPage({ params }: Props) {
   );
 
   // Parallelize independent data fetches
-  const [universityRes, countriesRes] = await Promise.all([
-    countryId ? getUniversities({ country: countryId, limit: 12, sort: 'sortOrder' }).catch(() => null) : null,
+  const [countryUniversities, countriesRes] = await Promise.all([
+    fetchCountryUniversities(countryId, countryFilterSlug),
     getCountries({ limit: 12 }).catch(() => null),
   ]);
 
-  const universities = await enrichUniversityHostelFees(
-    extractCollectionData<UniversitySummary>(universityRes, ['universities'])
-  );
+  const universities = await enrichUniversityHostelFees(countryUniversities);
   const otherCountries = extractCollectionData<CountrySummary>(countriesRes, ['countries'])
     .filter((item) => item.slug !== slug)
     .slice(0, 5);
@@ -605,6 +708,10 @@ export default async function CountryPage({ params }: Props) {
           { title: 'Funds', subtitle: 'Fee planning assistance' },
           { title: 'After', subtitle: 'Post-arrival support' },
         ];
+
+  const collegesFilterValue = [countryId, countryFilterSlug, resolvedSlug].find(
+    (candidate): candidate is string => typeof candidate === 'string' && candidate.trim().length > 0
+  ) || '';
 
   return (
     <div className="overflow-x-hidden bg-[#F8F4EC] text-[#0D1B3E]" suppressHydrationWarning>
@@ -817,131 +924,148 @@ export default async function CountryPage({ params }: Props) {
       )}
 
       {universities.length > 0 && (
-        <section id="universities" className="bg-white px-4 py-14 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-7xl">
-            <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-              <div className="max-w-3xl">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F26419]">
+        <section id="universities" className="bg-white">
+          <div className="mx-auto max-w-[1200px] px-4 py-12 pb-[60px] sm:px-6 sm:py-14 sm:pb-16 lg:px-6 lg:py-[72px] lg:pb-20">
+            <div className="mb-10 flex flex-col gap-6 md:mb-12 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-[560px]">
+                <div className="mb-3 inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-[#00A99D]">
+                  <span className="inline-block h-[2px] w-5 rounded-full bg-[#00A99D]" />
                   Partner Universities
-                </span>
-                <h2 className="mt-3 font-heading text-2xl sm:text-3xl font-bold text-[#0D1B3E]">
+                </div>
+                <h2 className="font-heading text-[26px] font-bold leading-[1.25] text-[#0D2240] sm:text-[32px] lg:text-[36px]">
                   Top medical universities in {country.name}
                 </h2>
-                <p className="mt-3 text-[15px] leading-7 text-[#4A4742]">
+                <p className="mt-2.5 text-[15px] leading-[1.6] text-[#6B7A90]">
                   Explore active university options with fee, duration, and accreditation details before you shortlist your preferred campus.
                 </p>
               </div>
               <Link
-                href={`/college?country=${encodeURIComponent(country.name || '')}`}
-                className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#0D1B3E] px-5 py-3 text-sm font-semibold text-[#0D1B3E] transition-colors hover:bg-[#0D1B3E] hover:text-white"
+                href={`/college?country=${encodeURIComponent(collegesFilterValue)}`}
+                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-[10px] border border-[#0D2240] px-5 py-[11px] text-sm font-semibold text-[#0D2240] transition-colors hover:bg-[#0D2240] hover:text-white"
               >
                 Explore all colleges
+                <span aria-hidden="true">→</span>
               </Link>
             </div>
 
-            <div className="grid gap-5 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
               {universities.slice(0, 6).map((university) => {
                 const imageSrc = pickImageSource(university);
-                const hostelFee = getHostelFeeLabel(university);
+                const imageUseContain = shouldContainUniversityImage(imageSrc);
+                const city = getUniversityCity(university, country.name);
+                const fee = getUniversityFee(university, country.feeRange);
+                const duration = getUniversityDuration(university, country.duration);
+                const hostel = getUniversityHostel(university);
+                const medium = getUniversityMedium(university);
+                const isNmcApproved = hasNmcMention(university);
+                const hasSlug = typeof university.slug === 'string' && university.slug.trim().length > 0;
 
                 return (
                   <article
                     key={university._id || university.slug || university.name}
-                    className="overflow-hidden rounded-[28px] border border-[#E7DECF] bg-[#FFFDF9] shadow-[0_18px_55px_rgba(13,27,62,0.05)]"
+                    className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[#DDE3EC] bg-white shadow-[0_2px_8px_rgba(13,34,64,0.07),0_0_0_1px_rgba(13,34,64,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(13,34,64,0.13),0_0_0_1px_rgba(242,101,34,0.18)]"
                   >
-                    <div className="grid gap-0 md:grid-cols-2">
-                      <div className="relative min-h-[220px] overflow-hidden bg-[#F8F4EC] md:min-h-full">
-                        {imageSrc ? (
-                          <SafeImage
-                            src={imageSrc}
-                            alt={university.name || 'University'}
-                            fill
-                            sizes="(min-width: 768px) 50vw, 100vw"
-                            className="object-contain p-2"
-                            fallbackElement={
-                              <div className="flex h-full items-center justify-center text-5xl text-[#0D1B3E]/20">🏫</div>
-                            }
-                          />
-                        ) : (
-                          <div className="flex h-full items-center justify-center text-5xl text-[#0D1B3E]/20">🏫</div>
-                        )}
+                    <div className="relative h-[188px] w-full shrink-0 overflow-hidden bg-[#0D2240]">
+                      {imageSrc ? (
+                        <SafeImage
+                          src={imageSrc}
+                          alt={`${university.name || 'University'} campus`}
+                          fill
+                          sizes="(min-width: 1280px) 360px, (min-width: 640px) 50vw, 100vw"
+                          className={imageUseContain ? 'object-contain bg-[#F8F9FB] p-2' : 'object-cover object-center transition-transform duration-500 group-hover:scale-[1.04]'}
+                          fallbackElement={
+                            <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-[#1A3A5C] via-[#0D2240] to-[#0A1C34] text-white/25">
+                              <span className="text-4xl">🏫</span>
+                              <span className="text-[11px] font-semibold uppercase tracking-[0.1em]">{city}</span>
+                            </div>
+                          }
+                        />
+                      ) : (
+                        <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-[#1A3A5C] via-[#0D2240] to-[#0A1C34] text-white/25">
+                          <span className="text-4xl">🏫</span>
+                          <span className="text-[11px] font-semibold uppercase tracking-[0.1em]">{city}</span>
+                        </div>
+                      )}
+
+                      <span className={`absolute left-3 top-3 inline-flex items-center gap-1 rounded-[20px] px-2.5 py-1 text-[11px] font-semibold text-white ${isNmcApproved ? 'bg-[#00A99D]/90' : 'bg-[#F26522]/90'}`}>
+                        <span aria-hidden="true">{isNmcApproved ? '✓' : '★'}</span>
+                        {isNmcApproved ? 'NMC Approved' : 'Partner'}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-1 flex-col p-5 pb-[18px]">
+                      <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.07em] text-[#6B7A90]">
+                        <span className="text-[#00A99D]">📍</span>
+                        <span className="min-w-0 break-words">{city}, {country.name}</span>
                       </div>
 
-                      <div className="flex flex-col p-5 sm:p-6">
-                        <div className="flex flex-wrap items-start justify-between gap-3">
-                          <div>
-                            <h3 className="text-lg font-semibold text-[#0D1B3E]">
-                              {university.name || 'University'}
-                            </h3>
-                            {university.accreditation && (
-                              <p className="mt-1 text-sm text-[#4A4742]">{university.accreditation}</p>
-                            )}
-                          </div>
-                          {university.annualFees && (
-                            <div className="rounded-full bg-[#F8F4EC] px-3 py-1.5 text-xs font-semibold text-[#F26419]">
-                              {university.annualFees}
-                            </div>
-                          )}
-                        </div>
+                      <h3 className="line-clamp-2 break-words font-heading text-[16px] font-bold leading-[1.35] text-[#0D2240]">
+                        {university.name || 'University'}
+                      </h3>
 
-                        <p className="mt-4 line-clamp-3 text-sm leading-7 text-[#4A4742]">
-                          {stripHtml(university.description || '') ||
-                            `Find course duration, fees, eligibility, and application guidance for ${university.name || 'this university'}.`}
-                        </p>
+                      <span className="mt-3 inline-flex w-fit max-w-full items-center gap-1.5 rounded-[20px] border border-[#FAD0B5] bg-[#FFF4EE] px-3 py-1.5 text-[12.5px] font-semibold leading-tight text-[#9A3E10]">
+                        <span aria-hidden="true" className="text-[#F26522]">₹</span>
+                        <span className="break-words">{fee}</span>
+                      </span>
 
-                        <div className="mt-5 grid gap-2 text-[13px] text-[#4A4742] sm:grid-cols-3">
-                          <div className="rounded-xl border border-[#EFE6D8] bg-white px-3 py-2.5">
-                            <div className="text-[10px] uppercase tracking-[0.16em] text-[#8A8175]">Duration</div>
-                            <div className="mt-1 font-semibold text-[#0D1B3E]">
-                              {university.courseDuration || country.duration || '6 years'}
-                            </div>
-                          </div>
-                          <div className="rounded-xl border border-[#EFE6D8] bg-white px-3 py-2.5">
-                            <div className="text-[10px] uppercase tracking-[0.16em] text-[#8A8175]">Hostel</div>
-                            <div className={`mt-1 font-semibold ${hostelFee.isMissing ? 'text-[#B45309]' : 'text-[#0D1B3E]'}`}>
-                              {hostelFee.value}
-                            </div>
-                          </div>
-                          <div className="rounded-xl border border-[#EFE6D8] bg-white px-3 py-2.5">
-                            <div className="text-[10px] uppercase tracking-[0.16em] text-[#8A8175]">Medium</div>
-                            <div className="mt-1 font-semibold text-[#0D1B3E]">
-                              {university.medium || 'English'}
-                            </div>
-                          </div>
-                        </div>
+                      <p className="mt-3 line-clamp-3 break-words text-[13.5px] leading-[1.65] text-[#6B7A90]">
+                        {stripHtml(university.description || '') ||
+                          `Explore fees, eligibility, and admission guidance for ${university.name || 'this university'} in ${country.name}.`}
+                      </p>
 
-                        <div className="mt-5 flex flex-wrap gap-2">
-                          {(Array.isArray(university.recognition) ? university.recognition : [])
-                            .slice(0, 3)
-                            .map((item, recIdx) => (
-                              <span
-                                key={`${university.slug}-${recIdx}-${item}`}
-                                className="rounded-full border border-[#EFE6D8] bg-[#F8F4EC] px-3 py-1 text-[11px] font-medium text-[#4A4742]"
-                              >
-                                {item}
-                              </span>
-                            ))}
-                        </div>
+                      <div className="mt-4 flex flex-wrap gap-1.5">
+                        <span className="inline-flex max-w-full items-center gap-1 rounded-[20px] border border-[#E2E6EC] bg-[#F0F2F5] px-2.5 py-1 text-[12px] text-[#374151]">
+                          <span aria-hidden="true" className="text-[#00A99D]">⏱</span>
+                          <span className="break-words"><strong className="font-semibold text-[#0D2240]">{duration}</strong></span>
+                        </span>
+                        <span className="inline-flex max-w-full items-center gap-1 rounded-[20px] border border-[#E2E6EC] bg-[#F0F2F5] px-2.5 py-1 text-[12px] text-[#374151]">
+                          <span aria-hidden="true" className="text-[#00A99D]">🏠</span>
+                          <span className="break-words"><strong className="font-semibold text-[#0D2240]">{hostel}</strong></span>
+                        </span>
+                        <span className="inline-flex max-w-full items-center gap-1 rounded-[20px] border border-[#E2E6EC] bg-[#F0F2F5] px-2.5 py-1 text-[12px] text-[#374151]">
+                          <span aria-hidden="true" className="text-[#00A99D]">🌐</span>
+                          <span className="break-words"><strong className="font-semibold text-[#0D2240]">{medium}</strong></span>
+                        </span>
+                      </div>
 
-                        <div className="mt-6 flex flex-wrap gap-3">
+                      <div className="mt-5 h-px bg-[#F0F2F5]" />
+
+                      <div className="mt-4 flex flex-wrap gap-2.5">
+                        {hasSlug ? (
                           <Link
                             href={`/college/${university.slug}`}
-                            className="inline-flex min-h-11 flex-1 items-center justify-center rounded-full border border-[#0D1B3E] px-4 py-3 text-sm font-semibold text-[#0D1B3E] transition-colors hover:bg-[#0D1B3E] hover:text-white"
+                            className="inline-flex min-h-10 min-w-[132px] flex-1 items-center justify-center gap-1 rounded-[10px] border border-[#0D2240] px-3 text-[13px] font-semibold text-[#0D2240] transition-colors hover:bg-[#0D2240] hover:text-white"
                           >
                             View details
                           </Link>
-                          <Link
-                            href="#counselling"
-                            className="inline-flex min-h-11 flex-1 items-center justify-center rounded-full bg-[#F26419] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#FF8040]"
-                          >
-                            Apply now
-                          </Link>
-                        </div>
+                        ) : (
+                          <span className="inline-flex min-h-10 min-w-[132px] flex-1 items-center justify-center gap-1 rounded-[10px] border border-[#C8CFDA] px-3 text-[13px] font-semibold text-[#6B7A90]">
+                            View details
+                          </span>
+                        )}
+                        <Link
+                          href="#counselling"
+                          className="inline-flex min-h-10 min-w-[132px] flex-1 items-center justify-center gap-1 rounded-[10px] border border-[#F26522] bg-[#F26522] px-3 text-[13px] font-semibold text-white transition-colors hover:border-[#D45818] hover:bg-[#D45818]"
+                        >
+                          Apply now
+                        </Link>
                       </div>
                     </div>
                   </article>
                 );
               })}
+            </div>
+
+            <div className="mt-10 flex items-start gap-3 rounded-xl border-l-4 border-l-[#00A99D] bg-[#E8EDF4] px-4 py-4 sm:px-6">
+              <span className="text-xl text-[#00A99D]" aria-hidden="true">ℹ️</span>
+              <p className="text-[13.5px] leading-[1.55] text-[#0D2240]">
+                {country.name?.toLowerCase().includes('russia')
+                  ? 'FMGE outcomes in Russia can vary by university. Our team provides university-specific guidance and a full Russia context briefing at every intake. '
+                  : `Our team provides university-specific guidance and a full ${country.name} context briefing at every intake. `}
+                <Link href="#counselling" className="font-semibold text-[#F26522] hover:underline">
+                  Book a free counselling session →
+                </Link>
+              </p>
             </div>
           </div>
         </section>
@@ -959,7 +1083,7 @@ export default async function CountryPage({ params }: Props) {
               </h2>
             </div>
             <div className="overflow-x-auto">
-              <table className="min-w-[600px] w-full text-left text-sm">
+              <table className="min-w-max w-full text-left text-sm">
                 <thead className="bg-[#10244B] text-white">
                   <tr>
                     <th className="px-5 py-3 font-semibold">University</th>
@@ -975,8 +1099,8 @@ export default async function CountryPage({ params }: Props) {
 
                     return (
                       <tr key={university._id || university.slug || university.name} className="hover:bg-[#F8F4EC]">
-                        <td className="px-5 py-4 font-medium text-[#0D1B3E]">{university.name || 'University'}</td>
-                        <td className="px-5 py-4 text-[#4A4742]">{university.annualFees || country.feeRange || 'On request'}</td>
+                        <td className="px-5 py-4 font-medium text-[#0D1B3E] whitespace-normal break-words">{university.name || 'University'}</td>
+                        <td className="px-5 py-4 text-[#4A4742] whitespace-normal break-words">{university.annualFees || country.feeRange || 'On request'}</td>
                         <td className="px-5 py-4">
                           <span
                             className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
@@ -988,8 +1112,8 @@ export default async function CountryPage({ params }: Props) {
                             {hostelFee.value}
                           </span>
                         </td>
-                        <td className="px-5 py-4 text-[#4A4742]">{university.courseDuration || country.duration || '6 years'}</td>
-                        <td className="px-5 py-4 text-[#4A4742]">{university.medium || 'English'}</td>
+                        <td className="px-5 py-4 text-[#4A4742] whitespace-normal break-words">{university.courseDuration || country.duration || '6 years'}</td>
+                        <td className="px-5 py-4 text-[#4A4742] whitespace-normal break-words">{university.medium || 'English'}</td>
                       </tr>
                     );
                   })}

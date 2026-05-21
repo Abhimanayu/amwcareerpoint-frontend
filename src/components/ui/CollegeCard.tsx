@@ -19,6 +19,7 @@ export function CollegeCard({ university }: Readonly<CollegeCardProps>) {
   const fees = university?.annualFees || '';
   const duration = university?.courseDuration || '';
   const heroImage = pickUniversityImageSource(university);
+  const useContainImage = typeof heroImage === 'string' && /logo|poster|banner|badge|emblem/i.test(heroImage);
   const description = stripHtml(university?.description || '');
   const accreditation = university?.accreditation || '';
 
@@ -31,7 +32,7 @@ export function CollegeCard({ university }: Readonly<CollegeCardProps>) {
             src={heroImage}
             alt={name}
             fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            className={useContainImage ? 'object-contain object-center bg-[#F7F6F2]' : 'object-cover object-center'}
             fallbackElement={
               <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0D1B3E] to-[#162550] text-3xl text-white/30">🏫</div>
             }

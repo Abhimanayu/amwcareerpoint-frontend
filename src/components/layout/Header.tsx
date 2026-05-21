@@ -22,13 +22,13 @@ const mbbsDestinationDropdownItems: DropdownItem[] = getMbbsDestinationLinks().m
 
 const staticMenuItems: MenuItem[] = [
   { href: '/', label: 'Home' },
-  { href: '/college?country=India', label: 'MBBS India' },
+  { href: '/countries/mbbs-in-india', label: 'MBBS India' },
   {
     href: '/countries',
     label: 'MBBS Abroad',
     dropdown: mbbsDestinationDropdownItems,
   },
-  { href: '#', label: 'College Predictor' },
+  { href: '/college-predictor', label: 'College Predictor' },
   { href: '/blogs', label: 'Blog' },
   { href: '/about', label: 'About Us' },
 ];
