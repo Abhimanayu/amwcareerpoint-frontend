@@ -62,7 +62,7 @@ export function UniversitiesSection({ items }: UniversitiesSectionProps) {
   const [totalUniversities, setTotalUniversities] = useState(fallbackUniversities.length);
 
   useEffect(() => {
-    getUniversities({ limit: 500, sort: 'sortOrder' })
+    getUniversities({ limit: 100, sort: 'sortOrder' })
       .then((res) => {
         const items = extractCollectionData<any>(res, ['universities']);
         setTotalUniversities(Math.max(readUniversityTotal(res, items.length), items.length));

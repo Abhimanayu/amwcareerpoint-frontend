@@ -146,8 +146,8 @@ export function CountriesSection({ items }: CountriesSectionProps) {
   };
 
   useEffect(() => {
-    // Fetch a larger list for count so we can still derive a reliable total when API omits pagination totals.
-    getCountries({ limit: 500 })
+    // Keep this above current production count, but avoid unnecessarily heavy homepage API payloads.
+    getCountries({ limit: 100 })
       .then((res) => {
         const apiCountries = extractCollectionData<any>(res, ['countries']);
         setFetchedCountries(apiCountries);

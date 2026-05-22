@@ -13,7 +13,7 @@ import { SEO_HOLD } from '@/lib/seoHold';
 import { CountryFAQSection } from './CountryFAQSection';
 import { CountryScrollTop } from './CountryScrollTop';
 
-export const revalidate = 10;
+export const revalidate = 60;
 
 type Props = Readonly<{ params: Promise<{ slug: string }> }>;
 
@@ -448,7 +448,7 @@ async function fetchCountryUniversities(countryId: string, countrySlug: string) 
   }
 
   for (const attempt of requestAttempts) {
-    const response = await getUniversities({ country: attempt.country, limit: 500, sort: 'sortOrder' }).catch(() => null);
+    const response = await getUniversities({ country: attempt.country, limit: 100, sort: 'sortOrder' }).catch(() => null);
     const list = extractCollectionData<UniversitySummary>(response, ['universities']);
     if (list.length === 0) {
       continue;

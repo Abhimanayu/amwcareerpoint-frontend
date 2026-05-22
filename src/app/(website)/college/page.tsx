@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { getUniversities } from '@/lib/universities';
+import { getCountries, getCountryBySlug } from '@/lib/countries';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { clampText, extractCollectionData, pickUniversityImageSource, stripHtml } from '@/lib/utils';
@@ -38,18 +39,91 @@ const UNIVERSITY_PROMISES = [
   { id: 'faculty', icon: '👨‍🏫', title: 'Expert Faculty', desc: 'Experienced professors and international teaching staff.' },
 ];
 
+function isMongoId(value: string) {
+  return /^[a-f0-9]{24}$/i.test(value);
+}
+
+function normalizeCountryFilterValue(value?: string) {
+  if (!value) return '';
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+
+  try {
+    return decodeURIComponent(trimmed).trim();
+  } catch {
+    return trimmed;
+  }
+}
+
+async function resolveCountryFilterCandidates(countryFilter?: string) {
+  const normalized = normalizeCountryFilterValue(countryFilter);
+  if (!normalized) return [] as string[];
+
+  const candidates: string[] = [];
+  const pushCandidate = (candidate?: string) => {
+    if (!candidate) return;
+    const safeCandidate = candidate.trim();
+    if (!safeCandidate) return;
+    if (!candidates.includes(safeCandidate)) {
+      candidates.push(safeCandidate);
+    }
+  };
+
+  if (isMongoId(normalized)) {
+    pushCandidate(normalized);
+    try {
+      const countriesResponse = await getCountries({ limit: 100 });
+      const countries = extractCollectionData<Record<string, unknown>>(countriesResponse, ['countries']);
+      const matchingCountry = countries.find((country) => country?._id === normalized);
+      if (matchingCountry && typeof matchingCountry.slug === 'string') {
+        pushCandidate(matchingCountry.slug);
+      }
+    } catch {
+      // Keep id-only fallback if country lookup fails.
+    }
+
+    return candidates;
+  }
+
+  try {
+    const countryResponse = await getCountryBySlug(normalized);
+    const countryPayload = countryResponse?.data || countryResponse;
+    if (countryPayload && typeof countryPayload === 'object') {
+      const byId = typeof countryPayload._id === 'string' ? countryPayload._id : '';
+      const bySlug = typeof countryPayload.slug === 'string' ? countryPayload.slug : '';
+      // Prefer id first when available because universities APIs commonly key on ObjectId references.
+      pushCandidate(byId);
+      pushCandidate(bySlug);
+    }
+  } catch {
+    // Fall through to raw value.
+  }
+
+  pushCandidate(normalized);
+  return candidates;
+}
+
 export default async function CollegesPage({ searchParams }: Readonly<Props>) {
   const { country } = await searchParams;
-  const isIndia = country?.toLowerCase() === 'india';
+  const normalizedCountry = normalizeCountryFilterValue(country);
+  const isIndia = normalizedCountry.toLowerCase() === 'india';
+  const countryFilterCandidates = await resolveCountryFilterCandidates(normalizedCountry);
   let universities: any[] = [];
-  for (const limit of [1000, 200, 50]) {
+
+  const filtersToTry = countryFilterCandidates.length > 0 ? countryFilterCandidates : [''];
+  for (const countryFilter of filtersToTry) {
     try {
-      const params: Record<string, any> = { limit, sort: 'sortOrder' };
-      if (country) params.country = country;
+      const params: Record<string, any> = { limit: 100, sort: 'sortOrder' };
+      if (countryFilter) params.country = countryFilter;
       const res = await getUniversities(params);
       universities = extractCollectionData<any>(res, ['universities']);
-      if (universities.length > 0) break;
-    } catch { /* try next limit */ }
+    } catch {
+      universities = [];
+    }
+
+    if (universities.length > 0) {
+      break;
+    }
   }
 
   return (
@@ -96,6 +170,7 @@ export default async function CollegesPage({ searchParams }: Readonly<Props>) {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
               {universities.map((uni: any) => {
                 const imageSource = pickUniversityImageSource(uni);
+                const useContainImage = typeof imageSource === 'string' && /logo|poster|banner|badge|emblem/i.test(imageSource);
                 const universityName = clampText(uni.name || 'University', 62);
                 const countryName = clampText(uni.country?.name, 24);
                 const accreditation = clampText(uni.accreditation, 38);
@@ -126,7 +201,7 @@ export default async function CollegesPage({ searchParams }: Readonly<Props>) {
                         src={imageSource}
                         alt={uni.name}
                         fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        className={useContainImage ? 'object-contain object-center bg-[#F7F6F2]' : 'object-cover object-center'}
                         fallbackElement={
                           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0D1B3E] to-[#162550] text-3xl text-white/30">🏫</div>
                         }
