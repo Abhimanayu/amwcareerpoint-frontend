@@ -187,6 +187,10 @@ function isObjectRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
+function firstNonEmptyString(values: unknown[]) {
+  return values.find((value) => typeof value === 'string' && value.trim()) as string | undefined;
+}
+
 export function extractCollectionData<T>(payload: unknown, collectionKeys: string[] = []) {
   const candidateKeys = [...collectionKeys, 'items', 'results', 'rows'];
   return extractFromPayload<T>(payload, candidateKeys, new Set<unknown>());
@@ -221,31 +225,116 @@ function findArrayInRecord<T>(record: Record<string, unknown>, keys: string[], q
   return null;
 }
 
-export function pickUniversityImageSource(university: Record<string, unknown> | null | undefined) {
+export function pickUniversityImageSource(
+  university: Record<string, unknown> | null | undefined,
+  options?: { allowFallback?: boolean }
+) {
   if (!university) {
     return '';
   }
 
   const gallery = Array.isArray(university.gallery) ? university.gallery : [];
 
-  return ([
+  const preferredSource = firstNonEmptyString([
     university.heroImage,
     university.logo,
     university.cardImage,
     gallery[0],
     university.image,
-  ].find((value) => typeof value === 'string' && value.trim()) as string | undefined)
-    || getStableFallback(university.slug || university.name, UNIVERSITY_FALLBACK_IMAGES);
+  ]);
+
+  if (preferredSource) {
+    return preferredSource;
+  }
+
+  if (options?.allowFallback === false) {
+    return '';
+  }
+
+  return getStableFallback(university.slug || university.name, UNIVERSITY_FALLBACK_IMAGES);
 }
 
-export function pickBlogImageSource(post: Record<string, unknown> | null | undefined) {
+export function pickUniversityMetadataImageSource(university: Record<string, unknown> | null | undefined) {
+  return pickUniversityImageSource(university, { allowFallback: false });
+}
+
+export function pickUniversityImageAltText(university: Record<string, unknown> | null | undefined) {
+  if (!university) {
+    return 'University';
+  }
+
+  const name = typeof university.name === 'string' && university.name.trim() ? university.name.trim() : 'University';
+  const gallery = Array.isArray(university.gallery) ? university.gallery : [];
+  const galleryAlt = Array.isArray(university.galleryAlt) ? university.galleryAlt : [];
+
+  if (typeof university.heroImage === 'string' && university.heroImage.trim()) {
+    return firstNonEmptyString([university.heroImageAlt, `${name} campus view`]) || `${name} campus view`;
+  }
+
+  if (typeof university.logo === 'string' && university.logo.trim()) {
+    return firstNonEmptyString([university.logoAlt, `${name} logo`]) || `${name} logo`;
+  }
+
+  if (typeof university.cardImage === 'string' && university.cardImage.trim()) {
+    return firstNonEmptyString([university.cardImageAlt, `${name} image`]) || `${name} image`;
+  }
+
+  if (typeof gallery[0] === 'string' && gallery[0].trim()) {
+    return firstNonEmptyString([galleryAlt[0], `${name} campus`]) || `${name} campus`;
+  }
+
+  if (typeof university.image === 'string' && university.image.trim()) {
+    return firstNonEmptyString([university.imageAlt, `${name} image`]) || `${name} image`;
+  }
+
+  return `${name} image`;
+}
+
+export function pickBlogImageSource(
+  post: Record<string, unknown> | null | undefined,
+  options?: { allowFallback?: boolean }
+) {
   if (!post) {
     return '';
   }
 
-  return ([post.coverImage, post.image, post.heroImage].find(
-    (value) => typeof value === 'string' && value.trim()
-  ) as string | undefined) || getStableFallback(post.slug || post.title, BLOG_FALLBACK_IMAGES);
+  const preferredSource = firstNonEmptyString([post.coverImage, post.image, post.heroImage]);
+
+  if (preferredSource) {
+    return preferredSource;
+  }
+
+  if (options?.allowFallback === false) {
+    return '';
+  }
+
+  return getStableFallback(post.slug || post.title, BLOG_FALLBACK_IMAGES);
+}
+
+export function pickBlogMetadataImageSource(post: Record<string, unknown> | null | undefined) {
+  return pickBlogImageSource(post, { allowFallback: false });
+}
+
+export function pickBlogImageAltText(post: Record<string, unknown> | null | undefined) {
+  if (!post) {
+    return 'Blog post';
+  }
+
+  const title = typeof post.title === 'string' && post.title.trim() ? post.title.trim() : 'Blog post';
+
+  if (typeof post.coverImage === 'string' && post.coverImage.trim()) {
+    return firstNonEmptyString([post.coverImageAlt, title]) || title;
+  }
+
+  if (typeof post.image === 'string' && post.image.trim()) {
+    return firstNonEmptyString([post.imageAlt, title]) || title;
+  }
+
+  if (typeof post.heroImage === 'string' && post.heroImage.trim()) {
+    return firstNonEmptyString([post.heroImageAlt, title]) || title;
+  }
+
+  return title;
 }
 
 /** Strip HTML tags and return plain text */
