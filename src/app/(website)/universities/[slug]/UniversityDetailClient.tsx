@@ -6,7 +6,7 @@ import { CollegeHero } from '@/components/ui/CollegeHero';
 import { CollegeGallery } from '@/components/ui/CollegeGallery';
 import { FeeCard } from '@/components/ui/FeeCard';
 import { SafeImage } from '@/components/ui/SafeImage';
-import { pickUniversityImageSource, sanitizeHtml } from '@/lib/utils';
+import { pickUniversityImageAltText, pickUniversityImageSource, sanitizeHtml } from '@/lib/utils';
 import { sanitizeAndOptimizeMobileContent } from '@/lib/contentValidation';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -30,7 +30,16 @@ const STATIC_REVIEWS = [
   { name: 'Arjun Mehta', initials: 'AM', year: '3rd Year', text: 'Safe campus, good food options, and a strong Indian student community. The teaching methodology is very practical and hands-on.', rating: 4 },
 ];
 
-const CURRICULUM = [
+const GOOGLE_REVIEWS_URL = 'https://www.google.com/search?q=AMW+Career+Point+Jaipur+reviews';
+
+type CurriculumItem = {
+  year: string;
+  title: string;
+  subjects: string;
+  desc: string;
+};
+
+const DEFAULT_CURRICULUM: CurriculumItem[] = [
   { year: 'Year 1', title: 'Pre-Clinical Sciences', subjects: 'Anatomy, Histology, Biochemistry, Medical Biology', desc: 'Foundation of medical knowledge with lab sessions and introductory clinical exposure.' },
   { year: 'Year 2', title: 'Pre-Clinical + Pathology', subjects: 'Physiology, Microbiology, Pathology, Pharmacology', desc: 'Deeper understanding of human body systems and disease mechanisms.' },
   { year: 'Year 3', title: 'Clinical Sciences Begin', subjects: 'Internal Medicine, Surgery, Obstetrics & Gynaecology', desc: 'Hospital rotations begin. Students interact with patients under supervision.' },
@@ -38,6 +47,31 @@ const CURRICULUM = [
   { year: 'Year 5', title: 'Sub-Internship', subjects: 'Psychiatry, Dermatology, Radiology, Emergency Medicine', desc: 'Students handle patient cases with increasing responsibility.' },
   { year: 'Year 6', title: 'Internship & Licensing Prep', subjects: 'Full-time clinical rotations, FMGE/NExT coaching', desc: 'Final year practical training and structured exam preparation.' },
 ];
+
+function normalizeCurriculum(university: any): CurriculumItem[] {
+  const source = Array.isArray(university?.curriculum) ? university.curriculum : [];
+
+  const normalized = source
+    .map((item: any, index: number) => {
+      const year = typeof item?.year === 'string' && item.year.trim()
+        ? item.year.trim()
+        : `Year ${index + 1}`;
+      const title = typeof item?.title === 'string' ? item.title.trim() : '';
+      const subjects = typeof item?.subjects === 'string' ? item.subjects.trim() : '';
+      const descSource = typeof item?.desc === 'string' ? item.desc : item?.description;
+      const desc = typeof descSource === 'string' ? descSource.trim() : '';
+
+      if (!title || !desc) {
+        return null;
+      }
+
+      return { year, title, subjects, desc };
+    })
+    .filter((item: CurriculumItem | null): item is CurriculumItem => item !== null)
+    .slice(0, 10);
+
+  return normalized.length > 0 ? normalized : DEFAULT_CURRICULUM;
+}
 
 export default function UniversityDetailClient({
   university,
@@ -64,6 +98,10 @@ export default function UniversityDetailClient({
   const gallery = Array.isArray(university.gallery) ? university.gallery.slice(0, 12) : [];
   const recognition = Array.isArray(university.recognition) ? university.recognition.slice(0, 10) : [];
   const heroImage = pickUniversityImageSource(university);
+  const heroImageAlt = pickUniversityImageAltText(university);
+  const curriculum = normalizeCurriculum(university);
+  const activeCurriculumIndex = Math.min(currTab, curriculum.length - 1);
+  const activeCurriculum = curriculum[activeCurriculumIndex];
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -78,6 +116,7 @@ export default function UniversityDetailClient({
       <CollegeHero
         name={university.name}
         heroImage={heroImage}
+        heroImageAlt={heroImageAlt}
         countryName={countryName}
         countryFlagImage={university.country?.flagImage}
         establishedYear={university.establishedYear}
@@ -260,7 +299,7 @@ export default function UniversityDetailClient({
 
           {/* Year tabs */}
           <div className="mt-10 flex flex-wrap gap-2 sm:flex-nowrap sm:overflow-x-auto sm:pb-2">
-            {CURRICULUM.map((c, i) => (
+            {curriculum.map((c, i) => (
               <button
                 key={`ct-${i}`}
                 onClick={() => setCurrTab(i)}
@@ -277,11 +316,13 @@ export default function UniversityDetailClient({
 
           <div className="mt-6 rounded-2xl border border-[#DDD9D2] bg-[#F9F8F6] p-6 sm:p-8">
             <div className="mb-4 flex items-center gap-3">
-              <span className="rounded-full bg-[#F26419] px-3 py-1 text-xs font-bold text-white">{CURRICULUM[currTab].year}</span>
-              <h3 className="text-lg font-bold text-[#0D1B3E]">{CURRICULUM[currTab].title}</h3>
+              <span className="rounded-full bg-[#F26419] px-3 py-1 text-xs font-bold text-white">{activeCurriculum.year}</span>
+              <h3 className="text-lg font-bold text-[#0D1B3E]">{activeCurriculum.title}</h3>
             </div>
-            <p className="mb-3 text-sm leading-relaxed text-[#4A4742]">{CURRICULUM[currTab].desc}</p>
-            <p className="text-sm text-[#0D1B3E]"><span className="font-semibold">Key subjects:</span> {CURRICULUM[currTab].subjects}</p>
+            <p className="mb-3 text-sm leading-relaxed text-[#4A4742]">{activeCurriculum.desc}</p>
+            {activeCurriculum.subjects && (
+              <p className="text-sm text-[#0D1B3E]"><span className="font-semibold">Key subjects:</span> {activeCurriculum.subjects}</p>
+            )}
           </div>
         </div>
       </section>
@@ -304,7 +345,7 @@ export default function UniversityDetailClient({
               {gallery.length > 0 ? (
                 <SafeImage
                   src={gallery[Math.min(1, gallery.length - 1)]}
-                  alt="Campus life"
+                  alt={`${university.name || 'University'} campus life`}
                   fill
                   className="object-cover object-center"
                   fallbackElement={
@@ -453,6 +494,18 @@ export default function UniversityDetailClient({
               </div>
             ))}
           </div>
+
+          <div className="mt-8 text-center">
+            <a
+              href={GOOGLE_REVIEWS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#F26419] px-7 py-3 text-sm font-bold text-white transition-colors hover:bg-[#FF8040]"
+              aria-label="View all reviews on Google"
+            >
+              View All Reviews on Google
+            </a>
+          </div>
         </div>
       </section>
 
@@ -496,7 +549,7 @@ export default function UniversityDetailClient({
                 <Link key={uni._id || `rel-${i}`} href={`/college/${uni.slug}`} className="group overflow-hidden rounded-2xl border border-[#DDD9D2] bg-white transition-shadow hover:shadow-lg">
                   <div className="relative h-40 bg-[#0D1B3E]">
                     {pickUniversityImageSource(uni) ? (
-                      <SafeImage src={pickUniversityImageSource(uni)} alt={uni.name || 'University'} fill className="object-cover transition-transform duration-300 group-hover:scale-105" fallbackElement={<div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0D1B3E] to-[#162550] text-2xl text-white/30">🏫</div>} />
+                      <SafeImage src={pickUniversityImageSource(uni)} alt={pickUniversityImageAltText(uni)} fill className="object-cover transition-transform duration-300 group-hover:scale-105" fallbackElement={<div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0D1B3E] to-[#162550] text-2xl text-white/30">🏫</div>} />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0D1B3E] to-[#162550] text-2xl text-white/30">🏫</div>
                     )}

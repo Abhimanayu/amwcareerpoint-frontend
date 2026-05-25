@@ -6,6 +6,7 @@ import { resolveMediaUrl } from '@/lib/utils';
 interface CollegeHeroProps {
   name: string;
   heroImage?: string;
+  heroImageAlt?: string;
   countryName?: string;
   countryFlagImage?: string;
   establishedYear?: number;
@@ -19,6 +20,7 @@ interface CollegeHeroProps {
 export function CollegeHero({
   name,
   heroImage,
+  heroImageAlt,
   countryName,
   countryFlagImage,
   establishedYear,
@@ -39,16 +41,16 @@ export function CollegeHero({
       {resolvedHeroImage && (
         <SafeImage
           src={resolvedHeroImage}
-          alt={name || 'University'}
+          alt={heroImageAlt || name || 'University'}
           fill
           priority
           sizes="100vw"
-          className="object-cover object-center opacity-70"
+          className="object-cover object-center"
           fallbackElement={<div className="absolute inset-0 bg-[#0D1B3E]" />}
         />
       )}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0D1B3E] via-[#0D1B3E]/88 to-[#0D1B3E]/45" />
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0D1B3E]/35 via-transparent to-[#0D1B3E]/82" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#0D1B3E]/62 via-[#0D1B3E]/42 to-[#0D1B3E]/18" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0D1B3E]/12 via-transparent to-[#0D1B3E]/40" />
 
       <div className="relative z-10 mx-auto max-w-[1200px] px-5 py-10 sm:px-8 sm:py-16 lg:py-20">
         <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(360px,440px)] lg:gap-12">
