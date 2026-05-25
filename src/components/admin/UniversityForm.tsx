@@ -16,14 +16,34 @@ interface UniversityFormProps {
   isEdit?: boolean;
 }
 
+type UniversityCurriculumItem = {
+  year: string;
+  title: string;
+  subjects: string;
+  desc: string;
+};
+
+const DEFAULT_UNIVERSITY_CURRICULUM: UniversityCurriculumItem[] = [
+  { year: 'Year 1', title: 'Pre-Clinical Sciences', subjects: 'Anatomy, Histology, Biochemistry, Medical Biology', desc: 'Foundation of medical knowledge with lab sessions and introductory clinical exposure.' },
+  { year: 'Year 2', title: 'Pre-Clinical + Pathology', subjects: 'Physiology, Microbiology, Pathology, Pharmacology', desc: 'Deeper understanding of human body systems and disease mechanisms.' },
+  { year: 'Year 3', title: 'Clinical Sciences Begin', subjects: 'Internal Medicine, Surgery, Obstetrics & Gynaecology', desc: 'Hospital rotations begin. Students interact with patients under supervision.' },
+  { year: 'Year 4', title: 'Advanced Clinical Training', subjects: 'Paediatrics, Neurology, Ophthalmology, ENT', desc: 'Specialized clinical postings across departments with case presentations.' },
+  { year: 'Year 5', title: 'Sub-Internship', subjects: 'Psychiatry, Dermatology, Radiology, Emergency Medicine', desc: 'Students handle patient cases with increasing responsibility.' },
+  { year: 'Year 6', title: 'Internship & Licensing Prep', subjects: 'Full-time clinical rotations, FMGE/NExT coaching', desc: 'Final year practical training and structured exam preparation.' },
+];
+
 const emptyForm = {
   name: '',
   slug: '',
   country: '',
   description: '',
   logo: '',
+  logoAlt: '',
   heroImage: '',
+  heroImageAlt: '',
   gallery: [''],
+  galleryAlt: [''],
+  curriculum: DEFAULT_UNIVERSITY_CURRICULUM,
   sortOrder: '0',
   establishedYear: '',
   ranking: '',
@@ -47,6 +67,19 @@ function buildUniversityForm(initialData?: Record<string, unknown>) {
   const countryId = typeof initialData.country === 'object'
     ? (initialData.country as Record<string, unknown>)?._id as string
     : initialData.country as string;
+  const gallery = (initialData.gallery as string[])?.length ? (initialData.gallery as string[]) : [''];
+  const galleryAltSource = Array.isArray(initialData.galleryAlt) ? (initialData.galleryAlt as string[]) : [];
+  const curriculumSource = Array.isArray(initialData.curriculum)
+    ? (initialData.curriculum as Array<Partial<UniversityCurriculumItem>>)
+    : [];
+  const curriculum = curriculumSource.length > 0
+    ? curriculumSource.map((item, index) => ({
+        year: typeof item.year === 'string' && item.year.trim() ? item.year : `Year ${index + 1}`,
+        title: typeof item.title === 'string' ? item.title : '',
+        subjects: typeof item.subjects === 'string' ? item.subjects : '',
+        desc: typeof item.desc === 'string' ? item.desc : '',
+      }))
+    : DEFAULT_UNIVERSITY_CURRICULUM;
 
   return {
     name: (initialData.name as string) || '',
@@ -54,8 +87,12 @@ function buildUniversityForm(initialData?: Record<string, unknown>) {
     country: countryId || '',
     description: (initialData.description as string) || '',
     logo: (initialData.logo as string) || '',
+    logoAlt: (initialData.logoAlt as string) || '',
     heroImage: (initialData.heroImage as string) || '',
-    gallery: (initialData.gallery as string[])?.length ? (initialData.gallery as string[]) : [''],
+    heroImageAlt: (initialData.heroImageAlt as string) || '',
+    gallery,
+    galleryAlt: gallery.map((_, index) => (typeof galleryAltSource[index] === 'string' ? galleryAltSource[index] : '')),
+    curriculum,
     sortOrder: String(initialData.sortOrder ?? 0),
     establishedYear: String(initialData.establishedYear || ''),
     ranking: (initialData.ranking as string) || '',
@@ -108,11 +145,27 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
     setSaving(true);
     setError('');
     try {
+      const normalizedGallery = form.gallery.map((url, index) => ({
+        url: url.trim(),
+        alt: (form.galleryAlt[index] || '').trim(),
+      })).filter((item) => item.url);
+
       const payload = {
         ...form,
         sortOrder: Number.isFinite(Number(form.sortOrder)) ? Number(form.sortOrder) : 0,
         establishedYear: parseInt(form.establishedYear) || undefined,
-        gallery: form.gallery.filter(Boolean),
+        logoAlt: form.logoAlt.trim(),
+        heroImageAlt: form.heroImageAlt.trim(),
+        gallery: normalizedGallery.map((item) => item.url),
+        galleryAlt: normalizedGallery.map((item) => item.alt),
+        curriculum: form.curriculum
+          .map((item) => ({
+            year: item.year.trim(),
+            title: item.title.trim(),
+            subjects: item.subjects.trim(),
+            desc: item.desc.trim(),
+          }))
+          .filter((item) => item.title && item.desc),
         recognition: form.recognition.filter(Boolean),
         highlights: form.highlights.filter((h) => h.label),
         faqs: form.faqs.filter((f) => f.question),
@@ -235,6 +288,76 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
           </div>
         </section>
 
+        {/* Curriculum */}
+        <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold text-gray-900">6-Year MD Curriculum</h2>
+            <button
+              type="button"
+              onClick={() => updateField('curriculum', [...form.curriculum, { year: `Year ${form.curriculum.length + 1}`, title: '', subjects: '', desc: '' }])}
+              className="text-sm text-[#F26419] font-medium"
+            >
+              + Add Year
+            </button>
+          </div>
+          {form.curriculum.map((item, i) => (
+            <div key={`${item.year}-${i}`} className="rounded-xl border border-gray-200 p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <input
+                  value={item.year}
+                  onChange={(e) => {
+                    const arr = [...form.curriculum];
+                    arr[i] = { ...arr[i], year: e.target.value };
+                    updateField('curriculum', arr);
+                  }}
+                  placeholder="Year label"
+                  className="w-36 px-3 py-2 rounded-xl border border-gray-200 text-sm"
+                />
+                {form.curriculum.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => updateField('curriculum', form.curriculum.filter((_, j) => j !== i))}
+                    className="ml-auto text-red-500 text-sm font-medium"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+              <input
+                value={item.title}
+                onChange={(e) => {
+                  const arr = [...form.curriculum];
+                  arr[i] = { ...arr[i], title: e.target.value };
+                  updateField('curriculum', arr);
+                }}
+                placeholder="Title"
+                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm"
+              />
+              <input
+                value={item.subjects}
+                onChange={(e) => {
+                  const arr = [...form.curriculum];
+                  arr[i] = { ...arr[i], subjects: e.target.value };
+                  updateField('curriculum', arr);
+                }}
+                placeholder="Key subjects"
+                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm"
+              />
+              <textarea
+                rows={3}
+                value={item.desc}
+                onChange={(e) => {
+                  const arr = [...form.curriculum];
+                  arr[i] = { ...arr[i], desc: e.target.value };
+                  updateField('curriculum', arr);
+                }}
+                placeholder="Description"
+                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm resize-y"
+              />
+            </div>
+          ))}
+        </section>
+
         {/* Images */}
         <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
           <h2 className="font-semibold text-gray-900">Images</h2>
@@ -242,17 +365,40 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Logo</label>
               <ImageUploader folder="universities" currentImage={form.logo} onUpload={(url) => updateField('logo', url)} hint="Recommended: 200×200 px (1:1 square). University crest or badge." />
+              <input
+                value={form.logoAlt}
+                onChange={(e) => updateField('logoAlt', e.target.value)}
+                maxLength={160}
+                placeholder="Image alt text"
+                className="mt-2 w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Hero Image</label>
               <ImageUploader folder="universities" currentImage={form.heroImage} onUpload={(url) => updateField('heroImage', url)} hint="Recommended: 1200×800 px (3:2). Main campus photo shown on listings and detail page." />
+              <input
+                value={form.heroImageAlt}
+                onChange={(e) => updateField('heroImageAlt', e.target.value)}
+                maxLength={160}
+                placeholder="Image alt text"
+                className="mt-2 w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none"
+              />
             </div>
           </div>
           <div>
               <div className="flex items-center justify-between mb-3">
                 <label className="text-sm font-medium text-gray-700">Gallery Images <span className="text-xs text-gray-400">({form.gallery.filter(Boolean).length}/{L.gallery.maxItems})</span></label>
                 {form.gallery.filter(Boolean).length < L.gallery.maxItems && (
-                  <button type="button" onClick={() => updateField('gallery', [...form.gallery, ''])} className="text-sm text-[#F26419] font-medium">+ Add</button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateField('gallery', [...form.gallery, '']);
+                      updateField('galleryAlt', [...form.galleryAlt, '']);
+                    }}
+                    className="text-sm text-[#F26419] font-medium"
+                  >
+                    + Add
+                  </button>
                 )}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -268,10 +414,24 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
                       }}
                       hint={`Gallery image ${i + 1}`}
                     />
+                    <input
+                      value={form.galleryAlt[i] || ''}
+                      onChange={(e) => {
+                        const arr = [...form.galleryAlt];
+                        arr[i] = e.target.value;
+                        updateField('galleryAlt', arr);
+                      }}
+                      maxLength={160}
+                      placeholder="Image alt text"
+                      className="mt-2 w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm"
+                    />
                     {form.gallery.length > 1 && (
                       <button
                         type="button"
-                        onClick={() => updateField('gallery', form.gallery.filter((_, j) => j !== i))}
+                        onClick={() => {
+                          updateField('gallery', form.gallery.filter((_, j) => j !== i));
+                          updateField('galleryAlt', form.galleryAlt.filter((_, j) => j !== i));
+                        }}
                         className="absolute top-2 right-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white text-xs hover:bg-red-600"
                       >
                         ×
