@@ -28,6 +28,13 @@ export type PredictorPlan = {
   accessDays: number;
   keyId: string | null;
   isPaymentConfigured: boolean;
+  manualPayment?: {
+    enabled: boolean;
+    label: string;
+    upiId: string | null;
+    qrUrl: string | null;
+    instructions: string;
+  };
 };
 
 export type PredictorMetadata = {
@@ -335,5 +342,19 @@ export async function verifyPredictorPayment(payload: {
   return request<{ status: string; accessExpiresAt: string; accessDays: number }>('/predictor/payment/verify', {
     method: 'POST',
     body: JSON.stringify(payload),
+  });
+}
+
+export async function createManualPredictorPayment(input: { transactionId: string; note?: string }) {
+  return request<{
+    paymentRecordId: string;
+    orderId: string;
+    status: 'pending';
+    transactionId: string;
+    amountPaise: number;
+    accessDays: number;
+  }>('/predictor/payment/manual-request', {
+    method: 'POST',
+    body: JSON.stringify(input),
   });
 }

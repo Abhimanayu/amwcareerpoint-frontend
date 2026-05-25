@@ -12,6 +12,7 @@ import {
   type PredictorSearchResponse,
   type PredictorUser,
   clearPredictorSession,
+  createManualPredictorPayment,
   createPredictorOrder,
   getPredictorAccess,
   getPredictorMe,
@@ -257,14 +258,20 @@ function AccessPanel({
   authMode,
   authLoading,
   paymentLoading,
+  manualLoading,
   authError,
   authMessage,
+  manualTransactionId,
+  manualNote,
   form,
   setAuthMode,
   setForm,
+  setManualTransactionId,
+  setManualNote,
   onAuthSubmit,
   onLogout,
   onPay,
+  onManualSubmit,
 }: Readonly<{
   user: PredictorUser | null;
   access: PredictorAccess | null;
@@ -272,16 +279,23 @@ function AccessPanel({
   authMode: AuthMode;
   authLoading: boolean;
   paymentLoading: boolean;
+  manualLoading: boolean;
   authError: string;
   authMessage: string;
+  manualTransactionId: string;
+  manualNote: string;
   form: { name: string; email: string; phone: string; password: string };
   setAuthMode: (mode: AuthMode) => void;
   setForm: Dispatch<SetStateAction<{ name: string; email: string; phone: string; password: string }>>;
+  setManualTransactionId: Dispatch<SetStateAction<string>>;
+  setManualNote: Dispatch<SetStateAction<string>>;
   onAuthSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onLogout: () => void;
   onPay: () => void;
+  onManualSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }>) {
   const hasAccess = Boolean(access?.hasAccess);
+  const manualPaymentEnabled = Boolean(plan?.manualPayment?.enabled);
 
   return (
     <aside className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
@@ -348,19 +362,74 @@ function AccessPanel({
                   </div>
                 </div>
               )}
-              {!plan?.isPaymentConfigured && (
+              {!plan?.isPaymentConfigured && !manualPaymentEnabled && (
                 <p className="mt-3 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
                   Payment gateway is not configured yet. Add Razorpay keys on backend before live payments.
                 </p>
               )}
-              <button
-                type="button"
-                onClick={onPay}
-                disabled={paymentLoading || !plan?.isPaymentConfigured}
-                className="mt-4 w-full h-11 rounded-xl bg-orange text-white font-bold hover:bg-orange-hover disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-              >
-                {paymentLoading ? 'Opening payment...' : 'Buy Access'}
-              </button>
+              {plan?.isPaymentConfigured && (
+                <button
+                  type="button"
+                  onClick={onPay}
+                  disabled={paymentLoading}
+                  className="mt-4 w-full h-11 rounded-xl bg-orange text-white font-bold hover:bg-orange-hover disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                >
+                  {paymentLoading ? 'Opening payment...' : 'Buy Access'}
+                </button>
+              )}
+              {manualPaymentEnabled && (
+                <form onSubmit={onManualSubmit} className="mt-4 space-y-3 rounded-xl border border-orange/20 bg-orange/5 p-4">
+                  <div>
+                    <p className="text-sm font-bold text-gray-900">{plan?.manualPayment?.label || 'Manual payment'}</p>
+                    <p className="mt-1 text-xs text-gray-600">{plan?.manualPayment?.instructions}</p>
+                    {plan?.manualPayment?.upiId && (
+                      <p className="mt-2 text-xs font-semibold text-gray-900">UPI ID: {plan.manualPayment.upiId}</p>
+                    )}
+                    {plan?.manualPayment?.qrUrl && (
+                      <a
+                        href={plan.manualPayment.qrUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-2 inline-flex text-xs font-bold text-orange hover:underline"
+                      >
+                        Open payment QR
+                      </a>
+                    )}
+                  </div>
+                  <div>
+                    <label htmlFor="manual-transaction-id" className="block text-xs font-semibold text-gray-700 mb-1">
+                      Transaction ID
+                    </label>
+                    <input
+                      id="manual-transaction-id"
+                      value={manualTransactionId}
+                      onChange={(event) => setManualTransactionId(event.target.value)}
+                      placeholder="UPI / bank reference number"
+                      className="w-full h-10 px-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange/40 focus:border-orange text-sm"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="manual-note" className="block text-xs font-semibold text-gray-700 mb-1">
+                      Note
+                    </label>
+                    <input
+                      id="manual-note"
+                      value={manualNote}
+                      onChange={(event) => setManualNote(event.target.value)}
+                      placeholder="Optional payment note"
+                      className="w-full h-10 px-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange/40 focus:border-orange text-sm"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={manualLoading}
+                    className="w-full h-10 rounded-lg bg-[#0D1B3E] text-white text-sm font-bold hover:bg-[#152a60] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {manualLoading ? 'Submitting...' : 'Submit Payment for Verification'}
+                  </button>
+                </form>
+              )}
             </div>
           )}
         </div>
@@ -477,12 +546,15 @@ export function CollegePredictorClient() {
   const [authLoading, setAuthLoading] = useState(false);
   const [metaLoading, setMetaLoading] = useState(true);
   const [paymentLoading, setPaymentLoading] = useState(false);
+  const [manualLoading, setManualLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<PredictorSearchResponse | null>(null);
   const [error, setError] = useState('');
   const [authError, setAuthError] = useState('');
   const [authMessage, setAuthMessage] = useState('');
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '' });
+  const [manualTransactionId, setManualTransactionId] = useState('');
+  const [manualNote, setManualNote] = useState('');
   const [page, setPage] = useState(1);
   const resultsRef = useRef<HTMLDivElement>(null);
 
@@ -681,6 +753,33 @@ export function CollegePredictorClient() {
       setPaymentLoading(false);
     }
   }, [plan, refreshAccess, user]);
+
+  const handleManualPaymentSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!user) {
+      setError('Please login before submitting payment details.');
+      return;
+    }
+
+    setManualLoading(true);
+    setError('');
+    setAuthMessage('');
+
+    try {
+      await createManualPredictorPayment({
+        transactionId: manualTransactionId.trim(),
+        note: manualNote.trim() || undefined,
+      });
+      setManualTransactionId('');
+      setManualNote('');
+      setAuthMessage('Payment submitted. Admin will verify and activate access.');
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setManualLoading(false);
+    }
+  }, [manualNote, manualTransactionId, user]);
 
   const handleStateChange = (nextState: string) => {
     setState(nextState);
@@ -902,14 +1001,20 @@ export function CollegePredictorClient() {
             authMode={authMode}
             authLoading={authLoading}
             paymentLoading={paymentLoading}
+            manualLoading={manualLoading}
             authError={authError}
             authMessage={authMessage}
+            manualTransactionId={manualTransactionId}
+            manualNote={manualNote}
             form={form}
             setAuthMode={setAuthMode}
             setForm={setForm}
+            setManualTransactionId={setManualTransactionId}
+            setManualNote={setManualNote}
             onAuthSubmit={handleAuthSubmit}
             onLogout={handleLogout}
             onPay={handlePayment}
+            onManualSubmit={handleManualPaymentSubmit}
           />
         </div>
       </section>
