@@ -10,7 +10,7 @@ export function FMGEPreparationSection() {
             Admission is only step one. To practice medicine in India after studying abroad,
             you must clear the Foreign Medical Graduate Examination (FMGE) — now being
             replaced by NExT. The national pass rate hovers around 45%. AMW prepares you from
-            Day One of your MBBS so you're never caught off-guard.
+            Day One of your MBBS so you&apos;re never caught off-guard.
           </p>
         </div>
 
@@ -79,7 +79,7 @@ export function FMGEPreparationSection() {
             </h3>
             <p className="text-gray-600">
               As FMGE transitions to NExT, our curriculum is already aligned. Students guided
-              by AMW won't encounter any surprises during the transition.
+              by AMW won&apos;t encounter any surprises during the transition.
             </p>
           </div>
 

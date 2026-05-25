@@ -133,7 +133,7 @@ export function RobustImage({
   }, [retryCount, retryAttempts, currentSrcIndex, allSources.length]);
 
   // Handle image load error
-  const handleError = useCallback((error?: any) => {
+  const handleError = useCallback((error?: unknown) => {
     const errorMsg = `Image failed: ${currentSrc} (attempt ${retryCount + 1}/${retryAttempts})`;
     setErrorDetails(errorMsg);
     console.warn(errorMsg, error);

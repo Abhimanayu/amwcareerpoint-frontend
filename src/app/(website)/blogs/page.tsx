@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { getBlogs, getBlogCategories } from '@/lib/blogs';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { clampText, extractCollectionData, formatDate, pickBlogImageSource } from '@/lib/utils';
+import { clampText, extractCollectionData, formatDate, pickBlogImageAltText, pickBlogImageSource } from '@/lib/utils';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { SubscribeForm } from '@/components/blog/BlogInteractive';
 import { SEO_HOLD } from '@/lib/seoHold';
@@ -26,26 +26,6 @@ export const metadata: Metadata = {
 
 export const revalidate = 60;
 const LATEST_PAGE_SIZE = 8;
-
-// Initial page skeleton for better loading UX
-const initialSkeleton = (
-  <div className="min-h-screen bg-white">
-    <div className="mx-auto max-w-[1200px] px-4 py-12 space-y-6">
-      <div className="h-8 w-48 bg-gray-200 rounded animate-pulse" />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="rounded-xl overflow-hidden bg-gray-100 animate-pulse">
-            <div className="h-40 bg-gray-200" />
-            <div className="p-4 space-y-2">
-              <div className="h-4 bg-gray-200 rounded" />
-              <div className="h-4 bg-gray-200 rounded w-5/6" />
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
-);
 const BLOG_FETCH_LIMITS = [120, 60, 24] as const;
 
 type BlogPost = {
@@ -225,16 +205,6 @@ export default async function BlogPage({
     <div className="bg-white">
       {/* HERO */}
       <section className="relative bg-[#0D1B3E] overflow-hidden">
-        {/* oversized background decoration */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 flex items-center justify-center select-none"
-        >
-          <span className="text-[10rem] sm:text-[16rem] lg:text-[22rem] font-heading font-black text-white/[0.03] leading-none tracking-tight">
-            BLOG
-          </span>
-        </div>
-
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-20">
           <div className="max-w-3xl">
             <span className="inline-flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-[#F26419] uppercase tracking-[0.15em] mb-3 sm:mb-4">
@@ -362,7 +332,7 @@ export default async function BlogPage({
                       {featuredImage ? (
                         <SafeImage
                           src={featuredImage}
-                          alt={featured.title || 'Featured article'}
+                          alt={pickBlogImageAltText(featured)}
                           fill
                           className={BLOG_BANNER_IMAGE_CLASS}
                           fallbackSrc="/blogs/russia-universities-nmc.jpg"
@@ -435,7 +405,7 @@ export default async function BlogPage({
                           {img ? (
                             <SafeImage
                               src={img}
-                              alt={post.title || 'Blog post'}
+                              alt={pickBlogImageAltText(post)}
                               fill
                               className={BLOG_BANNER_IMAGE_CLASS}
                               fallbackElement={<div className="absolute inset-0 flex items-center justify-center text-3xl bg-[#F9F8F6]">📝</div>}
@@ -493,7 +463,7 @@ export default async function BlogPage({
                           {img ? (
                             <SafeImage
                               src={img}
-                              alt={post.title || 'Blog'}
+                              alt={pickBlogImageAltText(post)}
                               fill
                               className={BLOG_BANNER_IMAGE_CLASS}
                               fallbackElement={<div className="absolute inset-0 flex items-center justify-center text-base sm:text-lg bg-[#F9F8F6]">📝</div>}

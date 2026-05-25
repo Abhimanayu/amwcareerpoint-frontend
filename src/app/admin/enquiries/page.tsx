@@ -32,7 +32,13 @@ export default function AdminEnquiriesPage() {
     setLoading(false);
   }, [statusFilter]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    const frameId = globalThis.requestAnimationFrame(() => {
+      void fetchData();
+    });
+
+    return () => globalThis.cancelAnimationFrame(frameId);
+  }, [fetchData]);
 
   const handleStatusUpdate = async (id: string, status: string) => {
     setUpdating(true);

@@ -9,7 +9,7 @@ export function DecisionGuideSection() {
             India or Abroad — Which Is Right for You?
           </h2>
           <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
-            The honest breakdown most consultancies won't give you. Neither option is 
+            The honest breakdown most consultancies won&apos;t give you. Neither option is 
             universally better; it depends on your score, budget, and goals.
           </p>
         </div>
@@ -81,7 +81,7 @@ export function DecisionGuideSection() {
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
                   <span className="text-green-500 text-lg">✓</span>
-                  <span className="text-gray-700">Your NEET score is 150-500, and government seats aren't within reach</span>
+                  <span className="text-gray-700">Your NEET score is 150-500, and government seats aren&apos;t within reach</span>
                 </div>
                 <div className="flex items-start gap-3">
                   <span className="text-green-500 text-lg">✓</span>
@@ -89,7 +89,7 @@ export function DecisionGuideSection() {
                 </div>
                 <div className="flex items-start gap-3">
                   <span className="text-green-500 text-lg">✓</span>
-                  <span className="text-gray-700">You're prepared to clear FMGE/NExT after returning to practice in India</span>
+                  <span className="text-gray-700">You&apos;re prepared to clear FMGE/NExT after returning to practice in India</span>
                 </div>
                 <div className="flex items-start gap-3">
                   <span className="text-green-500 text-lg">✓</span>
@@ -100,7 +100,7 @@ export function DecisionGuideSection() {
               <div className="mt-4 space-y-2">
                 <div className="flex items-start gap-3">
                   <span className="text-red-500 text-lg">✗</span>
-                  <span className="text-gray-700">If you're unwilling to prepare seriously for FMGE - it's a real exam</span>
+                  <span className="text-gray-700">If you&apos;re unwilling to prepare seriously for FMGE - it&apos;s a real exam</span>
                 </div>
                 <div className="flex items-start gap-3">
                   <span className="text-red-500 text-lg">✗</span>
@@ -111,7 +111,7 @@ export function DecisionGuideSection() {
 
             <div className="flex items-center gap-2 text-green-600 font-medium">
               <span>📞</span>
-              <span>Book a free session — we'll tell you honestly which suits you</span>
+              <span>Book a free session — we&apos;ll tell you honestly which suits you</span>
             </div>
           </div>
         </div>

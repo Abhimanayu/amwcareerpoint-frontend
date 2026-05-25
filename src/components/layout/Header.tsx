@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { SafeImage } from '../ui/SafeImage';
 import { getMbbsDestinationLinks } from '@/lib/mbbsDestinations';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 type DropdownItem = { href: string; label: string };
 
 type MenuItem = {

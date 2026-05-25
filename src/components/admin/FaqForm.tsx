@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { createFaq, updateFaq } from '@/lib/faqs';
@@ -21,27 +21,27 @@ const emptyForm = {
   status: 'active' as 'active' | 'inactive',
 };
 
+function buildFaqForm(initialData?: Record<string, unknown>) {
+  if (!initialData) return emptyForm;
+
+  const validPages = ['home', 'contact', 'general', 'country', 'university', 'about'];
+  return {
+    question: (initialData.question as string) || '',
+    answer: (initialData.answer as string) || '',
+    page: validPages.includes((initialData.page as string) || '')
+      ? (initialData.page as string)
+      : 'general',
+    pageSlug: (initialData.pageSlug as string) || '',
+    sortOrder: (initialData.sortOrder as number) ?? (initialData.order as number) ?? 0,
+    status: initialData.status === 'inactive' ? 'inactive' : 'active',
+  };
+}
+
 export default function FaqForm({ initialData, isEdit }: Readonly<FaqFormProps>) {
   const router = useRouter();
-  const [form, setForm] = useState(emptyForm);
+  const [form, setForm] = useState(() => buildFaqForm(initialData));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    if (initialData) {
-      const validPages = ['home', 'contact', 'general', 'country', 'university', 'about'];
-      setForm({
-        question: (initialData.question as string) || '',
-        answer: (initialData.answer as string) || '',
-        page: validPages.includes((initialData.page as string) || '')
-          ? (initialData.page as string)
-          : 'general',
-        pageSlug: (initialData.pageSlug as string) || '',
-        sortOrder: (initialData.sortOrder as number) ?? (initialData.order as number) ?? 0,
-        status: initialData.status === 'inactive' ? 'inactive' : 'active',
-      });
-    }
-  }, [initialData]);
 
   const updateField = (key: string, value: unknown) => {
     setForm((prev) => ({ ...prev, [key]: value }));

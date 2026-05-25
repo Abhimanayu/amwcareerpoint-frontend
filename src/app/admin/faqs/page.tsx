@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { AxiosError } from 'axios';
 import AdminLayout from '@/components/admin/AdminLayout';
 import DataTable from '@/components/admin/DataTable';
 import ConfirmModal from '@/components/admin/ConfirmModal';
@@ -86,11 +85,12 @@ export default function AdminFaqsPage() {
   const [deleting, setDeleting] = useState(false);
   const [notice, setNotice] = useState<string>('');
 
-  const fetchFaqs = useCallback(async () => {
+  const fetchFaqs = useCallback(async (options?: { forceFresh?: boolean }) => {
     setLoading(true);
     try {
-      const params: Record<string, unknown> = {};
-      if (pageFilter) params.page = pageFilter;
+      const params: Record<string, unknown> = { pageNumber: 1 };
+      if (pageFilter) params.faqPage = pageFilter;
+      if (options?.forceFresh) params._t = Date.now();
       const res = await adminGetFaqs(params);
       const items = normalizeFaqItems(Array.isArray(res?.data) ? res.data : res?.data?.faqs || res?.faqs || []);
       setFaqs(items);
@@ -100,7 +100,9 @@ export default function AdminFaqsPage() {
     setLoading(false);
   }, [pageFilter]);
 
-  useEffect(() => { fetchFaqs(); }, [fetchFaqs]);
+  useEffect(() => {
+    void fetchFaqs({ forceFresh: true });
+  }, [fetchFaqs]);
 
   useEffect(() => {
     if (!notice) return;
@@ -113,23 +115,24 @@ export default function AdminFaqsPage() {
     setDeleting(true);
     const target = deleteTarget;
     try {
-      await deleteFaq(target._id);
-      await revalidateFaqPages(target.page, target.pageSlug || undefined).catch(() => {});
-      setNotice('FAQ deleted successfully.');
-      setDeleteTarget(null);
-      await fetchFaqs();
-    } catch (err) {
-      if (err instanceof AxiosError && err.response?.status === 404) {
-        // Treat stale entries as already deleted to keep admin UX unblocked.
+      const result = await deleteFaq(target._id);
+
+      if (result.deleted) {
+        await revalidateFaqPages(target.page, target.pageSlug || undefined).catch(() => {});
+        setNotice('FAQ deleted successfully.');
+      } else if (result.alreadyDeleted) {
         setNotice('FAQ was already removed. List refreshed.');
-        setDeleteTarget(null);
-        await fetchFaqs();
-        setDeleting(false);
-        return;
+      } else {
+        throw new Error(result.message || 'Failed to delete FAQ.');
       }
+
+      setDeleteTarget(null);
+      await fetchFaqs({ forceFresh: true });
+    } catch (err) {
       alert(handleApiError(err));
+    } finally {
+      setDeleting(false);
     }
-    setDeleting(false);
   };
 
   const columns = [

@@ -1,7 +1,7 @@
 'use client';
 
 import Image, { ImageProps } from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { resolveMediaUrl } from '@/lib/utils';
 
 interface SafeImageProps extends Omit<ImageProps, 'onError'> {
@@ -29,12 +29,13 @@ export function SafeImage({
   unoptimized,
   ...props
 }: Readonly<SafeImageProps>) {
-  const [error, setError] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
+  const [erroredSrc, setErroredSrc] = useState<string | null>(null);
   
   const normalizedSrc = typeof src === 'string' ? resolveMediaUrl(src) : src;
+  const normalizedSrcString = isStringSource(normalizedSrc) ? normalizedSrc : null;
   const normalizedFallbackSrc = typeof fallbackSrc === 'string' ? resolveMediaUrl(fallbackSrc) : fallbackSrc;
-  const resolvedSrc = !normalizedSrc || error ? normalizedFallbackSrc || FALLBACK_PLACEHOLDER : normalizedSrc;
+  const isCurrentSrcErrored = !!normalizedSrcString && erroredSrc === normalizedSrcString;
+  const resolvedSrc = !normalizedSrc || isCurrentSrcErrored ? normalizedFallbackSrc || FALLBACK_PLACEHOLDER : normalizedSrc;
   const stringResolvedSrc = isStringSource(resolvedSrc) ? resolvedSrc : null;
   const isOptimizableBypassSource = stringResolvedSrc
     ? /^https?:\/\//i.test(stringResolvedSrc) || stringResolvedSrc.startsWith('data:')
@@ -44,13 +45,7 @@ export function SafeImage({
       ? unoptimized
       : isOptimizableBypassSource;
 
-  // Reset error state when src changes
-  useEffect(() => {
-    setError(false);
-    setImageLoaded(false);
-  }, [src]);
-
-  if (!normalizedSrc || error) {
+  if (!normalizedSrc || isCurrentSrcErrored) {
     if (!normalizedFallbackSrc && fallbackElement) return <>{fallbackElement}</>;
     return (
       <Image
@@ -74,10 +69,9 @@ export function SafeImage({
         if (process.env.NODE_ENV === 'development') {
           console.warn('SafeImage fallback for:', typeof normalizedSrc === 'string' ? normalizedSrc.slice(0, 80) : 'non-string src');
         }
-        setError(true);
-      }}
-      onLoad={() => {
-        setImageLoaded(true);
+        if (normalizedSrcString) {
+          setErroredSrc(normalizedSrcString);
+        }
       }}
     />
   );

@@ -113,7 +113,11 @@ export function BackendTestPanel() {
   };
 
   useEffect(() => {
-    runTests();
+    const timerId = globalThis.setTimeout(() => {
+      void runTests();
+    }, 0);
+
+    return () => globalThis.clearTimeout(timerId);
   }, []);
 
   if (!testResults) return null;
@@ -149,8 +153,8 @@ export function BackendTestPanel() {
             <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded text-xs">
               <div className="font-bold text-red-800 mb-1">🚨 CRITICAL FIXES NEEDED:</div>
               <div className="text-red-700">
-                Images won't work until you add these to your backend:
-                <br />• <code>app.use('/uploads', express.static('uploads'))</code>
+                Images won&apos;t work until you add these to your backend:
+                <br />• <code>app.use(&apos;/uploads&apos;, express.static(&apos;uploads&apos;))</code>
                 <br />• Health check endpoint
               </div>
             </div>
@@ -169,7 +173,7 @@ export function BackendTestPanel() {
             <div className="font-medium text-blue-800 mb-1">📋 Quick Fix Instructions:</div>
             <div className="text-blue-700">
               1. Open your backend <code>app.js</code> or <code>server.js</code>
-              <br />2. Add: <code>app.use('/uploads', express.static('uploads'))</code>
+              <br />2. Add: <code>app.use(&apos;/uploads&apos;, express.static(&apos;uploads&apos;))</code>
               <br />3. Restart backend server
               <br />4. Test again - images should work!
             </div>
