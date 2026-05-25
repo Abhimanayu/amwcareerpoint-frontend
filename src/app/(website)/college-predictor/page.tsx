@@ -6,11 +6,11 @@ export const metadata: Metadata = {
     absolute: 'NEET College Predictor 2025 | MBBS Admission Predictor | AMW Career Point',
   },
   description:
-    'Find MBBS colleges you can get admission in based on your NEET 2025 rank and category. State-wise cutoff data for 21 states — Andhra Pradesh, Bihar, Gujarat, Karnataka, Maharashtra, Rajasthan & more.',
+    'Paid NEET MBBS college predictor with 7-day access. Find colleges based on your NEET 2025 rank, category, sub category, state, and quota.',
   alternates: { canonical: 'https://amwcareerpoint.com/college-predictor' },
   openGraph: {
-    title: 'NEET MBBS College Predictor 2025 — AMW Career Point',
-    description: 'Know your MBBS college chances based on NEET 2025 rank & category across 21 states.',
+    title: 'NEET MBBS College Predictor 2025 - AMW Career Point',
+    description: 'Unlock 7-day access to predict MBBS college chances from backend-managed NEET cutoff data.',
     url: 'https://amwcareerpoint.com/college-predictor',
   },
 };
@@ -18,7 +18,6 @@ export const metadata: Metadata = {
 export default function CollegePredictorPage() {
   return (
     <>
-      {/* Structured Data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -27,11 +26,10 @@ export default function CollegePredictorPage() {
             '@type': 'WebApplication',
             name: 'NEET MBBS College Predictor 2025',
             applicationCategory: 'EducationApplication',
-            description:
-              'Predict MBBS college admission chances based on NEET 2025 rank and category across 21 Indian states.',
+            description: 'Paid MBBS college predictor using backend-managed NEET cutoff data.',
             url: 'https://amwcareerpoint.com/college-predictor',
             operatingSystem: 'All',
-            offers: { '@type': 'Offer', price: '0', priceCurrency: 'INR' },
+            offers: { '@type': 'Offer', price: '588.82', priceCurrency: 'INR' },
           }),
         }}
       />
