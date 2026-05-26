@@ -25,7 +25,7 @@ import {
   type HomeSettings,
 } from '@/lib/homeSettings';
 
-export const revalidate = 60;
+export const revalidate = 300;
 
 const homeJsonLd = {
   '@context': 'https://schema.org',

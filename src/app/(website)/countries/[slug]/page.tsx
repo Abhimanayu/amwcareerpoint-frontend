@@ -13,7 +13,7 @@ import { SEO_HOLD } from '@/lib/seoHold';
 import { CountryFAQSection } from './CountryFAQSection';
 import { CountryScrollTop } from './CountryScrollTop';
 
-export const revalidate = 60;
+export const revalidate = 600;
 
 type Props = Readonly<{ params: Promise<{ slug: string }> }>;
 

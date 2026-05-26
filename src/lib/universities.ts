@@ -3,7 +3,7 @@ import { api, adminApi } from "./api";
 
 type UniversitiesParams = Record<string, unknown>;
 
-const CLIENT_UNIVERSITIES_TTL_MS = 30_000;
+const CLIENT_UNIVERSITIES_TTL_MS = 120_000;
 
 const clientUniversitiesCache: Map<string, { payload: unknown; timestamp: number }> = new Map();
 const clientUniversitiesInflight: Map<string, Promise<unknown>> = new Map();

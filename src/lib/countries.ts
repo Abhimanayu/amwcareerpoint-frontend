@@ -4,7 +4,7 @@ import { getCountrySlugCandidates } from "./slugUtils";
 
 type CountriesParams = Record<string, unknown>;
 
-const CLIENT_COUNTRIES_TTL_MS = 30_000;
+const CLIENT_COUNTRIES_TTL_MS = 120_000;
 const CLIENT_COUNTRIES_SHARED_MIN_LIMIT = 12;
 
 let clientCountriesCache: { limit: number; payload: unknown; timestamp: number } | null = null;

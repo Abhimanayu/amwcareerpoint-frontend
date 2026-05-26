@@ -3,7 +3,7 @@ import { api, adminApi } from "./api";
 
 type BlogsParams = Record<string, unknown>;
 
-const CLIENT_BLOGS_TTL_MS = 30_000;
+const CLIENT_BLOGS_TTL_MS = 120_000;
 
 const clientBlogsCache: Map<string, { payload: unknown; timestamp: number }> = new Map();
 const clientBlogsInflight: Map<string, Promise<unknown>> = new Map();
