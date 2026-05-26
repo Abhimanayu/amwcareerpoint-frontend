@@ -118,7 +118,7 @@ export default async function CountriesPage() {
                         {country.flagImage ? (
                           <SafeImage
                             src={country.flagImage}
-                            alt={`${country.name} flag`}
+                            alt={(country.flagImageAlt as string) || `${country.name} flag`}
                             width={32}
                             height={24}
                             className="w-8 h-6 rounded-sm object-cover"

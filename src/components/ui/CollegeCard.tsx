@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { SafeImage } from '@/components/ui/SafeImage';
-import { pickUniversityImageSource, stripHtml } from '@/lib/utils';
+import { pickUniversityImageAltText, pickUniversityImageSource, stripHtml } from '@/lib/utils';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -19,6 +19,7 @@ export function CollegeCard({ university }: Readonly<CollegeCardProps>) {
   const fees = university?.annualFees || '';
   const duration = university?.courseDuration || '';
   const heroImage = pickUniversityImageSource(university);
+  const imageAlt = pickUniversityImageAltText(university);
   const useContainImage = typeof heroImage === 'string' && /logo|poster|banner|badge|emblem/i.test(heroImage);
   const description = stripHtml(university?.description || '');
   const accreditation = university?.accreditation || '';
@@ -30,7 +31,7 @@ export function CollegeCard({ university }: Readonly<CollegeCardProps>) {
         {heroImage ? (
           <SafeImage
             src={heroImage}
-            alt={name}
+            alt={imageAlt}
             fill
             className={useContainImage ? 'object-contain object-center bg-[#F7F6F2]' : 'object-cover object-center'}
             fallbackElement={

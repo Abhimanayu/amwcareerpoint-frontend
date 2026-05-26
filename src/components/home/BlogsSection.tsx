@@ -6,7 +6,7 @@ import { Carousel } from '@/components/ui/Carousel';
 import { getBlogs } from '@/lib/blogs';
 import { SafeImage } from '@/components/ui/SafeImage';
 import type { HomeCuratedBlog } from '@/lib/homeSettings';
-import { extractCollectionData, formatDate, pickBlogImageSource } from '@/lib/utils';
+import { extractCollectionData, formatDate, pickBlogImageAltText, pickBlogImageSource } from '@/lib/utils';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -82,7 +82,7 @@ export function BlogsSection({ items }: BlogsSectionProps) {
                 <div className="relative aspect-[1.91/1] overflow-hidden bg-[#F7F6F2]">
                   <SafeImage
                     src={imageSource}
-                    alt={blog.title || 'Blog post'}
+                    alt={usingFallback ? blog.title || 'Blog post' : pickBlogImageAltText(blog)}
                     fill
                     className="object-contain object-top"
                     fallbackSrc="/blogs/russia-universities-nmc.jpg"

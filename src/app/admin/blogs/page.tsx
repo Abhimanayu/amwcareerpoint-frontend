@@ -74,7 +74,7 @@ export default function AdminBlogsPage() {
         <div className="flex items-center gap-3">
           <SafeImage
             src={item.coverImage as string}
-            alt={`${String(item.title)} cover`}
+            alt={(item.coverImageAlt as string) || `${String(item.title)} cover`}
             width={48}
             height={32}
             className="w-12 h-8 rounded object-cover shrink-0"

@@ -70,7 +70,7 @@ export default function AdminCountriesPage() {
         <div className="flex items-center gap-3">
           <SafeImage
             src={item.flagImage as string}
-            alt={`${item.name} flag`}
+            alt={(item.flagImageAlt as string) || `${item.name} flag`}
             width={32}
             height={24}
             className="w-8 h-6 rounded object-cover"

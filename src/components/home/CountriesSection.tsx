@@ -41,6 +41,21 @@ function getStableCountryFallbackImage(country: { slug?: string; name?: string }
   return COUNTRY_HERO_FALLBACKS[hash % COUNTRY_HERO_FALLBACKS.length];
 }
 
+function getCountryImageAlt(country: Record<string, unknown>, imageSource?: string) {
+  const name = typeof country.name === 'string' && country.name.trim() ? country.name.trim() : 'Country';
+  if (imageSource === country.heroImage) {
+    return (country.heroImageAlt as string) || `${name} MBBS study destination`;
+  }
+  if (imageSource === country.cardImage) {
+    return (country.cardImageAlt as string) || `${name} MBBS country card`;
+  }
+  if (imageSource === country.flagImage) {
+    return (country.flagImageAlt as string) || `${name} flag`;
+  }
+
+  return `${name} MBBS study destination`;
+}
+
 type CountriesSectionProps = {
   readonly items?: readonly HomeCuratedCountry[];
 };
@@ -246,7 +261,7 @@ export function CountriesSection({ items }: CountriesSectionProps) {
                   <div className="relative h-36 sm:h-40 overflow-hidden bg-navy">
                     <SafeImage
                       src={imageSource}
-                      alt={`${c.name || 'Country'} – MBBS study destination`}
+                      alt={getCountryImageAlt(c, imageSource)}
                       fill
                       className="object-cover"
                       fallbackElement={<div className="absolute inset-0 bg-linear-to-br from-navy to-navy/80" />}
@@ -260,7 +275,7 @@ export function CountriesSection({ items }: CountriesSectionProps) {
                       {c.flagImage && (
                         <SafeImage
                           src={c.flagImage}
-                          alt={`${c.name} flag`}
+                          alt={(c.flagImageAlt as string) || `${c.name} flag`}
                           width={36}
                           height={26}
                           className="h-6.5 w-9 shrink-0 rounded-sm object-cover ring-1 ring-white/30"
@@ -282,7 +297,7 @@ export function CountriesSection({ items }: CountriesSectionProps) {
                       {c.flagImage && (
                         <SafeImage
                           src={c.flagImage}
-                          alt={`${c.name} flag`}
+                          alt={(c.flagImageAlt as string) || `${c.name} flag`}
                           width={36}
                           height={26}
                           className="h-6.5 w-9 shrink-0 rounded-sm object-cover"

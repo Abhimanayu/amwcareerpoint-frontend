@@ -155,7 +155,9 @@ type CountryFormState = {
   tagline: string;
   description: string;
   flagImage: string;
+  flagImageAlt: string;
   heroImage: string;
+  heroImageAlt: string;
   feeRange: string;
   duration: string;
   medium: string;
@@ -167,7 +169,9 @@ type CountryFormState = {
     currency: string;
     climate: string;
     bannerImage: string;
+    bannerImageAlt: string;
     cardImage: string;
+    cardImageAlt: string;
     feeRangeUSD: string;
     headerColor: string;
     visaInfo: string;
@@ -190,7 +194,9 @@ function createEmptyForm(): CountryFormState {
     tagline: '',
     description: '',
     flagImage: '',
+    flagImageAlt: '',
     heroImage: '',
+    heroImageAlt: '',
     feeRange: '',
     duration: '',
     medium: '',
@@ -202,7 +208,9 @@ function createEmptyForm(): CountryFormState {
       currency: '',
       climate: '',
       bannerImage: '',
+      bannerImageAlt: '',
       cardImage: '',
+      cardImageAlt: '',
       feeRangeUSD: '',
       headerColor: '#F26419',
       visaInfo: '',
@@ -233,10 +241,14 @@ function normalizeCountryData(data: Record<string, unknown>): Record<string, unk
     tagline: typeof data.tagline === 'string' ? data.tagline : '',
     description: typeof data.description === 'string' ? data.description : '',
     flagImage: typeof data.flagImage === 'string' ? data.flagImage : '',
+    flagImageAlt: typeof data.flagImageAlt === 'string' ? data.flagImageAlt : '',
     heroImage: typeof data.heroImage === 'string' ? data.heroImage : '',
+    heroImageAlt: typeof data.heroImageAlt === 'string' ? data.heroImageAlt : '',
     feeRange: typeof data.feeRange === 'string' ? data.feeRange : '',
       bannerImage: typeof data.bannerImage === 'string' ? data.bannerImage : '',
+      bannerImageAlt: typeof data.bannerImageAlt === 'string' ? data.bannerImageAlt : '',
       cardImage: typeof data.cardImage === 'string' ? data.cardImage : '',
+      cardImageAlt: typeof data.cardImageAlt === 'string' ? data.cardImageAlt : '',
       countryCode: typeof data.countryCode === 'string' ? data.countryCode : '',
       language: typeof data.language === 'string' ? data.language : '',
       currency: typeof data.currency === 'string' ? data.currency : '',
@@ -404,7 +416,9 @@ function buildCountryForm(initialData?: Record<string, unknown>): CountryFormSta
     tagline: (normalized.tagline as string) || '',
     description: (normalized.description as string) || '',
     flagImage: (normalized.flagImage as string) || '',
+    flagImageAlt: (normalized.flagImageAlt as string) || '',
     heroImage: (normalized.heroImage as string) || '',
+    heroImageAlt: (normalized.heroImageAlt as string) || '',
     feeRange: (normalized.feeRange as string) || '',
     duration: (normalized.duration as string) || '',
     medium: (normalized.medium as string) || '',
@@ -414,7 +428,9 @@ function buildCountryForm(initialData?: Record<string, unknown>): CountryFormSta
       currency: (normalized.currency as string) || '',
       climate: (normalized.climate as string) || '',
       bannerImage: (normalized.bannerImage as string) || '',
+      bannerImageAlt: (normalized.bannerImageAlt as string) || '',
       cardImage: (normalized.cardImage as string) || '',
+      cardImageAlt: (normalized.cardImageAlt as string) || '',
       feeRangeUSD: (normalized.feeRangeUSD as string) || '',
       headerColor: (normalized.headerColor as string) || '#F26419',
       visaInfo: (normalized.visaInfo as string) || '',
@@ -607,7 +623,11 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
         currency: form.currency.trim(),
         climate: form.climate.trim(),
         bannerImage: form.bannerImage.trim(),
+        bannerImageAlt: form.bannerImageAlt.trim(),
         cardImage: form.cardImage.trim(),
+        cardImageAlt: form.cardImageAlt.trim(),
+        flagImageAlt: form.flagImageAlt.trim(),
+        heroImageAlt: form.heroImageAlt.trim(),
         feeRangeUSD: form.feeRangeUSD.trim(),
         headerColor: form.headerColor.trim(),
         visaInfo: form.visaInfo.trim(),
@@ -871,6 +891,13 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
                 onUpload={(url) => updateField('flagImage', url)}
                 hint="Recommended: 80×60 px (4:3). Small flag icon shown alongside country name."
               />
+              <input
+                maxLength={160}
+                value={form.flagImageAlt}
+                onChange={(e) => updateField('flagImageAlt', e.target.value)}
+                placeholder="Flag image alt text"
+                className="mt-2 w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none"
+              />
             </div>
             <div>
               <div className="block text-sm font-medium text-gray-700 mb-2">Hero Image</div>
@@ -879,6 +906,13 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
                 currentImage={form.heroImage}
                 onUpload={(url) => updateField('heroImage', url)}
                 hint="Recommended: 1200×600 px (2:1). Large cover image used on the country page hero and home section card."
+              />
+              <input
+                maxLength={160}
+                value={form.heroImageAlt}
+                onChange={(e) => updateField('heroImageAlt', e.target.value)}
+                placeholder="Hero image alt text"
+                className="mt-2 w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none"
               />
             </div>
           </div>
@@ -891,6 +925,13 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
                 onUpload={(url) => updateField('bannerImage', url)}
                 hint="Recommended: 1600×400 px (4:1). Wide banner image for section headers."
               />
+              <input
+                maxLength={160}
+                value={form.bannerImageAlt}
+                onChange={(e) => updateField('bannerImageAlt', e.target.value)}
+                placeholder="Banner image alt text"
+                className="mt-2 w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none"
+              />
             </div>
             <div>
               <div className="block text-sm font-medium text-gray-700 mb-2">Card Image</div>
@@ -899,6 +940,13 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
                 currentImage={form.cardImage}
                 onUpload={(url) => updateField('cardImage', url)}
                 hint="Recommended: 400×300 px (4:3). Thumbnail for country cards in listings."
+              />
+              <input
+                maxLength={160}
+                value={form.cardImageAlt}
+                onChange={(e) => updateField('cardImageAlt', e.target.value)}
+                placeholder="Card image alt text"
+                className="mt-2 w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none"
               />
             </div>
           </div>

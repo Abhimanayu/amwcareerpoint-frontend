@@ -22,6 +22,7 @@ const emptyForm = {
   content: '',
   excerpt: '',
   coverImage: '',
+  coverImageAlt: '',
   category: '',
   author: '',
   tags: '',
@@ -43,6 +44,7 @@ function buildBlogForm(initialData?: Record<string, unknown>) {
     content: (initialData.content as string) || '',
     excerpt: (initialData.excerpt as string) || '',
     coverImage: (initialData.coverImage as string) || '',
+    coverImageAlt: (initialData.coverImageAlt as string) || '',
     category: catId || '',
     author: (initialData.author as string) || '',
     tags: Array.isArray(initialData.tags) ? (initialData.tags as string[]).join(', ') : (initialData.tags as string) || '',
@@ -104,6 +106,7 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
     try {
       const payload: Record<string, unknown> = {
         ...form,
+        coverImageAlt: form.coverImageAlt.trim(),
         tags: form.tags.split(',').map((t) => t.trim()).filter(Boolean),
       };
       if (!form.category) {
@@ -274,6 +277,17 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
         <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
           <h2 className="font-semibold text-gray-900">Cover Image</h2>
           <ImageUploader folder="blogs" currentImage={form.coverImage} onUpload={(url) => updateField('coverImage', url)} hint="Recommended: 1200×630 px (16:9). Used as blog card thumbnail and social share image." />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Image Alt Text</label>
+            <input
+              maxLength={160}
+              value={form.coverImageAlt}
+              onChange={(e) => updateField('coverImageAlt', e.target.value)}
+              placeholder="Describe the blog cover image for SEO"
+              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none"
+            />
+            <p className="text-xs text-gray-400 mt-1">Short, specific text helps crawlers understand the image context.</p>
+          </div>
         </section>
 
         {/* SEO */}

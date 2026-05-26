@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getBlogBySlug, getBlogs } from '@/lib/blogs';
-import { clampSeoDescription, extractCollectionData, formatDate, pickBlogImageSource, resolveCanonicalUrl, resolveMediaUrl, sanitizeHtml, serializeJsonLd } from '@/lib/utils';
+import { clampSeoDescription, extractCollectionData, formatDate, pickBlogImageAltText, pickBlogImageSource, resolveCanonicalUrl, resolveMediaUrl, sanitizeHtml, serializeJsonLd } from '@/lib/utils';
 import { sanitizeAndOptimizeMobileContent } from '@/lib/contentValidation';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { SEO_HOLD } from '@/lib/seoHold';
@@ -206,7 +206,7 @@ export default async function BlogPostPage({ params }: Readonly<Props>) {
           <div className="w-full overflow-hidden rounded-xl border border-[#DDD9D2] shadow-sm bg-[#F9F8F6]">
             <SafeImage
               src={postImage}
-              alt={post.title || 'Blog post'}
+              alt={pickBlogImageAltText(post)}
               width={896}
               height={504}
               className="w-full h-auto max-h-[500px] object-contain mx-auto"

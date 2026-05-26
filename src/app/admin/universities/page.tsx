@@ -75,7 +75,7 @@ export default function AdminUniversitiesPage() {
           {item.logo ? (
             <SafeImage 
               src={item.logo as string} 
-              alt="" 
+              alt={(item.logoAlt as string) || `${item.name as string} logo`}
               width={32}
               height={32}
               className="w-8 h-8 rounded object-cover"

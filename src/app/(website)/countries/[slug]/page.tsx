@@ -545,6 +545,8 @@ export default async function CountryPage({ params }: Props) {
   const countryFilterSlug = typeof country.slug === 'string' && country.slug.trim() ? country.slug : resolvedSlug;
   const heroImage = resolveMediaUrl(country.heroImage);
   const flagImage = resolveMediaUrl(country.flagImage);
+  const heroImageAlt = country.heroImageAlt || `${country.name} destination view`;
+  const flagImageAlt = country.flagImageAlt || `${country.name} flag`;
   const heroImageClass = 'object-cover object-center opacity-100 saturate-110 contrast-110';
   const heroImageObjectPosition = normalizeObjectPosition(
     (
@@ -740,7 +742,7 @@ export default async function CountryPage({ params }: Props) {
           <div className="pointer-events-none absolute inset-0 z-0 hidden sm:block">
             <SafeImage
               src={heroImage}
-              alt={country.name}
+              alt={heroImageAlt}
               fill
               priority
               sizes="100vw"
@@ -761,7 +763,7 @@ export default async function CountryPage({ params }: Props) {
                 <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-white/80 bg-white/90 px-4 py-2.5 text-sm font-semibold text-[#1F2B44] shadow-[0_12px_30px_rgba(13,27,62,0.12)] backdrop-blur">
                   <SafeImage
                     src={flagImage}
-                    alt={`${country.name} flag`}
+                    alt={flagImageAlt}
                     width={28}
                     height={18}
                     className="rounded-sm object-cover"
@@ -791,7 +793,7 @@ export default async function CountryPage({ params }: Props) {
                   <div className="mt-6 overflow-hidden rounded-[24px] border border-white/72 bg-white/74 p-2 shadow-[0_16px_40px_rgba(13,27,62,0.1)] sm:hidden">
                   <SafeImage
                     src={heroImage}
-                    alt={`${country.name} destination view`}
+                    alt={heroImageAlt}
                     width={900}
                     height={560}
                     priority

@@ -6,7 +6,7 @@ import { Carousel } from '@/components/ui/Carousel';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { getUniversities } from '@/lib/universities';
 import type { HomeCuratedUniversity } from '@/lib/homeSettings';
-import { extractCollectionData, pickUniversityImageSource } from '@/lib/utils';
+import { extractCollectionData, pickUniversityImageAltText, pickUniversityImageSource } from '@/lib/utils';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -140,7 +140,7 @@ export function UniversitiesSection({ items }: UniversitiesSectionProps) {
                   {imageSource ? (
                     <SafeImage
                       src={imageSource}
-                      alt={uni.name || 'University'}
+                      alt={pickUniversityImageAltText(uni)}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                       fallbackElement={<div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-800" />}

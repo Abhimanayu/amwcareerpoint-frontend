@@ -29,8 +29,11 @@ export type HomeCuratedCountry = {
   name: string;
   slug: string;
   flagImage: string;
+  flagImageAlt?: string;
   cardImage: string;
+  cardImageAlt?: string;
   heroImage?: string;
+  heroImageAlt?: string;
   feeRange: string;
   annualFeeRange?: string;
   fees?: string;
@@ -44,11 +47,16 @@ export type HomeCuratedUniversity = {
   name: string;
   slug: string;
   logo: string;
+  logoAlt?: string;
   heroImage: string;
+  heroImageAlt?: string;
+  gallery?: string[];
+  galleryAlt?: string[];
   annualFees: string;
   country?: {
     name?: string;
     flagImage?: string;
+    flagImageAlt?: string;
   };
 };
 
@@ -58,6 +66,7 @@ export type HomeCuratedBlog = {
   slug: string;
   excerpt: string;
   coverImage: string;
+  coverImageAlt?: string;
   category: string | { name?: string };
   author: string;
   createdAt: string;
