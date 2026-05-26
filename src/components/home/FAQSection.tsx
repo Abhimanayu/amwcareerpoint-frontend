@@ -15,17 +15,17 @@ export function FAQSection({ faqs }: FAQSectionProps) {
           <p className="mt-3 text-[15px] text-[#4A4742]">Honest answers to every question parents &amp; students ask.</p>
         </div>
 
-        <div className="space-y-2.5">
+        <div className="space-y-3">
           {faqs.map((faq) => (
-            <details key={faq.question} className="rounded-xl border border-[#DDD9D2] overflow-hidden bg-white group">
-              <summary className="w-full px-4 py-3 list-none cursor-pointer flex justify-between items-center bg-[#F9F8F6] hover:bg-[#f3f1ed] transition-colors">
-                <span className="text-[13px] font-semibold text-[#0D1B3E] pr-4">{faq.question}</span>
-                <span className="text-base text-[#F26419] shrink-0">+</span>
-              </summary>
-              <div className="px-4 py-3 bg-white border-t border-[#DDD9D2]">
-                <p className="text-[13px] text-[#4A4742] leading-relaxed">{faq.answer}</p>
+            <article key={faq.question} className="overflow-hidden rounded-xl border border-[#DDD9D2] bg-white">
+              <div className="flex items-center justify-between gap-4 border-b border-[#DDD9D2] bg-[#F9F8F6] px-5 py-4">
+                <h3 className="text-sm font-semibold leading-relaxed text-[#0D1B3E]">{faq.question}</h3>
+                <span className="shrink-0 text-lg font-light leading-none text-[#F26419]">+</span>
               </div>
-            </details>
+              <div className="px-5 py-4">
+                <p className="text-sm leading-7 text-[#4A4742]">{faq.answer}</p>
+              </div>
+            </article>
           ))}
         </div>
 

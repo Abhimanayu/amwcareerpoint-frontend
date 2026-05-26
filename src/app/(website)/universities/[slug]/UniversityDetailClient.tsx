@@ -84,7 +84,6 @@ export default function UniversityDetailClient({
   relatedUniversities: any[];
   apiFaqs?: { question: string; answer: string }[];
 }) {
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [currTab, setCurrTab] = useState(0);
 
   const countryName = university.country?.name || '';
@@ -519,17 +518,15 @@ export default function UniversityDetailClient({
 
             <div className="space-y-3">
               {faqs.map((faq: any, i: number) => (
-                <div key={`faq-${i}`} className="overflow-hidden rounded-xl border border-[#DDD9D2]">
-                  <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="flex w-full cursor-pointer items-center justify-between px-6 py-4 text-left transition-colors hover:bg-[#F9F8F6]">
-                    <span className="line-clamp-2 break-words pr-4 text-sm font-semibold text-[#0D1B3E]">{faq.question || 'Question'}</span>
-                    <span className={`flex-shrink-0 text-xl font-light text-[#F26419] transition-transform duration-200 ${openFaq === i ? 'rotate-45' : ''}`}>+</span>
-                  </button>
-                  {openFaq === i && (
-                    <div className="px-6 pb-5">
-                      <p className="break-words text-sm leading-relaxed text-[#4A4742]">{faq.answer || 'Answer not available.'}</p>
-                    </div>
-                  )}
-                </div>
+                <article key={`faq-${i}`} className="overflow-hidden rounded-xl border border-[#DDD9D2] bg-white">
+                  <div className="flex items-center justify-between gap-4 border-b border-[#DDD9D2] bg-[#F9F8F6] px-6 py-4">
+                    <h3 className="break-words pr-4 text-sm font-semibold leading-relaxed text-[#0D1B3E]">{faq.question || 'Question'}</h3>
+                    <span className="shrink-0 text-xl font-light leading-none text-[#F26419]">+</span>
+                  </div>
+                  <div className="px-6 py-5">
+                    <p className="break-words text-sm leading-7 text-[#4A4742]">{faq.answer || 'Answer not available.'}</p>
+                  </div>
+                </article>
               ))}
             </div>
           </div>
