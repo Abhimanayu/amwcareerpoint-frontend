@@ -59,6 +59,26 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        source: '/countries/mbbs-in-austria',
+        destination: '/countries',
+        permanent: true,
+      },
+      {
+        source: '/countries/mbbs-in-austria/',
+        destination: '/countries',
+        permanent: true,
+      },
+      {
+        source: '/mbbs-in-austria',
+        destination: '/countries',
+        permanent: true,
+      },
+      {
+        source: '/mbbs-in-austria/',
+        destination: '/countries',
+        permanent: true,
+      },
+      {
         source: '/mbbs-in-:country',
         destination: '/countries/mbbs-in-:country',
         permanent: true,
