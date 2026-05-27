@@ -6,7 +6,7 @@
     "dev": "next dev --webpack",
     "prebuild": "node scripts/check-seo-env.mjs",
     "build": "next build",
-    "start": "next start",
+    "start": "node scripts/start-next.mjs",
     "lint": "eslint",
     "test:college-predictor": "bash ./test_college_predictor.sh",
     "cleanup": "bash ./scripts/cleanup-temp.sh"
