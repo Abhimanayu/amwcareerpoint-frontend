@@ -169,7 +169,7 @@ export function validateCountryForm(form: {
   if (form.description && form.description.length < L.description.min) errors.push({ field: 'description', message: `Description must be at least ${L.description.min} characters` });
   if (form.description.length > L.description.max) errors.push({ field: 'description', message: `Description must not exceed ${L.description.max} characters` });
   if (form.feeRange.length > L.feeRange.max) errors.push({ field: 'feeRange', message: `Tuition fee must not exceed ${L.feeRange.max} characters` });
-  if (form.feeRangeUSD.length > L.feeRangeUSD.max) errors.push({ field: 'feeRangeUSD', message: `Tuition fee (USD) must not exceed ${L.feeRangeUSD.max} characters` });
+  if (form.feeRangeUSD.length > L.feeRangeUSD.max) errors.push({ field: 'feeRangeUSD', message: `Tuition fee must not exceed ${L.feeRangeUSD.max} characters` });
   if (form.duration.length > L.duration.max) errors.push({ field: 'duration', message: `Duration must not exceed ${L.duration.max} characters` });
   if (form.medium.length > L.medium.max) errors.push({ field: 'medium', message: `Medium must not exceed ${L.medium.max} characters` });
   if (form.livingCost.length > L.livingCost.max) errors.push({ field: 'livingCost', message: `Living cost must not exceed ${L.livingCost.max} characters` });

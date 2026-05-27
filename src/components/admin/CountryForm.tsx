@@ -723,14 +723,14 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
               <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'feeRange')} /><CharCount current={form.feeRange.length} max={L.feeRange.max} /></div>
             </div>
             <div>
-              <label htmlFor="country-fee-usd" className="block text-sm font-medium text-gray-700 mb-1">Tuition Fee (USD)</label>
+              <label htmlFor="country-fee-usd" className="block text-sm font-medium text-gray-700 mb-1">Tuition Fee</label>
               <input
                 id="country-fee-usd"
                 maxLength={L.feeRangeUSD.max}
                 value={form.feeRangeUSD}
                 onChange={(e) => updateField('feeRangeUSD', e.target.value)}
                 className={textInputClass}
-                placeholder="e.g. $5000-8000 / year"
+                placeholder="e.g. 30-60 million / year"
               />
               <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'feeRangeUSD')} /><CharCount current={form.feeRangeUSD.length} max={L.feeRangeUSD.max} /></div>
             </div>
