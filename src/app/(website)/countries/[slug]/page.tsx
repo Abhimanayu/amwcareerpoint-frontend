@@ -178,6 +178,9 @@ type UniversitySummary = {
   recognition?: string[];
 };
 
+const RELATED_UNIVERSITIES_LIMIT = 24;
+const HOSTEL_FEE_DETAIL_LOOKUP_LIMIT = 6;
+
 function getUniversityHostelFee(university: UniversitySummary) {
   return university.hostelFees || university.hostelFee || '';
 }
@@ -194,7 +197,7 @@ function getHostelFeeLabel(university: UniversitySummary) {
 async function enrichUniversityHostelFees(universities: UniversitySummary[]) {
   const needsLookup = universities.filter(
     (university) => !getUniversityHostelFee(university) && Boolean(university.slug)
-  );
+  ).slice(0, HOSTEL_FEE_DETAIL_LOOKUP_LIMIT);
 
   if (needsLookup.length === 0) {
     return universities;
@@ -448,7 +451,7 @@ async function fetchCountryUniversities(countryId: string, countrySlug: string) 
   }
 
   for (const attempt of requestAttempts) {
-    const response = await getUniversities({ country: attempt.country, limit: 100, sort: 'sortOrder' }).catch(() => null);
+    const response = await getUniversities({ country: attempt.country, limit: RELATED_UNIVERSITIES_LIMIT, sort: 'sortOrder' }).catch(() => null);
     const list = extractCollectionData<UniversitySummary>(response, ['universities']);
     if (list.length === 0) {
       continue;

@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { api, adminApi } from "./api";
 import { getCountrySlugCandidates } from "./slugUtils";
+import { getServerCached, normalizeCacheParams } from "./serverRequestCache";
 
 type CountriesParams = Record<string, unknown>;
 
@@ -130,7 +131,10 @@ export const getCountries = async (params = {}) => {
       ? { ...queryParams, limit: networkLimit }
       : queryParams;
 
-  const requestPromise = api.get("/countries", { params: requestParams }).then((res) => res.data);
+  const requestPromise = getServerCached(
+    `countries:list:${normalizeCacheParams(requestParams)}`,
+    () => api.get("/countries", { params: requestParams }).then((res) => res.data)
+  );
 
   if (!canUseClientSharedCache) {
     return requestPromise;
@@ -167,8 +171,10 @@ async function fetchCountryBySlugCandidates(slug: string) {
 
   for (const candidate of getCountrySlugCandidates(slug)) {
     try {
-      const res = await api.get(`/countries/${candidate}`);
-      return res.data;
+      return await getServerCached(
+        `countries:slug:${candidate}`,
+        () => api.get(`/countries/${candidate}`).then((res) => res.data)
+      );
     } catch (error) {
       lastError = error;
     }

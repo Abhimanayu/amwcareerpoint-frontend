@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { api, adminApi } from "./api";
+import { getServerCached, normalizeCacheParams } from "./serverRequestCache";
 
 type UniversitiesParams = Record<string, unknown>;
 
@@ -13,11 +14,7 @@ function isBrowser() {
 }
 
 function normalizeParams(params: UniversitiesParams) {
-  const entries = Object.entries(params)
-    .filter(([, value]) => value !== undefined && value !== null && value !== "")
-    .sort(([a], [b]) => a.localeCompare(b));
-
-  return JSON.stringify(entries);
+  return normalizeCacheParams(params);
 }
 
 // ─── FRONTEND ─────────────────────────────────────────────────
@@ -25,8 +22,10 @@ export const getUniversities = async (params = {}) => {
   const queryParams = params as UniversitiesParams;
 
   if (!isBrowser()) {
-    const res = await api.get("/universities", { params: queryParams });
-    return res.data;
+    return getServerCached(
+      `universities:list:${normalizeParams(queryParams)}`,
+      () => api.get("/universities", { params: queryParams }).then((res) => res.data)
+    );
   }
 
   const key = normalizeParams(queryParams);
@@ -58,8 +57,10 @@ export const getUniversities = async (params = {}) => {
 };
 
 export const getUniversityBySlug = cache(async (slug: string) => {
-  const res = await api.get(`/universities/${slug}`);
-  return res.data;
+  return getServerCached(
+    `universities:slug:${slug}`,
+    () => api.get(`/universities/${slug}`).then((res) => res.data)
+  );
 });
 
 // ─── ADMIN PANEL ──────────────────────────────────────────────

@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { api, adminApi } from "./api";
+import { getServerCached, normalizeCacheParams } from "./serverRequestCache";
 
 type BlogsParams = Record<string, unknown>;
 
@@ -13,11 +14,7 @@ function isBrowser() {
 }
 
 function normalizeParams(params: BlogsParams) {
-  const entries = Object.entries(params)
-    .filter(([, value]) => value !== undefined && value !== null && value !== "")
-    .sort(([a], [b]) => a.localeCompare(b));
-
-  return JSON.stringify(entries);
+  return normalizeCacheParams(params);
 }
 
 // ─── FRONTEND ─────────────────────────────────────────────────
@@ -25,8 +22,10 @@ export const getBlogs = async (params = {}) => {
   const queryParams = params as BlogsParams;
 
   if (!isBrowser()) {
-    const res = await api.get("/blogs", { params: queryParams });
-    return res.data;
+    return getServerCached(
+      `blogs:list:${normalizeParams(queryParams)}`,
+      () => api.get("/blogs", { params: queryParams }).then((res) => res.data)
+    );
   }
 
   const key = normalizeParams(queryParams);
@@ -58,13 +57,17 @@ export const getBlogs = async (params = {}) => {
 };
 
 export const getBlogBySlug = cache(async (slug: string) => {
-  const res = await api.get(`/blogs/${slug}`);
-  return res.data;
+  return getServerCached(
+    `blogs:slug:${slug}`,
+    () => api.get(`/blogs/${slug}`).then((res) => res.data)
+  );
 });
 
 export const getBlogCategories = async () => {
-  const res = await api.get("/blog-categories");
-  return res.data;
+  return getServerCached(
+    "blogs:categories",
+    () => api.get("/blog-categories").then((res) => res.data)
+  );
 };
 
 // ─── ADMIN PANEL ──────────────────────────────────────────────

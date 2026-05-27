@@ -162,7 +162,7 @@ export function CountriesSection({ items }: CountriesSectionProps) {
 
   useEffect(() => {
     // Keep this above current production count, but avoid unnecessarily heavy homepage API payloads.
-    getCountries({ limit: 100 })
+    getCountries({ limit: 32 })
       .then((res) => {
         const apiCountries = extractCollectionData<any>(res, ['countries']);
         setFetchedCountries(apiCountries);
