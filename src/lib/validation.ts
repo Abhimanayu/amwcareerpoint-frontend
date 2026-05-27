@@ -89,6 +89,8 @@ export const LIMITS = {
     annualFees: { max: 140 },
     medium: { max: 120 },
     hostelFees: { max: 140 },
+    costValue: { max: 140 },
+    costSubtext: { max: 80 },
     eligibility: { max: 3000 },
     gallery: { maxItems: 4 },
     recognition: { maxItems: 10, maxLen: 180 },
@@ -320,8 +322,18 @@ export function validateUniversityForm(form: {
   accreditation: string;
   courseDuration: string;
   annualFees: string;
+  annualFeesSubtext?: string;
   medium: string;
   hostelFees: string;
+  hostelFeesSubtext?: string;
+  foodMealsCost?: string;
+  foodMealsCostSubtext?: string;
+  insuranceCost?: string;
+  insuranceCostSubtext?: string;
+  donationCost?: string;
+  donationCostSubtext?: string;
+  totalYearCost?: string;
+  totalYearCostSubtext?: string;
   eligibility: string;
   gallery: string[];
   recognition: string[];
@@ -350,6 +362,26 @@ export function validateUniversityForm(form: {
   if (form.annualFees.length > L.annualFees.max) errors.push({ field: 'annualFees', message: `Annual fees must not exceed ${L.annualFees.max} characters` });
   if (form.medium.length > L.medium.max) errors.push({ field: 'medium', message: `Medium must not exceed ${L.medium.max} characters` });
   if (form.hostelFees.length > L.hostelFees.max) errors.push({ field: 'hostelFees', message: `Hostel fees must not exceed ${L.hostelFees.max} characters` });
+  const costFields = [
+    ['foodMealsCost', form.foodMealsCost],
+    ['insuranceCost', form.insuranceCost],
+    ['donationCost', form.donationCost],
+    ['totalYearCost', form.totalYearCost],
+  ] as const;
+  const costSubtextFields = [
+    ['annualFeesSubtext', form.annualFeesSubtext],
+    ['hostelFeesSubtext', form.hostelFeesSubtext],
+    ['foodMealsCostSubtext', form.foodMealsCostSubtext],
+    ['insuranceCostSubtext', form.insuranceCostSubtext],
+    ['donationCostSubtext', form.donationCostSubtext],
+    ['totalYearCostSubtext', form.totalYearCostSubtext],
+  ] as const;
+  for (const [field, value] of costFields) {
+    if ((value || '').length > L.costValue.max) errors.push({ field, message: `Cost value must not exceed ${L.costValue.max} characters` });
+  }
+  for (const [field, value] of costSubtextFields) {
+    if ((value || '').length > L.costSubtext.max) errors.push({ field, message: `Cost note must not exceed ${L.costSubtext.max} characters` });
+  }
   if (form.eligibility.length > L.eligibility.max) errors.push({ field: 'eligibility', message: `Eligibility must not exceed ${L.eligibility.max} characters` });
 
   const activeGallery = form.gallery.filter(Boolean);

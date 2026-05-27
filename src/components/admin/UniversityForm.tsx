@@ -50,8 +50,18 @@ const emptyForm = {
   accreditation: '',
   courseDuration: '',
   annualFees: '',
+  annualFeesSubtext: '',
   medium: '',
   hostelFees: '',
+  hostelFeesSubtext: '',
+  foodMealsCost: '',
+  foodMealsCostSubtext: '',
+  insuranceCost: '',
+  insuranceCostSubtext: '',
+  donationCost: '',
+  donationCostSubtext: '',
+  totalYearCost: '',
+  totalYearCostSubtext: '',
   eligibility: '',
   recognition: [''],
   status: 'active',
@@ -99,8 +109,18 @@ function buildUniversityForm(initialData?: Record<string, unknown>) {
     accreditation: (initialData.accreditation as string) || '',
     courseDuration: (initialData.courseDuration as string) || '',
     annualFees: (initialData.annualFees as string) || '',
+    annualFeesSubtext: (initialData.annualFeesSubtext as string) || '',
     medium: (initialData.medium as string) || '',
     hostelFees: (initialData.hostelFees as string) || '',
+    hostelFeesSubtext: (initialData.hostelFeesSubtext as string) || '',
+    foodMealsCost: (initialData.foodMealsCost as string) || '',
+    foodMealsCostSubtext: (initialData.foodMealsCostSubtext as string) || '',
+    insuranceCost: (initialData.insuranceCost as string) || '',
+    insuranceCostSubtext: (initialData.insuranceCostSubtext as string) || '',
+    donationCost: (initialData.donationCost as string) || '',
+    donationCostSubtext: (initialData.donationCostSubtext as string) || '',
+    totalYearCost: (initialData.totalYearCost as string) || '',
+    totalYearCostSubtext: (initialData.totalYearCostSubtext as string) || '',
     eligibility: (initialData.eligibility as string) || '',
     recognition: (initialData.recognition as string[])?.length ? (initialData.recognition as string[]) : [''],
     status: (initialData.status as string) || 'active',
@@ -279,6 +299,40 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Hostel Fees</label>
               <input maxLength={L.hostelFees.max} value={form.hostelFees} onChange={(e) => updateField('hostelFees', e.target.value)} placeholder="e.g., ₹50,000/year" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
+            </div>
+          </div>
+          <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4">
+            <h3 className="text-sm font-semibold text-gray-900">Cost Breakdown Cards</h3>
+            <p className="mt-1 text-xs text-gray-500">Use free text for currency and period. Leave blank to keep the public fallback.</p>
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tuition Fee Note</label>
+                <input maxLength={L.costSubtext.max} value={form.annualFeesSubtext} onChange={(e) => updateField('annualFeesSubtext', e.target.value)} placeholder="e.g., /year or /semester" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Hostel Fee Note</label>
+                <input maxLength={L.costSubtext.max} value={form.hostelFeesSubtext} onChange={(e) => updateField('hostelFeesSubtext', e.target.value)} placeholder="e.g., /year or /month" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Food & Meals</label>
+                <input maxLength={L.costValue.max} value={form.foodMealsCost} onChange={(e) => updateField('foodMealsCost', e.target.value)} placeholder="e.g., USD 100-150" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
+                <input maxLength={L.costSubtext.max} value={form.foodMealsCostSubtext} onChange={(e) => updateField('foodMealsCostSubtext', e.target.value)} placeholder="Note e.g., /month" className="mt-2 w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Insurance</label>
+                <input maxLength={L.costValue.max} value={form.insuranceCost} onChange={(e) => updateField('insuranceCost', e.target.value)} placeholder="e.g., USD 100" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
+                <input maxLength={L.costSubtext.max} value={form.insuranceCostSubtext} onChange={(e) => updateField('insuranceCostSubtext', e.target.value)} placeholder="Note e.g., /year" className="mt-2 w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Donation</label>
+                <input maxLength={L.costValue.max} value={form.donationCost} onChange={(e) => updateField('donationCost', e.target.value)} placeholder="e.g., No donation or INR 0" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
+                <input maxLength={L.costSubtext.max} value={form.donationCostSubtext} onChange={(e) => updateField('donationCostSubtext', e.target.value)} placeholder="Note e.g., No hidden fee" className="mt-2 w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Total Estimated Cost</label>
+                <input maxLength={L.costValue.max} value={form.totalYearCost} onChange={(e) => updateField('totalYearCost', e.target.value)} placeholder="e.g., USD 3,500-4,500/year" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
+                <input maxLength={L.costSubtext.max} value={form.totalYearCostSubtext} onChange={(e) => updateField('totalYearCostSubtext', e.target.value)} placeholder="Note e.g., Contact us" className="mt-2 w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
+              </div>
             </div>
           </div>
           <div>

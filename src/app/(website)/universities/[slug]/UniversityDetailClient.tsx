@@ -73,6 +73,10 @@ function normalizeCurriculum(university: any): CurriculumItem[] {
   return normalized.length > 0 ? normalized : DEFAULT_CURRICULUM;
 }
 
+function readCostField(value: unknown, fallback: string) {
+  return typeof value === 'string' && value.trim() ? value.trim() : fallback;
+}
+
 export default function UniversityDetailClient({
   university,
   countryData,
@@ -239,12 +243,12 @@ export default function UniversityDetailClient({
           </p>
 
           <div className="mt-10 grid grid-cols-1 gap-3 min-[360px]:grid-cols-2 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6">
-            <FeeCard label="Tuition Fee" value={university.annualFees || 'Contact Us'} sub="/year" accent />
-            <FeeCard label="Hostel Fee" value={university.hostelFees || 'Contact Us'} sub="/year" />
-            <FeeCard label="Food & Meals" value="$100–1L" sub="/month" />
-            <FeeCard label="Insurance" value="$100–17k" sub="/year" />
-            <FeeCard label="Donation" value="₹0" sub="No hidden fee" />
-            <FeeCard label="Total / Year" value="Affordable" sub="Contact us" dark />
+            <FeeCard label="Tuition Fee" value={readCostField(university.annualFees, 'Contact Us')} sub={readCostField(university.annualFeesSubtext, '/year')} accent />
+            <FeeCard label="Hostel Fee" value={readCostField(university.hostelFees, 'Contact Us')} sub={readCostField(university.hostelFeesSubtext, '/year')} />
+            <FeeCard label="Food & Meals" value={readCostField(university.foodMealsCost, 'Contact Us')} sub={readCostField(university.foodMealsCostSubtext, '/month')} />
+            <FeeCard label="Insurance" value={readCostField(university.insuranceCost, 'Contact Us')} sub={readCostField(university.insuranceCostSubtext, '/year')} />
+            <FeeCard label="Donation" value={readCostField(university.donationCost, 'No donation')} sub={readCostField(university.donationCostSubtext, 'No hidden fee')} />
+            <FeeCard label="Total Estimated Cost" value={readCostField(university.totalYearCost, 'Affordable')} sub={readCostField(university.totalYearCostSubtext, 'Contact us')} dark />
           </div>
         </div>
       </section>
