@@ -21,6 +21,8 @@ export function Carousel({ children, slideClass = '', dots = true, maxDots }: Ca
   });
 
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [scrollSnapCount, setScrollSnapCount] = useState(0);
+  const [canScroll, setCanScroll] = useState(false);
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
@@ -29,21 +31,31 @@ export function Carousel({ children, slideClass = '', dots = true, maxDots }: Ca
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
     setSelectedIndex(emblaApi.selectedScrollSnap());
+    setCanScroll(emblaApi.canScrollPrev() || emblaApi.canScrollNext());
+  }, [emblaApi]);
+
+  const syncCarouselState = useCallback(() => {
+    if (!emblaApi) return;
+    setScrollSnapCount(emblaApi.scrollSnapList().length);
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+    setCanScroll(emblaApi.canScrollPrev() || emblaApi.canScrollNext());
   }, [emblaApi]);
 
   useEffect(() => {
     if (!emblaApi) return;
+    const frame = window.requestAnimationFrame(syncCarouselState);
     emblaApi.on('select', onSelect);
-    emblaApi.on('reInit', onSelect);
+    emblaApi.on('reInit', syncCarouselState);
     return () => {
+      window.cancelAnimationFrame(frame);
       emblaApi.off('select', onSelect);
-      emblaApi.off('reInit', onSelect);
+      emblaApi.off('reInit', syncCarouselState);
     };
-  }, [emblaApi, onSelect]);
+  }, [emblaApi, onSelect, syncCarouselState]);
 
-  const hasMultipleSlides = children.length > 1;
+  const hasMultipleSlides = children.length > 1 && canScroll;
 
-  const totalSlides = children.length;
+  const totalSlides = Math.max(scrollSnapCount, 0);
   const effectiveMaxDots = typeof maxDots === 'number' && Number.isFinite(maxDots) && maxDots > 0
     ? Math.floor(maxDots)
     : totalSlides;
@@ -99,7 +111,7 @@ export function Carousel({ children, slideClass = '', dots = true, maxDots }: Ca
       )}
 
       {/* Dots */}
-      {dots && children.length > 1 && (
+      {dots && hasMultipleSlides && totalSlides > 1 && (
         <div className="mt-5 flex items-center justify-center gap-1 px-1 sm:gap-1.5">
           {shouldCompactDots && (
             <span aria-hidden="true" className="px-1 text-xs text-[#B5B0A8] sm:text-sm">...</span>
