@@ -8,7 +8,7 @@ const counsellors = [
   {
     name: 'Dr. Yashpal Singh',
     role: 'Senior Counselor - Study Abroad Guidance',
-    rating: '5.0',
+    rating: '4.8',
     students: '14+',
     statLabel: 'Years of Experience',
     image: '/experts/dr-yashpal.png',
@@ -18,7 +18,7 @@ const counsellors = [
   {
     name: 'Dr. Lalit Bhardwaj',
     role: 'Senior Counselor - Study India and Abroad Guidance',
-    rating: '5.0',
+    rating: '4.8',
     students: '15+ Years',
     statLabel: 'Experience',
     image: '/experts/dr-lalit-bhardwaj.png',
@@ -28,7 +28,7 @@ const counsellors = [
   {
     name: 'Dr. Niharika Singh',
     role: 'Counselor',
-    rating: '5.0',
+    rating: '4.5',
     students: 'FMG Doctor',
     statLabel: 'Qualification',
     image: '/experts/dr-niharika-singh.png',
@@ -38,7 +38,7 @@ const counsellors = [
   {
     name: 'Dr. Preeti Thakur',
     role: 'Counselor',
-    rating: '5.0',
+    rating: '4.5',
     students: 'FMG Doctor',
     statLabel: 'Qualification',
     image: '/experts/dr-preeti-thakur.png',
@@ -48,7 +48,7 @@ const counsellors = [
   {
     name: 'Brij Mohan Soni',
     role: 'Accounts & Documents Department',
-    rating: '5.0',
+    rating: '4.5',
     students: 'Documentation',
     statLabel: 'Department',
     image: '/experts/brij-mohan-soni.png',
@@ -58,7 +58,7 @@ const counsellors = [
   {
     name: 'Manish Katariya',
     role: 'Student Coordinator',
-    rating: '5.0',
+    rating: '4.5',
     students: 'Onboarding',
     statLabel: 'Specialization',
     image: '/experts/manish-katariya.png',
@@ -101,7 +101,7 @@ export function ExpertCounsellorsSection() {
                       src={counsellor.image}
                       alt={counsellor.name}
                       fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      sizes="(max-width: 768px) 150px, 250px"
                       className="object-cover object-top"
                     />
                   ) : (
