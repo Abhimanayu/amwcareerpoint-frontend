@@ -146,6 +146,93 @@ function checkAccessibility(content: string) {
   return result;
 }
 
+function isBlankTableCell(cellHtml: string): boolean {
+  const text = cellHtml
+    .replace(/<br\s*\/?>/gi, '')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&#160;/g, ' ')
+    .trim();
+
+  return text.length === 0;
+}
+
+function removeExplicitTableWidth(tableTag: string): string {
+  return tableTag.replace(/\sstyle=(["'])(.*?)\1/i, (match, quote, styleValue) => {
+    const cleanedStyle = styleValue
+      .split(';')
+      .map((rule: string) => rule.trim())
+      .filter((rule: string) => rule && !/^width\s*:/i.test(rule))
+      .join('; ');
+
+    return cleanedStyle ? ` style=${quote}${cleanedStyle}${quote}` : '';
+  });
+}
+
+function removeTrailingEmptyTableColumns(tableHtml: string): string {
+  const rowRegex = /<tr\b[^>]*>[\s\S]*?<\/tr>/gi;
+  const rows = tableHtml.match(rowRegex) || [];
+  if (rows.length === 0) return tableHtml;
+
+  const parsedRows = rows.map((row) => row.match(/<t[dh]\b[^>]*>[\s\S]*?<\/t[dh]>/gi) || []);
+  if (parsedRows.some((cells) => cells.length === 0)) return tableHtml;
+
+  const columnCount = Math.max(...parsedRows.map((cells) => cells.length));
+  if (columnCount <= 1 || parsedRows.some((cells) => cells.length !== columnCount)) return tableHtml;
+
+  const hasMergedCells = parsedRows.some((cells) =>
+    cells.some((cell) => {
+      const colSpan = cell.match(/\scolspan=(["']?)(\d+)\1/i)?.[2];
+      const rowSpan = cell.match(/\srowspan=(["']?)(\d+)\1/i)?.[2];
+      return (colSpan && Number(colSpan) > 1) || (rowSpan && Number(rowSpan) > 1);
+    })
+  );
+  if (hasMergedCells) return tableHtml;
+
+  const columnsToRemove: number[] = [];
+  for (let colIndex = columnCount - 1; colIndex >= 0; colIndex -= 1) {
+    const isEmptyColumn = parsedRows.every((cells) => isBlankTableCell(cells[colIndex]));
+    if (!isEmptyColumn) break;
+    columnsToRemove.push(colIndex);
+  }
+
+  if (columnsToRemove.length === 0) return tableHtml;
+
+  let cleanedTable = tableHtml;
+
+  rows.forEach((row, rowIndex) => {
+    const cells = [...parsedRows[rowIndex]];
+    columnsToRemove.forEach((colIndex) => {
+      cells.splice(colIndex, 1);
+    });
+    cleanedTable = cleanedTable.replace(row, row.replace(/<t[dh]\b[^>]*>[\s\S]*?<\/t[dh]>/gi, () => cells.shift() || ''));
+  });
+
+  const colgroupMatch = cleanedTable.match(/<colgroup\b[^>]*>[\s\S]*?<\/colgroup>/i);
+  if (colgroupMatch) {
+    const cols = colgroupMatch[0].match(/<col\b[^>]*>/gi) || [];
+    if (cols.length === columnCount) {
+      columnsToRemove.forEach((colIndex) => {
+        cols.splice(colIndex, 1);
+      });
+      cleanedTable = cleanedTable.replace(colgroupMatch[0], `<colgroup>${cols.join('')}</colgroup>`);
+    }
+  }
+
+  return cleanedTable.replace(/<table\b[^>]*>/i, (tableTag) => removeExplicitTableWidth(tableTag));
+}
+
+function addClassNameToTag(tag: string, className: string): string {
+  if (/\sclass=(["'])/i.test(tag)) {
+    return tag.replace(/\sclass=(["'])(.*?)\1/i, (_match, quote, existing) => {
+      const classes = new Set(`${existing} ${className}`.split(/\s+/).filter(Boolean));
+      return ` class=${quote}${Array.from(classes).join(' ')}${quote}`;
+    });
+  }
+
+  return tag.replace(/>$/, ` class="${className}">`);
+}
+
 export function sanitizeAndOptimizeMobileContent(htmlContent: string): string {
   const optimizedHtml = htmlContent
     // Make images responsive
@@ -155,12 +242,14 @@ export function sanitizeAndOptimizeMobileContent(htmlContent: string): string {
       }
       return match;
     })
+    // Remove accidental trailing empty columns from editor tables before rendering.
+    .replace(/<table\b[^>]*>[\s\S]*?<\/table>/gi, (table) => removeTrailingEmptyTableColumns(table))
     // Wrap tables for horizontal scroll
-    .replace(/<table([^>]*?)>/gi, '<div class="overflow-x-auto"><table$1 class="min-w-full border-collapse border border-gray-300">')
+    .replace(/<table\b[^>]*>/gi, (tableTag) => `<div class="overflow-x-auto">${addClassNameToTag(tableTag, 'content-table')}`)
     .replace(/<\/table>/gi, '</table></div>')
     // Add responsive classes to table cells
-    .replace(/<th([^>]*?)>/gi, '<th$1 class="border border-gray-300 px-2 py-1 bg-gray-50 text-left text-sm">')
-    .replace(/<td([^>]*?)>/gi, '<td$1 class="border border-gray-300 px-2 py-1 text-sm">')
+    .replace(/<th\b[^>]*>/gi, (tag) => addClassNameToTag(tag, 'content-table-heading'))
+    .replace(/<td\b[^>]*>/gi, (tag) => addClassNameToTag(tag, 'content-table-cell'))
     // Ensure proper spacing
     .replace(/\n/g, '<br />');
 

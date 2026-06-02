@@ -23,25 +23,25 @@
 /* Responsive Tables */
 .blog-content table {
   @apply border-collapse border border-gray-300 text-sm;
-  width: 100%;
-  min-width: 0;
+  width: auto;
+  min-width: 100%;
   max-width: 100%;
-  table-layout: fixed;
+  table-layout: auto;
 }
 
 .blog-content .overflow-x-auto {
   -webkit-overflow-scrolling: touch;
+  max-width: 100%;
 }
 
 .blog-content .overflow-x-auto > table {
-  width: max-content;
-  min-width: 640px;
+  max-width: none;
 }
 
 .blog-content th,
 .blog-content td {
-  @apply border border-gray-300 p-2 text-left;
-  min-width: 0;
+  @apply border border-gray-300 p-2;
+  min-width: 72px;
   word-break: break-word;
   overflow-wrap: anywhere;
   vertical-align: top;
@@ -58,6 +58,21 @@
 
 .blog-content th {
   @apply bg-gray-50 font-semibold;
+}
+
+.blog-content .content-table {
+  border-collapse: collapse;
+}
+
+.blog-content .content-table-heading {
+  background-color: #F9FAFB;
+  font-weight: 600;
+}
+
+.blog-content .content-table-cell,
+.blog-content .content-table-heading {
+  border: 1px solid #D1D5DB;
+  padding: 0.5rem;
 }
 
 /* Table wrapper for horizontal scroll on mobile */
@@ -236,14 +251,14 @@
 
   .blog-content table {
     font-size: 0.75rem;
-    width: 100%;
-    min-width: 0;
+    width: max-content;
+    min-width: 100%;
   }
 
   .blog-content th,
   .blog-content td {
     padding: 0.5rem;
-    min-width: 50px;
+    min-width: 72px;
   }
 
   /* Force horizontal scroll for wide tables */
