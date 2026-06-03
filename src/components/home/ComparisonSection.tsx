@@ -49,7 +49,7 @@ export function ComparisonSection() {
               <tr>
                 <th className="bg-[#0D1B3E] text-white px-4 py-2.5 text-left text-[13px] font-bold">Factor</th>
                 <th className="bg-[#0D1B3E] text-white px-4 py-2.5 text-left text-[13px] font-bold border-l border-[#162550]">
-                  <Link href="/college?country=India" className="inline-flex items-center gap-1 hover:underline">
+                  <Link href="/countries/mbbs-in-india" className="inline-flex items-center gap-1 hover:underline">
                     MBBS in India
                     <span aria-hidden="true">-&gt;</span>
                   </Link>

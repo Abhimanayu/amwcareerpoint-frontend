@@ -12,6 +12,7 @@ export type AboutValue = {
 
 export type AboutTeamMember = {
   emoji: string;
+  image?: string;
   name: string;
   role: string;
   bio: string;
@@ -279,6 +280,7 @@ export function mergeAboutSettings(payload: unknown): AboutSettings {
         const entry = (item ?? {}) as Record<string, unknown>;
         return {
           emoji: readString(entry.emoji, ''),
+          image: readString(entry.image, readString(entry.imageUrl, readString(entry.photo, readString(entry.photoUrl, '')))) || undefined,
           name: readString(entry.name, ''),
           role: readString(entry.role, ''),
           bio: readString(entry.bio, ''),

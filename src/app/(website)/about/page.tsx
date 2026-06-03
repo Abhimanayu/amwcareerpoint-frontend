@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import Image from 'next/image';
 import { FAQSection } from '@/components/home/FAQSection';
 import { getAboutSettings } from '@/lib/about';
 import { defaultAboutSettings, mergeAboutSettings } from '@/lib/aboutSettings';
@@ -11,6 +12,26 @@ async function readAboutSettings() {
   } catch {
     return defaultAboutSettings;
   }
+}
+
+const teamImageByName: Record<string, string> = {
+  yashpalsingh: '/experts/dr-yashpal.png',
+  lalitbhardwaj: '/experts/dr-lalit-bhardwaj.png',
+  niharikasingh: '/experts/dr-niharika-singh.png',
+  preetithakur: '/experts/dr-preeti-thakur.png',
+  brijmohansoni: '/experts/brij-mohan-soni.png',
+  manishkatariya: '/experts/manish-katariya.png',
+};
+
+function normalizeTeamMemberName(name: string) {
+  return name
+    .replace(/^dr\.?\s*/i, '')
+    .replace(/[^a-z0-9]/gi, '')
+    .toLowerCase();
+}
+
+function getTeamMemberImage(member: { image?: string; name: string }) {
+  return member.image || teamImageByName[normalizeTeamMemberName(member.name)] || '';
 }
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -159,16 +180,30 @@ export default async function AboutPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {settings.team.members.map((member) => (
+            {settings.team.members.map((member) => {
+              const memberImage = getTeamMemberImage(member);
+
+              return (
               <div key={member.name} className="rounded-xl border border-[#DDD9D2] bg-white p-6 text-center hover:shadow-md transition-shadow">
-                <div className="w-24 h-24 bg-[#F9F8F6] rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <span className="text-4xl">{member.emoji}</span>
+                <div className="relative w-24 h-24 bg-[#F9F8F6] rounded-full mx-auto mb-4 flex items-center justify-center overflow-hidden">
+                  {memberImage ? (
+                    <Image
+                      src={memberImage}
+                      alt={`${member.name} - ${member.role}`}
+                      fill
+                      sizes="96px"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <span className="text-4xl">{member.emoji}</span>
+                  )}
                 </div>
                 <h3 className="font-heading text-lg font-bold text-[#0D1B3E] mb-1">{member.name}</h3>
                 <p className="text-[#F26419] text-[13px] font-semibold mb-2">{member.role}</p>
                 <p className="text-[13px] text-[#4A4742]">{member.bio}</p>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
