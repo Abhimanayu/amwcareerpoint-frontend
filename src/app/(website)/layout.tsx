@@ -1,4 +1,4 @@
-import { Header, Footer } from "@/components/layout";
+import { Header, Footer, MobileStickyCTA } from "@/components/layout";
 import { WhatsAppFloater } from '@/components/layout/WhatsAppFloater';
 import { AnnouncementBar } from "@/components/home";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
@@ -49,6 +49,7 @@ export default function WebsiteLayout({
         <ErrorBoundary>{children}</ErrorBoundary>
       </main>
       <Footer />
+      <MobileStickyCTA />
       <WhatsAppFloater />
     </>
   );
