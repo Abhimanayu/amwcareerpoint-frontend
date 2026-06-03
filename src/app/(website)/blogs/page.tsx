@@ -269,11 +269,11 @@ export default async function BlogPage({
                 <div className="text-[9px] sm:text-[11px] uppercase tracking-wider text-blue-200/70">Articles Published</div>
               </div>
               <div>
-                <div className="text-lg sm:text-2xl font-bold">500+</div>
+                <div className="text-lg sm:text-2xl font-bold">18,500+</div>
                 <div className="text-[9px] sm:text-[11px] uppercase tracking-wider text-blue-200/70">Students Helped</div>
               </div>
               <div>
-                <div className="text-lg sm:text-2xl font-bold">Since 2012</div>
+                <div className="text-lg sm:text-2xl font-bold">Since 2009</div>
                 <div className="text-[9px] sm:text-[11px] uppercase tracking-wider text-blue-200/70">Counselling Experience</div>
               </div>
             </div>
@@ -548,7 +548,7 @@ export default async function BlogPage({
                 <em className="text-[#F26419] italic">right for you?</em>
               </h4>
               <p className="text-[11px] sm:text-[12px] text-blue-100/70 leading-relaxed mb-3 sm:mb-4">
-                Our counsellors have helped 500+ Indian students. 15 minutes, no pressure, no hidden fees.
+                Our counsellors have helped 18,500+ Indian students. 15 minutes, no pressure, no hidden fees.
               </p>
               <Link
                 href="/contact"

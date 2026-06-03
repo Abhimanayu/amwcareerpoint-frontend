@@ -9,7 +9,7 @@ export function CTASection() {
           Don&apos;t Let Another Year <span className="text-[#F26419]">Slip Away</span>
         </h2>
         <p className="text-[13px] sm:text-[14px] text-gray-300 mb-5 sm:mb-6 max-w-xl mx-auto">
-          MBBS admissions are closing soon. Secure your seat in top medical universities with our expert guidance. 25,000+ students already did.
+          MBBS admissions are closing soon. Secure your seat in top medical universities with our expert guidance. 18,500+ students already did.
         </p>
         <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 justify-center">
           <a href="tel:+919929299268" className="h-11 px-6 rounded-full bg-[#F26419] text-white text-[13px] font-bold inline-flex items-center justify-center hover:bg-[#FF8040] transition-colors w-full sm:w-auto">
