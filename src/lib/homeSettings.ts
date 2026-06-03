@@ -117,7 +117,7 @@ export const defaultHomeSettings: HomeSettings = {
     description:
       "India has one MBBS seat for every ten NEET-qualified students. Studying MBBS abroad at universities that follow the NMC FMGL Gazette 2021 provides students with a proven path to their dream of becoming a doctor, and we have helped 18,500+ students make that dream a reality since 2009.",
     primaryCtaText: "Use College Predictor",
-    primaryCtaHref: "#predictor",
+    primaryCtaHref: "/college-predictor",
     secondaryCtaText: "Meet Our Experts",
     secondaryCtaHref: "#experts",
   },

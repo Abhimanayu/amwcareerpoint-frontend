@@ -4,6 +4,9 @@ import { defaultHomeSettings, type HomeHeroSettings } from '@/lib/homeSettings';
 
 export function HeroSection({ settings }: { settings?: HomeHeroSettings }) {
   const hero = settings ?? defaultHomeSettings.hero;
+  const primaryCtaHref = hero.primaryCtaHref === '#predictor' || hero.primaryCtaHref === '#predictors'
+    ? '/college-predictor'
+    : hero.primaryCtaHref;
 
   return (
     <section className="bg-[#F9F8F6] py-6 sm:py-8 lg:py-12 px-4">
@@ -32,8 +35,8 @@ export function HeroSection({ settings }: { settings?: HomeHeroSettings }) {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 mb-5 sm:mb-6">
-                {hero.primaryCtaText && hero.primaryCtaHref && (
-                  <Link href={hero.primaryCtaHref} className="h-11 px-6 sm:px-7 rounded-full bg-[#F26419] text-white text-[13px] sm:text-sm font-bold inline-flex items-center justify-center hover:bg-[#FF8040] transition-colors">
+                {hero.primaryCtaText && primaryCtaHref && (
+                  <Link href={primaryCtaHref} className="h-11 px-6 sm:px-7 rounded-full bg-[#F26419] text-white text-[13px] sm:text-sm font-bold inline-flex items-center justify-center hover:bg-[#FF8040] transition-colors">
                     {hero.primaryCtaText}
                   </Link>
                 )}

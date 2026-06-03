@@ -48,8 +48,18 @@ export function ComparisonSection() {
             <thead>
               <tr>
                 <th className="bg-[#0D1B3E] text-white px-4 py-2.5 text-left text-[13px] font-bold">Factor</th>
-                <th className="bg-[#0D1B3E] text-white px-4 py-2.5 text-left text-[13px] font-bold border-l border-[#162550]">MBBS in India</th>
-                <th className="bg-[#F26419] text-white px-4 py-2.5 text-left text-[13px] font-bold">MBBS Abroad</th>
+                <th className="bg-[#0D1B3E] text-white px-4 py-2.5 text-left text-[13px] font-bold border-l border-[#162550]">
+                  <Link href="/college?country=India" className="inline-flex items-center gap-1 hover:underline">
+                    MBBS in India
+                    <span aria-hidden="true">-&gt;</span>
+                  </Link>
+                </th>
+                <th className="bg-[#F26419] text-white px-4 py-2.5 text-left text-[13px] font-bold">
+                  <Link href="/countries" className="inline-flex items-center gap-1 hover:underline">
+                    MBBS Abroad
+                    <span aria-hidden="true">-&gt;</span>
+                  </Link>
+                </th>
               </tr>
             </thead>
             <tbody>

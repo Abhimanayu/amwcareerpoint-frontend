@@ -114,7 +114,11 @@ export function ExpertCounsellorsSection() {
                 <div className="px-5 pt-5 pb-4 flex-1">
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div>
-                      <h3 className="font-heading text-lg font-bold text-[#0D1B3E]">{counsellor.name}</h3>
+                      <h3 className="font-heading text-lg font-bold text-[#0D1B3E]">
+                        <Link href="/about#team" className="transition-colors hover:text-[#F26419]">
+                          {counsellor.name}
+                        </Link>
+                      </h3>
                       <p className="text-xs font-semibold text-[#F26419]">{counsellor.role}</p>
                       <span className="text-[11px] text-green-700 font-medium">Verified Expert</span>
                     </div>

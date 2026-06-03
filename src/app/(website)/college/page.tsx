@@ -103,6 +103,26 @@ async function resolveCountryFilterCandidates(countryFilter?: string) {
   return candidates;
 }
 
+function readUniversityCity(university: Record<string, any>) {
+  const countryName = typeof university.country?.name === 'string' ? university.country.name.trim() : '';
+  const city = typeof university.city === 'string' ? university.city.trim() : '';
+  const location = typeof university.location === 'string' ? university.location.trim() : '';
+  const resolvedCity = city || location;
+
+  if (!resolvedCity || resolvedCity.toLowerCase() === countryName.toLowerCase()) {
+    return '';
+  }
+
+  return resolvedCity;
+}
+
+function formatUniversityLocation(university: Record<string, any>) {
+  const countryName = typeof university.country?.name === 'string' ? university.country.name.trim() : '';
+  const city = readUniversityCity(university);
+  if (countryName && city) return `${countryName}, ${city}`;
+  return countryName || city;
+}
+
 export default async function CollegesPage({ searchParams }: Readonly<Props>) {
   const { country } = await searchParams;
   const normalizedCountry = normalizeCountryFilterValue(country);
@@ -172,7 +192,7 @@ export default async function CollegesPage({ searchParams }: Readonly<Props>) {
                 const imageSource = pickUniversityImageSource(uni);
                 const useContainImage = typeof imageSource === 'string' && /logo|poster|banner|badge|emblem/i.test(imageSource);
                 const universityName = clampText(uni.name || 'University', 62);
-                const countryName = clampText(uni.country?.name, 24);
+                const locationLabel = clampText(formatUniversityLocation(uni), 42);
                 const accreditation = clampText(uni.accreditation, 38);
                 const description = clampText(stripHtml(uni.description || ''), 120);
                 const annualFees = clampText(uni.annualFees, 18, {
@@ -213,13 +233,13 @@ export default async function CollegesPage({ searchParams }: Readonly<Props>) {
                       </div>
                     )}
                     <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 to-transparent" />
-                    {countryName && (
+                    {locationLabel && (
                       <span
-                        title={uni.country?.name}
+                        title={formatUniversityLocation(uni)}
                         className="absolute top-3 left-3 inline-flex max-w-[calc(100%-1.5rem)] items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-[#0D1B3E]"
                       >
                         <span className="shrink-0">🌍</span>
-                        <span className="truncate">{countryName}</span>
+                        <span className="truncate">{locationLabel}</span>
                       </span>
                     )}
                   </div>
@@ -324,7 +344,7 @@ export default async function CollegesPage({ searchParams }: Readonly<Props>) {
                   <div className="grid grid-cols-3 gap-2 text-center mb-3">
                     <div className="rounded-lg bg-[#F9F8F6] px-2 py-1.5">
                       <div className="text-[10px] uppercase text-[#4A4742]">Country</div>
-                      <div className="text-[12px] font-semibold text-[#0D1B3E] truncate">{uni.country?.name || '—'}</div>
+                      <div className="text-[12px] font-semibold text-[#0D1B3E] truncate">{formatUniversityLocation(uni) || '—'}</div>
                     </div>
                     <div className="rounded-lg bg-[#F9F8F6] px-2 py-1.5">
                       <div className="text-[10px] uppercase text-[#4A4742]">Fees/Yr</div>
@@ -364,7 +384,7 @@ export default async function CollegesPage({ searchParams }: Readonly<Props>) {
                         <div className="font-semibold text-[#0D1B3E] max-w-[200px] truncate">{uni.name}</div>
                         {uni.accreditation && <div className="text-[11px] text-[#4A4742] truncate max-w-[200px]">{uni.accreditation}</div>}
                       </td>
-                      <td className="px-4 py-3 text-[#4A4742] whitespace-nowrap">{uni.country?.name || ''}</td>
+                      <td className="px-4 py-3 text-[#4A4742] whitespace-nowrap">{formatUniversityLocation(uni)}</td>
                       <td className="px-4 py-3 font-semibold text-[#F26419] whitespace-nowrap">{uni.annualFees || '—'}</td>
                       <td className="px-4 py-3 text-[#4A4742] whitespace-nowrap">{uni.courseDuration || ''}</td>
                       <td className="px-4 py-3">

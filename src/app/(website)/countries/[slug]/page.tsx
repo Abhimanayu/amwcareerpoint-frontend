@@ -315,7 +315,21 @@ function shouldContainUniversityImage(src?: string) {
 }
 
 function getUniversityCity(university: UniversitySummary, countryName?: string) {
-  return university.city || university.location || university.country?.name || countryName || 'Campus';
+  const rawCity = university.city || university.location || '';
+  const normalizedCity = rawCity.trim();
+  const normalizedCountry = (university.country?.name || countryName || '').trim();
+
+  if (!normalizedCity || normalizedCity.toLowerCase() === normalizedCountry.toLowerCase()) {
+    return '';
+  }
+
+  return normalizedCity;
+}
+
+function formatUniversityLocation(city: string, countryName?: string) {
+  const country = (countryName || '').trim();
+  if (country && city) return `${country}, ${city}`;
+  return country || city || 'Campus';
 }
 
 function getUniversityFee(university: UniversitySummary, countryFeeRange?: string) {
@@ -958,6 +972,7 @@ export default async function CountryPage({ params }: Props) {
                 const imageSrc = pickImageSource(university);
                 const imageUseContain = shouldContainUniversityImage(imageSrc);
                 const city = getUniversityCity(university, country.name);
+                const locationLabel = formatUniversityLocation(city, country.name);
                 const fee = getUniversityFee(university, country.feeRange);
                 const duration = getUniversityDuration(university, country.duration);
                 const hostel = getUniversityHostel(university);
@@ -981,14 +996,14 @@ export default async function CountryPage({ params }: Props) {
                           fallbackElement={
                             <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-[#1A3A5C] via-[#0D2240] to-[#0A1C34] text-white/25">
                               <span className="text-4xl">🏫</span>
-                              <span className="text-[11px] font-semibold uppercase tracking-[0.1em]">{city}</span>
+                              <span className="text-[11px] font-semibold uppercase tracking-[0.1em]">{locationLabel}</span>
                             </div>
                           }
                         />
                       ) : (
                         <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-[#1A3A5C] via-[#0D2240] to-[#0A1C34] text-white/25">
                           <span className="text-4xl">🏫</span>
-                          <span className="text-[11px] font-semibold uppercase tracking-[0.1em]">{city}</span>
+                          <span className="text-[11px] font-semibold uppercase tracking-[0.1em]">{locationLabel}</span>
                         </div>
                       )}
 
@@ -1001,7 +1016,7 @@ export default async function CountryPage({ params }: Props) {
                     <div className="flex flex-1 flex-col p-5 pb-[18px]">
                       <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.07em] text-[#6B7A90]">
                         <span className="text-[#00A99D]">📍</span>
-                        <span className="min-w-0 break-words">{city}, {country.name}</span>
+                        <span className="min-w-0 break-words">{locationLabel}</span>
                       </div>
 
                       <h3 className="line-clamp-2 break-words font-heading text-[16px] font-bold leading-[1.35] text-[#0D2240]">

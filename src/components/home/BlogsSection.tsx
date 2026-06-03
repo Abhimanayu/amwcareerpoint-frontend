@@ -21,33 +21,43 @@ type BlogsSectionProps = {
 };
 
 export function BlogsSection({ items }: BlogsSectionProps) {
-  const hasCuratedItems = (items?.length ?? 0) > 0;
+  const curatedItems = items ?? [];
+  const hasCuratedItems = curatedItems.length > 0;
+  const shouldFetchSupplementalBlogs = !hasCuratedItems || curatedItems.length < 6;
   const [fetchedBlogs, setFetchedBlogs] = useState<any[]>(fallbackBlogs);
   const [usingFetchedFallback, setUsingFetchedFallback] = useState(true);
 
   useEffect(() => {
-    if (hasCuratedItems) {
+    if (!shouldFetchSupplementalBlogs) {
       return;
     }
 
-    getBlogs({ limit: 6 })
+    getBlogs({ limit: 9 })
       .then((res) => {
         const items = extractCollectionData<any>(res, ['blogs']);
         if (items.length > 0) {
           setFetchedBlogs(items);
           setUsingFetchedFallback(false);
         } else {
-          setFetchedBlogs(fallbackBlogs);
+          setFetchedBlogs(hasCuratedItems ? [] : fallbackBlogs);
           setUsingFetchedFallback(true);
         }
       })
       .catch(() => {
-        setFetchedBlogs(fallbackBlogs);
+        setFetchedBlogs(hasCuratedItems ? [] : fallbackBlogs);
         setUsingFetchedFallback(true);
       });
-  }, [hasCuratedItems]);
+  }, [hasCuratedItems, shouldFetchSupplementalBlogs]);
 
-  const blogs = hasCuratedItems ? (items ?? []) : fetchedBlogs;
+  const blogs = hasCuratedItems
+    ? [
+        ...curatedItems,
+        ...fetchedBlogs.filter((blog) => {
+          const slug = typeof blog.slug === 'string' ? blog.slug : '';
+          return slug && !curatedItems.some((item) => item.slug === slug);
+        }),
+      ].slice(0, 9)
+    : fetchedBlogs;
   const usingFallback = hasCuratedItems ? false : usingFetchedFallback;
 
   return (
@@ -68,7 +78,7 @@ export function BlogsSection({ items }: BlogsSectionProps) {
 
         {/* Blog Carousel */}
         <div className="px-4 sm:px-5">
-          <Carousel slideClass="basis-full sm:basis-1/2 lg:basis-1/3 pl-4 sm:pl-5">
+          <Carousel slideClass="basis-full sm:basis-1/2 lg:basis-1/3 pl-4 sm:pl-5" maxDots={5}>
             {blogs.map((blog: any) => {
               const imageSource = usingFallback ? (blog.image || '/blogs/russia-universities-nmc.jpg') : (pickBlogImageSource(blog) || '/blogs/russia-universities-nmc.jpg');
 

@@ -62,6 +62,17 @@ function slugifyCategory(value: string): string {
     .replaceAll(/-+/g, '-');
 }
 
+function cleanTopicLabel(value: string): string {
+  return value
+    .replace(/^[^A-Za-z0-9]+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function hasTextTopic(value: string): boolean {
+  return /[A-Za-z0-9]/.test(value);
+}
+
 function getCategoryName(post: Record<string, unknown>): string {
   const category = post.category as Record<string, unknown> | string | undefined;
   if (category && typeof category === 'object' && typeof category.name === 'string') {
@@ -108,12 +119,14 @@ type BlogPageDataInput = {
 
 function deriveBlogPageData(input: BlogPageDataInput) {
   const postCategories = Array.from(new Set(input.blogPosts.map((post) => getCategoryName(post)).filter(Boolean)));
-  const mergedCategories = Array.from(new Set([...input.categorySeed, ...postCategories]));
+  const mergedCategories = Array.from(
+    new Set([...input.categorySeed, ...postCategories].map(cleanTopicLabel).filter(hasTextTopic))
+  );
   const categorySlugToName = new Map(mergedCategories.map((name) => [slugifyCategory(name), name]));
   const selectedCategory = input.categoryQuery ? categorySlugToName.get(input.categoryQuery) || '' : '';
 
   const filteredPosts = input.blogPosts.filter((post) => {
-    const categoryOk = !selectedCategory || getCategoryName(post).toLowerCase() === selectedCategory.toLowerCase();
+    const categoryOk = !selectedCategory || cleanTopicLabel(getCategoryName(post)).toLowerCase() === selectedCategory.toLowerCase();
     return categoryOk && matchesSearch(post, input.searchQuery);
   });
 
