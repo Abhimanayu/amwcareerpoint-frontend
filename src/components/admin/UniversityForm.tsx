@@ -36,6 +36,7 @@ const emptyForm = {
   name: '',
   slug: '',
   country: '',
+  city: '',
   description: '',
   logo: '',
   logoAlt: '',
@@ -95,6 +96,7 @@ function buildUniversityForm(initialData?: Record<string, unknown>) {
     name: (initialData.name as string) || '',
     slug: (initialData.slug as string) || '',
     country: countryId || '',
+    city: (initialData.city as string) || '',
     description: (initialData.description as string) || '',
     logo: (initialData.logo as string) || '',
     logoAlt: (initialData.logoAlt as string) || '',
@@ -237,6 +239,17 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
               <option value="">Select Country</option>
               {countries.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
             </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+            <input
+              maxLength={L.city.max}
+              value={form.city}
+              onChange={(e) => updateField('city', e.target.value)}
+              placeholder="e.g., Bishkek"
+              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none"
+            />
+            <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'city')} /><CharCount current={form.city.length} max={L.city.max} /></div>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Description / Page Content</label>

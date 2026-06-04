@@ -82,6 +82,7 @@ export const LIMITS = {
   university: {
     name: { min: 3, max: 180 },
     slug: { min: 2, max: 220 },
+    city: { max: 120 },
     description: { min: 20, max: 50000 },
     ranking: { max: 180 },
     accreditation: { max: 260 },
@@ -317,6 +318,7 @@ export function validateUniversityForm(form: {
   name: string;
   slug: string;
   country: string;
+  city: string;
   description: string;
   ranking: string;
   accreditation: string;
@@ -349,6 +351,7 @@ export function validateUniversityForm(form: {
   else if (form.name.length > L.name.max) errors.push({ field: 'name', message: `Name must not exceed ${L.name.max} characters` });
 
   if (!form.country) errors.push({ field: 'country', message: 'Country is required' });
+  if (form.city.length > L.city.max) errors.push({ field: 'city', message: `City must not exceed ${L.city.max} characters` });
 
   if (form.slug && form.slug.length > L.slug.max) errors.push({ field: 'slug', message: `Slug must not exceed ${L.slug.max} characters` });
   if (form.slug && !/^[a-z0-9-]+$/.test(form.slug)) errors.push({ field: 'slug', message: 'Slug can only contain lowercase letters, numbers, and hyphens' });
