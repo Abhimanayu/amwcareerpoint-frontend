@@ -899,7 +899,7 @@ export default async function CountryPage({ params }: Props) {
               About {country.name}
             </span>
             <h2 className="mt-3 font-heading text-2xl sm:text-3xl font-bold text-[#0D1B3E]">
-              MBBS in {country.name} — an overview
+              MBBS in {country.name} — overview
             </h2>
             <div
               className="blog-content prose prose-sm sm:prose-base max-w-none mt-6 text-[#4A4742] leading-relaxed"

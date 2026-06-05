@@ -146,82 +146,6 @@ function checkAccessibility(content: string) {
   return result;
 }
 
-function isBlankTableCell(cellHtml: string): boolean {
-  const text = cellHtml
-    .replace(/<br\s*\/?>/gi, '')
-    .replace(/<[^>]*>/g, '')
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/&#160;/g, ' ')
-    .trim();
-
-  return text.length === 0;
-}
-
-function removeExplicitTableWidth(tableTag: string): string {
-  return tableTag.replace(/\sstyle=(["'])(.*?)\1/i, (match, quote, styleValue) => {
-    const cleanedStyle = styleValue
-      .split(';')
-      .map((rule: string) => rule.trim())
-      .filter((rule: string) => rule && !/^width\s*:/i.test(rule))
-      .join('; ');
-
-    return cleanedStyle ? ` style=${quote}${cleanedStyle}${quote}` : '';
-  });
-}
-
-function removeTrailingEmptyTableColumns(tableHtml: string): string {
-  const rowRegex = /<tr\b[^>]*>[\s\S]*?<\/tr>/gi;
-  const rows = tableHtml.match(rowRegex) || [];
-  if (rows.length === 0) return tableHtml;
-
-  const parsedRows = rows.map((row) => row.match(/<t[dh]\b[^>]*>[\s\S]*?<\/t[dh]>/gi) || []);
-  if (parsedRows.some((cells) => cells.length === 0)) return tableHtml;
-
-  const columnCount = Math.max(...parsedRows.map((cells) => cells.length));
-  if (columnCount <= 1 || parsedRows.some((cells) => cells.length !== columnCount)) return tableHtml;
-
-  const hasMergedCells = parsedRows.some((cells) =>
-    cells.some((cell) => {
-      const colSpan = cell.match(/\scolspan=(["']?)(\d+)\1/i)?.[2];
-      const rowSpan = cell.match(/\srowspan=(["']?)(\d+)\1/i)?.[2];
-      return (colSpan && Number(colSpan) > 1) || (rowSpan && Number(rowSpan) > 1);
-    })
-  );
-  if (hasMergedCells) return tableHtml;
-
-  const columnsToRemove: number[] = [];
-  for (let colIndex = columnCount - 1; colIndex >= 0; colIndex -= 1) {
-    const isEmptyColumn = parsedRows.every((cells) => isBlankTableCell(cells[colIndex]));
-    if (!isEmptyColumn) break;
-    columnsToRemove.push(colIndex);
-  }
-
-  if (columnsToRemove.length === 0) return tableHtml;
-
-  let cleanedTable = tableHtml;
-
-  rows.forEach((row, rowIndex) => {
-    const cells = [...parsedRows[rowIndex]];
-    columnsToRemove.forEach((colIndex) => {
-      cells.splice(colIndex, 1);
-    });
-    cleanedTable = cleanedTable.replace(row, row.replace(/<t[dh]\b[^>]*>[\s\S]*?<\/t[dh]>/gi, () => cells.shift() || ''));
-  });
-
-  const colgroupMatch = cleanedTable.match(/<colgroup\b[^>]*>[\s\S]*?<\/colgroup>/i);
-  if (colgroupMatch) {
-    const cols = colgroupMatch[0].match(/<col\b[^>]*>/gi) || [];
-    if (cols.length === columnCount) {
-      columnsToRemove.forEach((colIndex) => {
-        cols.splice(colIndex, 1);
-      });
-      cleanedTable = cleanedTable.replace(colgroupMatch[0], `<colgroup>${cols.join('')}</colgroup>`);
-    }
-  }
-
-  return cleanedTable.replace(/<table\b[^>]*>/i, (tableTag) => removeExplicitTableWidth(tableTag));
-}
-
 function addClassNameToTag(tag: string, className: string): string {
   if (/\sclass=(["'])/i.test(tag)) {
     return tag.replace(/\sclass=(["'])(.*?)\1/i, (_match, quote, existing) => {
@@ -233,6 +157,173 @@ function addClassNameToTag(tag: string, className: string): string {
   return tag.replace(/>$/, ` class="${className}">`);
 }
 
+function stripHtml(html: string): string {
+  return html
+    .replace(/<br\s*\/?>/gi, ' ')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&#160;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function escapeAttributeValue(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function getColSpan(cellOpenTag: string): number {
+  const colSpan = cellOpenTag.match(/\scolspan=("|')?(\d+)\1/i)?.[2];
+  const parsed = colSpan ? Number.parseInt(colSpan, 10) : 1;
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+}
+
+function addDataLabelToTdTag(tag: string, label: string): string {
+  if (/\sdata-label=("|').*?\1/i.test(tag)) {
+    return tag;
+  }
+
+  const safeLabel = escapeAttributeValue(label);
+  return tag.replace(/>$/, ` data-label="${safeLabel}">`);
+}
+
+function hasClassName(tag: string, className: string): boolean {
+  const classMatch = tag.match(/\sclass=("|')(.*?)\1/i);
+  if (!classMatch) return false;
+
+  const classes = classMatch[2]?.split(/\s+/).filter(Boolean) || [];
+  return classes.includes(className);
+}
+
+function shouldHideGenericCardLabel(label: string): boolean {
+  const normalized = label.trim().toLowerCase();
+  return normalized === 'details'
+    || normalized === 'detail'
+    || normalized === 'value'
+    || normalized === 'info'
+    || normalized === 'information'
+    || normalized === 'description';
+}
+
+function addMobileCardLabelsToTable(tableHtml: string): string {
+  const rowRegex = /<tr\b[^>]*>[\s\S]*?<\/tr>/gi;
+  const rows = tableHtml.match(rowRegex) || [];
+  if (rows.length === 0) return tableHtml;
+
+  const headerRow = rows.find((row) => /<th\b/i.test(row));
+  const headerCells = headerRow?.match(/<th\b[^>]*>[\s\S]*?<\/th>/gi) || [];
+  let headerLabels = headerCells
+    .map((cell) => stripHtml(cell))
+    .map((label) => label);
+
+  let inferredHeaderRowIndex = -1;
+
+  let hasValidHeaderRow = headerLabels.length > 0 && headerLabels.some((label) => label.length > 0);
+  if (!hasValidHeaderRow) {
+    // If table has no <th>, infer a header row from the first few data rows.
+    type HeaderCandidate = {
+      rowIndex: number;
+      labels: string[];
+      nonEmptyCount: number;
+      score: number;
+    };
+
+    const candidates: HeaderCandidate[] = [];
+    const maxScanRows = Math.min(rows.length, 4);
+
+    for (let i = 0; i < maxScanRows; i += 1) {
+      const row = rows[i];
+      if (!row) continue;
+
+      const tdCells = row.match(/<td\b[^>]*>[\s\S]*?<\/td>/gi) || [];
+      if (tdCells.length <= 1) continue;
+
+      const labels = tdCells.map((cell) => stripHtml(cell));
+      const nonEmptyCount = labels.filter((label) => label.length > 0).length;
+      if (nonEmptyCount < 2) continue;
+
+      const score = (nonEmptyCount * 10) + (labels.length >= 3 ? 1 : 0) - i;
+      candidates.push({ rowIndex: i, labels, nonEmptyCount, score });
+    }
+
+    const bestCandidate = candidates.sort((a, b) => b.score - a.score)[0];
+    if (bestCandidate) {
+      headerLabels = bestCandidate.labels;
+      inferredHeaderRowIndex = bestCandidate.rowIndex;
+      hasValidHeaderRow = true;
+    }
+  }
+
+  if (!hasValidHeaderRow) {
+    // Final fallback: still convert to cards and generate neutral labels for non-title columns.
+    const maxCols = rows.reduce((max, row) => {
+      const cellCount = (row.match(/<td\b[^>]*>[\s\S]*?<\/td>/gi) || []).length;
+      return Math.max(max, cellCount);
+    }, 0);
+
+    if (maxCols <= 1) {
+      return tableHtml;
+    }
+
+    headerLabels = Array.from({ length: maxCols }, (_unused, index) => (
+      index === 0 ? '' : `Detail ${index}`
+    ));
+  }
+
+  const tableTagMatch = tableHtml.match(/<table\b[^>]*>/i);
+  let enhancedTableHtml = tableHtml;
+  if (tableTagMatch && !hasClassName(tableTagMatch[0], 'content-table-mobile-cards')) {
+    enhancedTableHtml = enhancedTableHtml.replace(/<table\b[^>]*>/i, (tableTag) => addClassNameToTag(tableTag, 'content-table-mobile-cards'));
+  }
+
+  let rowIndex = -1;
+  return enhancedTableHtml.replace(rowRegex, (row) => {
+    rowIndex += 1;
+
+    if (rowIndex === inferredHeaderRowIndex) {
+      return row.replace(/<tr\b[^>]*>/i, (trTag) => addClassNameToTag(trTag, 'content-table-mobile-header-row'));
+    }
+
+    let colIndex = 0;
+    return row.replace(/<td\b[^>]*>[\s\S]*?<\/td>/gi, (tdCell) => {
+      const openTagMatch = tdCell.match(/^<td\b[^>]*>/i);
+      if (!openTagMatch) return tdCell;
+
+      const openTag = openTagMatch[0];
+      const colSpan = getColSpan(openTag);
+      const rawLabel = headerLabels[colIndex] || '';
+      let label = rawLabel.trim();
+      const cellText = stripHtml(tdCell);
+
+      if (colIndex > 0 && shouldHideGenericCardLabel(label)) {
+        label = '';
+      }
+
+      let updatedTag = addDataLabelToTdTag(openTag, label);
+
+      if (colIndex === 0) {
+        updatedTag = addClassNameToTag(updatedTag, 'content-table-card-title');
+      } else {
+        updatedTag = addClassNameToTag(updatedTag, 'content-table-card-field');
+      }
+
+      if (label.length === 0) {
+        updatedTag = addClassNameToTag(updatedTag, 'content-table-empty-label');
+      }
+
+      if (cellText.length === 0) {
+        updatedTag = addClassNameToTag(updatedTag, 'content-table-empty-cell');
+      }
+
+      colIndex += colSpan;
+      return tdCell.replace(openTag, updatedTag);
+    });
+  });
+}
+
 export function sanitizeAndOptimizeMobileContent(htmlContent: string): string {
   const optimizedHtml = htmlContent
     // Make images responsive
@@ -242,14 +333,14 @@ export function sanitizeAndOptimizeMobileContent(htmlContent: string): string {
       }
       return match;
     })
-    // Remove accidental trailing empty columns from editor tables before rendering.
-    .replace(/<table\b[^>]*>[\s\S]*?<\/table>/gi, (table) => removeTrailingEmptyTableColumns(table))
     // Wrap tables for horizontal scroll
-    .replace(/<table\b[^>]*>/gi, (tableTag) => `<div class="overflow-x-auto">${addClassNameToTag(tableTag, 'content-table')}`)
+    .replace(/<table\b[^>]*>/gi, (tableTag) => `<div class="table-wrapper">${addClassNameToTag(tableTag, 'content-table')}`)
     .replace(/<\/table>/gi, '</table></div>')
     // Add responsive classes to table cells
     .replace(/<th\b[^>]*>/gi, (tag) => addClassNameToTag(tag, 'content-table-heading'))
     .replace(/<td\b[^>]*>/gi, (tag) => addClassNameToTag(tag, 'content-table-cell'))
+    // Add per-cell labels so mobile can render table rows as cards with key/value layout.
+    .replace(/<table\b[^>]*>[\s\S]*?<\/table>/gi, (table) => addMobileCardLabelsToTable(table))
     // Ensure proper spacing
     .replace(/\n/g, '<br />');
 

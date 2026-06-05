@@ -72,9 +72,10 @@ export function RichTextEditor({ content, onChange, className = '' }: Readonly<R
         heading: {
           levels: [1, 2, 3, 4, 5, 6],
         },
-        // Exclude link and strike from StarterKit since we're configuring them separately
+        // Exclude marks from StarterKit since we're configuring them separately
         link: false,
         strike: false,
+        underline: false,
       }),
       TextStyle,
       FontSize,
@@ -122,7 +123,7 @@ export function RichTextEditor({ content, onChange, className = '' }: Readonly<R
     editorProps: {
       attributes: {
         class: [
-          'prose prose-sm sm:prose-base max-w-none min-h-[300px] p-4 border-0 focus:outline-none',
+          'admin-rich-editor prose prose-sm sm:prose-base max-w-none min-h-[300px] p-4 border-0 focus:outline-none',
           'prose-headings:font-heading prose-headings:text-gray-900',
           'prose-img:max-w-full prose-img:h-auto prose-img:rounded prose-img:mx-auto',
           'prose-table:w-full prose-table:border-collapse prose-table:border prose-table:border-gray-300',
@@ -462,6 +463,90 @@ export function RichTextEditor({ content, onChange, className = '' }: Readonly<R
             title="Insert Table"
           >
             📊
+          </button>
+        </div>
+
+        <div className="w-px h-6 bg-gray-300 mx-1"></div>
+
+        {/* Table controls */}
+        <div className="flex gap-1">
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().addRowBefore().run()}
+            disabled={!editor.isActive('table')}
+            className="p-1.5 text-xs rounded hover:bg-gray-200 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed"
+            title="Add Row Above"
+          >
+            +R^
+          </button>
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().addRowAfter().run()}
+            disabled={!editor.isActive('table')}
+            className="p-1.5 text-xs rounded hover:bg-gray-200 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed"
+            title="Add Row Below"
+          >
+            +Rv
+          </button>
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().deleteRow().run()}
+            disabled={!editor.isActive('table')}
+            className="p-1.5 text-xs rounded hover:bg-gray-200 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed"
+            title="Delete Row"
+          >
+            -R
+          </button>
+        </div>
+
+        <div className="flex gap-1">
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().addColumnBefore().run()}
+            disabled={!editor.isActive('table')}
+            className="p-1.5 text-xs rounded hover:bg-gray-200 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed"
+            title="Add Column Left"
+          >
+            +CL
+          </button>
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().addColumnAfter().run()}
+            disabled={!editor.isActive('table')}
+            className="p-1.5 text-xs rounded hover:bg-gray-200 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed"
+            title="Add Column Right"
+          >
+            +CR
+          </button>
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().deleteColumn().run()}
+            disabled={!editor.isActive('table')}
+            className="p-1.5 text-xs rounded hover:bg-gray-200 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed"
+            title="Delete Column"
+          >
+            -C
+          </button>
+        </div>
+
+        <div className="flex gap-1">
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleHeaderRow().run()}
+            disabled={!editor.isActive('table')}
+            className="p-1.5 text-xs rounded hover:bg-gray-200 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed"
+            title="Toggle Header Row"
+          >
+            HDR
+          </button>
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().deleteTable().run()}
+            disabled={!editor.isActive('table')}
+            className="p-1.5 text-xs rounded hover:bg-red-100 text-red-600 disabled:opacity-40 disabled:cursor-not-allowed"
+            title="Delete Table"
+          >
+            Del Tbl
           </button>
         </div>
         </div>

@@ -23,26 +23,33 @@
 /* Responsive Tables */
 .blog-content table {
   @apply border-collapse border border-gray-300 text-sm;
-  width: auto;
+  width: max-content;
   min-width: 100%;
-  max-width: 100%;
+  max-width: none;
   table-layout: auto;
 }
 
+.blog-content .table-wrapper,
 .blog-content .overflow-x-auto {
-  -webkit-overflow-scrolling: touch;
+  width: 100%;
   max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  margin: 1.25rem 0;
+  padding-bottom: 0.5rem;
 }
 
-.blog-content .overflow-x-auto > table {
+.blog-content .table-wrapper>table,
+.blog-content .overflow-x-auto>table {
   max-width: none;
 }
 
 .blog-content th,
 .blog-content td {
   @apply border border-gray-300 p-2;
-  min-width: 72px;
-  word-break: break-word;
+  min-width: 96px;
+  word-break: normal;
   overflow-wrap: anywhere;
   vertical-align: top;
   white-space: normal;
@@ -53,7 +60,7 @@
   max-width: 100%;
   white-space: normal !important;
   overflow-wrap: anywhere;
-  word-break: break-word;
+  word-break: normal;
 }
 
 .blog-content th {
@@ -77,21 +84,20 @@
 
 /* Table wrapper for horizontal scroll on mobile */
 .blog-content .table-wrapper {
-  @apply overflow-x-auto -mx-4 px-4;
-  scrollbar-width: thin;
-  scrollbar-color: #CBD5E0 #F7FAFC;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .blog-content .table-wrapper::-webkit-scrollbar {
-  height: 6px;
+  display: none;
 }
 
 .blog-content .table-wrapper::-webkit-scrollbar-track {
-  @apply bg-gray-100 rounded-full;
+  display: none;
 }
 
 .blog-content .table-wrapper::-webkit-scrollbar-thumb {
-  @apply bg-gray-400 rounded-full;
+  display: none;
 }
 
 /* Responsive Typography */
@@ -250,23 +256,159 @@
   }
 
   .blog-content table {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     width: max-content;
     min-width: 100%;
   }
 
   .blog-content th,
   .blog-content td {
-    padding: 0.5rem;
-    min-width: 72px;
+    padding: 0.625rem 0.75rem;
+    min-width: 96px;
   }
 
-  /* Force horizontal scroll for wide tables */
+  /* Keep tables visually contained and clear sticky mobile actions below content */
   .blog-content .table-wrapper {
-    margin-left: -1rem;
-    margin-right: -1rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
+    margin-bottom: calc(1.25rem + 4rem);
+    overflow-x: clip;
+  }
+
+  .blog-content .table-wrapper .content-table-mobile-cards {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    border: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .blog-content .table-wrapper .content-table:not(.content-table-mobile-cards) {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    table-layout: auto;
+  }
+
+  .blog-content .table-wrapper .content-table:not(.content-table-mobile-cards) td,
+  .blog-content .table-wrapper .content-table:not(.content-table-mobile-cards) th {
+    min-width: 0;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .blog-content .table-wrapper .content-table-mobile-cards thead {
+    display: none;
+  }
+
+  .blog-content .table-wrapper .content-table-mobile-cards .content-table-mobile-header-row {
+    display: none;
+  }
+
+  .blog-content .table-wrapper .content-table-mobile-cards tbody,
+  .blog-content .table-wrapper .content-table-mobile-cards tr,
+  .blog-content .table-wrapper .content-table-mobile-cards td,
+  .blog-content .table-wrapper .content-table-mobile-cards th {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .blog-content .table-wrapper .content-table-mobile-cards tr {
+    margin-bottom: 0.75rem;
+    border: 1px solid #D1D5DB;
+    border-radius: 0.75rem;
+    overflow: visible;
+    background-color: #FFFFFF;
+  }
+
+  .blog-content .table-wrapper .content-table-mobile-cards tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .blog-content .table-wrapper .content-table-mobile-cards td.content-table-card-field {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+    align-items: start;
+    border: 0;
+    border-bottom: 1px solid #E5E7EB;
+    padding: 0.875rem;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    text-align: left;
+    text-overflow: clip;
+  }
+
+  .blog-content .table-wrapper .content-table-mobile-cards td.content-table-card-field:last-child {
+    border-bottom: 0;
+  }
+
+  .blog-content .table-wrapper .content-table-mobile-cards td.content-table-card-field::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 0.125rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #6B7280;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .blog-content .table-wrapper .content-table-mobile-cards td,
+  .blog-content .table-wrapper .content-table-mobile-cards th,
+  .blog-content .table-wrapper .content-table-mobile-cards td * {
+    max-width: 100%;
+    min-width: 0;
+    white-space: normal !important;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+    text-align: left !important;
+  }
+
+  .blog-content .table-wrapper .content-table-mobile-cards td.content-table-card-title {
+    display: block;
+    border: 0;
+    border-bottom: 1px solid #E5E7EB;
+    padding: 0.875rem;
+    margin: 0;
+    line-height: 1.35;
+    font-weight: 700;
+    color: #111827;
+    background-color: #F9FAFB;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    text-align: left;
+    text-overflow: clip;
+  }
+
+  .blog-content .table-wrapper .content-table-mobile-cards td.content-table-card-title::before {
+    content: none;
+  }
+
+  .blog-content .table-wrapper .content-table-mobile-cards td.content-table-empty-cell {
+    display: none;
+  }
+
+  .blog-content .table-wrapper .content-table-mobile-cards td.content-table-empty-label {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .blog-content .table-wrapper .content-table-mobile-cards td.content-table-empty-label::before {
+    content: none;
+  }
+
+  .blog-content .table-wrapper .content-table-mobile-cards th {
+    display: none;
+    border: 0;
   }
 
   /* Adjust code block font size */
