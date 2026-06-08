@@ -84,20 +84,42 @@
 
 /* Table wrapper for horizontal scroll on mobile */
 .blog-content .table-wrapper {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: #94A3B8 #E2E8F0;
+  -ms-overflow-style: auto;
 }
 
 .blog-content .table-wrapper::-webkit-scrollbar {
-  display: none;
+  height: 8px;
 }
 
 .blog-content .table-wrapper::-webkit-scrollbar-track {
-  display: none;
+  background: #E2E8F0;
+  border-radius: 9999px;
 }
 
 .blog-content .table-wrapper::-webkit-scrollbar-thumb {
-  display: none;
+  background: #94A3B8;
+  border-radius: 9999px;
+}
+
+.blog-content .overflow-x-auto {
+  scrollbar-width: thin;
+  scrollbar-color: #94A3B8 #E2E8F0;
+}
+
+.blog-content .overflow-x-auto::-webkit-scrollbar {
+  height: 8px;
+}
+
+.blog-content .overflow-x-auto::-webkit-scrollbar-track {
+  background: #E2E8F0;
+  border-radius: 9999px;
+}
+
+.blog-content .overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #94A3B8;
+  border-radius: 9999px;
 }
 
 /* Responsive Typography */
@@ -270,7 +292,7 @@
   /* Keep tables visually contained and clear sticky mobile actions below content */
   .blog-content .table-wrapper {
     margin-bottom: calc(1.25rem + 4rem);
-    overflow-x: clip;
+    overflow-x: auto;
   }
 
   .blog-content .table-wrapper .content-table-mobile-cards {
