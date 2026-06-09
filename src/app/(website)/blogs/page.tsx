@@ -494,6 +494,9 @@ export default async function BlogPage({
                           <h3 className="font-heading text-[13px] sm:text-[15px] font-bold text-[#0D1B3E] leading-snug line-clamp-2 group-hover:text-[#F26419] transition-colors mb-0.5 sm:mb-1">
                             {clampText(post.title || 'Untitled', 80)}
                           </h3>
+                          <p className="text-[11px] sm:text-[12px] leading-relaxed text-[#4A4742] line-clamp-2 mb-1 sm:mb-1.5">
+                            {clampText(post.excerpt || 'Read the full article for complete admission details, fees, eligibility, and expert guidance.', 120)}
+                          </p>
                           <div className="flex flex-wrap items-center gap-x-2 sm:gap-x-3 gap-y-0.5 text-[10px] sm:text-[11px] text-[#4A4742]">
                             <span className="truncate max-w-[100px] sm:max-w-[120px]">{clampText(post.author || 'AMW Team', 18)}</span>
                             {post.createdAt && (

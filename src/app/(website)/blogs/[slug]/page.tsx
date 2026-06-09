@@ -44,6 +44,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       alternates: { canonical },
       openGraph: { title, description, type: 'article', url: canonical, images: ogImage ? [{ url: ogImage }] : undefined },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: ogImage ? [ogImage] : undefined,
+      },
     };
   } catch {
     return { title: 'Post Not Found' };

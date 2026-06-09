@@ -302,6 +302,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: canonical,
       images: ogImage ? [{ url: ogImage }] : undefined,
     },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ogImage ? [ogImage] : undefined,
+    },
   };
 }
 

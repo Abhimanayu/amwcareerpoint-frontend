@@ -349,10 +349,39 @@ export function resolveCanonicalUrl(value: unknown, fallback: string): string {
 
   const trimmed = value.trim();
   if (!trimmed) return fallback;
-  if (/<[^>]+>/.test(trimmed)) return fallback;
 
-  const candidate = stripHtml(trimmed).trim();
+  const decodeEntities = (input: string) => input
+    .replaceAll('&quot;', '"')
+    .replaceAll('&#34;', '"')
+    .replaceAll('&#39;', "'")
+    .replaceAll('&apos;', "'")
+    .replaceAll('&amp;', '&')
+    .replaceAll('&lt;', '<')
+    .replaceAll('&gt;', '>');
+
+  const decodeUriSafely = (input: string) => {
+    try {
+      return decodeURIComponent(input);
+    } catch {
+      return input;
+    }
+  };
+
+  const extractHref = (input: string) => {
+    const hrefMatch = input.match(/href\s*=\s*["']([^"']+)["']/i);
+    return hrefMatch?.[1]?.trim() || '';
+  };
+
+  const normalized = decodeUriSafely(decodeEntities(trimmed)).trim();
+  const looksLikeLinkTag = /<\s*link\b/i.test(normalized) || /rel\s*=\s*["']?canonical/i.test(normalized);
+
+  const candidateSource = looksLikeLinkTag ? extractHref(normalized) : normalized;
+  if (!candidateSource) return fallback;
+  if (/<[^>]+>/.test(candidateSource)) return fallback;
+
+  const candidate = stripHtml(candidateSource).trim();
   if (!candidate) return fallback;
+  if (!/^(https?:\/\/|\/)/i.test(candidate)) return fallback;
 
   try {
     return new URL(candidate, fallback).toString();

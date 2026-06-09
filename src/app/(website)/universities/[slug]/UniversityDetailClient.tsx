@@ -103,6 +103,10 @@ export default function UniversityDetailClient({
   const heroImage = pickUniversityImageSource(university);
   const heroImageAlt = pickUniversityImageAltText(university);
   const curriculum = normalizeCurriculum(university);
+  const curriculumYearCount = curriculum.length;
+  const curriculumHeading = curriculumYearCount > 0
+    ? `${curriculumYearCount}-Year MD curriculum`
+    : 'MD curriculum';
   const activeCurriculumIndex = Math.min(currTab, curriculum.length - 1);
   const activeCurriculum = curriculum[activeCurriculumIndex];
 
@@ -132,7 +136,7 @@ export default function UniversityDetailClient({
 
       {/* ═══════════════ STICKY NAV ═══════════════ */}
       <nav className="sticky top-0 z-30 border-b border-[#DDD9D2] bg-white shadow-sm">
-        <div className="mx-auto max-w-[1200px] px-0 sm:px-8">
+        <div className="mx-auto max-w-[1320px] px-0 sm:px-8">
           <div className="relative flex gap-0 overflow-x-auto py-0 scrollbar-hide">
             <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-4 bg-gradient-to-r from-white to-transparent sm:hidden" />
             <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-4 bg-gradient-to-l from-white to-transparent sm:hidden" />
@@ -157,10 +161,10 @@ export default function UniversityDetailClient({
 
       {/* ═══════════════ OVERVIEW — WHY STUDENTS CHOOSE ═══════════════ */}
       <section id="overview" className="bg-[#F9F8F6] py-16 sm:py-20 lg:py-24">
-        <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
-          <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_340px] lg:gap-16">
+        <div className="mx-auto max-w-[1320px] px-5 sm:px-8">
+          <div className="grid grid-cols-1 gap-10 2xl:grid-cols-[minmax(0,1fr)_320px] 2xl:gap-14">
             {/* Left — content */}
-            <div>
+            <div className="min-w-0">
               <h2 className="font-heading text-[1.75rem] font-bold leading-tight text-[#0D1B3E] sm:text-[2rem] md:text-[2.25rem]">
                 Why students choose<br /><span className="font-normal italic">{university.name}</span>
               </h2>
@@ -234,7 +238,7 @@ export default function UniversityDetailClient({
 
       {/* ═══════════════ FEE STRUCTURE ═══════════════ */}
       <section id="fees" className="bg-white py-16 sm:py-20 lg:py-24">
-        <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
+        <div className="mx-auto max-w-[1320px] px-5 sm:px-8">
           <h2 className="font-heading text-[1.75rem] font-bold leading-tight text-[#0D1B3E] sm:text-[2rem] md:text-[2.25rem]">
             Complete, transparent<br /><span className="font-normal italic text-[#F26419]">cost breakdown</span>
           </h2>
@@ -255,7 +259,7 @@ export default function UniversityDetailClient({
 
       {/* ═══════════════ FMGE / LICENSING ═══════════════ */}
       <section className="bg-[#F9F8F6] py-16 sm:py-20 lg:py-24">
-        <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
+        <div className="mx-auto max-w-[1320px] px-5 sm:px-8">
           <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:gap-20">
             <div>
               <p className="font-heading text-6xl font-bold leading-none text-[#0D1B3E] sm:text-7xl md:text-8xl">
@@ -290,11 +294,11 @@ export default function UniversityDetailClient({
         </div>
       </section>
 
-      {/* ═══════════════ 6-YEAR CURRICULUM ═══════════════ */}
+      {/* ═══════════════ CURRICULUM ═══════════════ */}
       <section id="curriculum" className="bg-white py-16 sm:py-20 lg:py-24">
-        <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
+        <div className="mx-auto max-w-[1320px] px-5 sm:px-8">
           <h2 className="font-heading text-[1.75rem] font-bold leading-tight text-[#0D1B3E] sm:text-[2rem] md:text-[2.25rem]">
-            6-Year MD curriculum,<br /><span className="font-normal italic text-[#F26419]">year by year</span>
+            {curriculumHeading},<br /><span className="font-normal italic text-[#F26419]">year by year</span>
           </h2>
           <p className="mt-2 max-w-xl text-[15px] text-[#4A4742]">
             A structured program that takes you from foundational sciences to clinical mastery.
@@ -333,7 +337,7 @@ export default function UniversityDetailClient({
       {/* ═══════════════ CAMPUS GALLERY — reusable protected component ═══════════════ */}
       {gallery.length > 0 && (
         <section id="campus" className="bg-[#F9F8F6] py-16 sm:py-20 lg:py-24">
-          <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
+          <div className="mx-auto max-w-[1320px] px-5 sm:px-8">
             <CollegeGallery images={gallery} universityName={university.name || 'Campus'} />
           </div>
         </section>
@@ -341,7 +345,7 @@ export default function UniversityDetailClient({
 
       {/* ═══════════════ WHAT LIFE LOOKS LIKE ON THE GROUND ═══════════════ */}
       <section className="bg-white py-16 sm:py-20 lg:py-24">
-        <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
+        <div className="mx-auto max-w-[1320px] px-5 sm:px-8">
           <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
             {/* Image */}
             <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-[#F9F8F6]">
@@ -387,7 +391,7 @@ export default function UniversityDetailClient({
 
       {/* ═══════════════ HOSPITAL ACCESS ═══════════════ */}
       <section className="bg-[#F9F8F6] py-16 sm:py-20 lg:py-24">
-        <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
+        <div className="mx-auto max-w-[1320px] px-5 sm:px-8">
           <h2 className="font-heading text-[1.75rem] font-bold leading-tight text-[#0D1B3E] sm:text-[2rem] md:text-[2.25rem]">
             Hospital access in<br /><span className="font-normal italic text-[#F26419]">{countryName ? `${countryName}\u2019s capital` : 'the capital city'}</span>
           </h2>
@@ -413,7 +417,7 @@ export default function UniversityDetailClient({
 
       {/* ═══════════════ FIRST-TIME STUDENT INFO ═══════════════ */}
       <section className="bg-white py-16 sm:py-20 lg:py-24">
-        <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
+        <div className="mx-auto max-w-[1320px] px-5 sm:px-8">
           <h2 className="font-heading text-[1.75rem] font-bold leading-tight text-[#0D1B3E] sm:text-[2rem] md:text-[2.25rem]">
             What a first-time student<br />actually needs to <span className="font-normal italic text-[#F26419]">know</span>
           </h2>
@@ -443,7 +447,7 @@ export default function UniversityDetailClient({
       {/* ═══════════════ ADMISSION PROCESS ═══════════════ */}
       {admissionProcess.length > 0 && (
         <section id="admission" className="bg-[#F9F8F6] py-16 sm:py-20 lg:py-24">
-          <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
+          <div className="mx-auto max-w-[1320px] px-5 sm:px-8">
             <h2 className="font-heading text-[1.75rem] font-bold leading-tight text-[#0D1B3E] sm:text-[2rem] md:text-[2.25rem]">
               Admission in <span className="font-normal italic text-[#F26419]">{admissionProcess.length} steps</span>
             </h2>
@@ -473,7 +477,7 @@ export default function UniversityDetailClient({
 
       {/* ═══════════════ REVIEWS ═══════════════ */}
       <section id="reviews" className="bg-[#0D1B3E] py-16 text-white sm:py-20 lg:py-24">
-        <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
+        <div className="mx-auto max-w-[1320px] px-5 sm:px-8">
           <h2 className="mb-10 font-heading text-[1.75rem] font-bold leading-tight sm:text-[2rem] md:text-[2.25rem]">
             What our students<br />actually <span className="font-normal italic text-[#F26419]">say</span>
           </h2>
@@ -540,7 +544,7 @@ export default function UniversityDetailClient({
       {/* ═══════════════ RELATED UNIVERSITIES ═══════════════ */}
       {relatedUniversities.length > 0 && (
         <section className="bg-[#F9F8F6] py-16 sm:py-20 lg:py-24">
-          <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
+          <div className="mx-auto max-w-[1320px] px-5 sm:px-8">
             <h2 className="mb-10 text-center font-heading text-[1.75rem] font-bold leading-tight text-[#0D1B3E] sm:text-[2rem] md:text-[2.25rem]">
               Other colleges in {countryName}
             </h2>

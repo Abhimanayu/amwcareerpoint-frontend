@@ -151,6 +151,10 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
   const [error, setError] = useState('');
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const L = LIMITS.university;
+  const curriculumYearCount = Array.isArray(form.curriculum) ? form.curriculum.length : 0;
+  const curriculumHeading = curriculumYearCount > 0
+    ? `${curriculumYearCount}-Year MD Curriculum`
+    : 'MD Curriculum';
 
   useEffect(() => {
     adminGetCountries({ limit: 100 }).then((res) => {
@@ -358,7 +362,7 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
         {/* Curriculum */}
         <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-gray-900">6-Year MD Curriculum</h2>
+            <h2 className="font-semibold text-gray-900">{curriculumHeading}</h2>
             <button
               type="button"
               onClick={() => updateField('curriculum', [...form.curriculum, { year: `Year ${form.curriculum.length + 1}`, title: '', subjects: '', desc: '' }])}

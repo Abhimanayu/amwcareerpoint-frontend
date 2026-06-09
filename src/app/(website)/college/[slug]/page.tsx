@@ -13,7 +13,8 @@ type Props = {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-export const revalidate = 600;
+// Keep detail pages fresh after admin edits (curriculum, fees, seo, etc.)
+export const revalidate = 0;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (SEO_HOLD) {
@@ -47,6 +48,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       alternates: { canonical },
       openGraph: { title, description, type: 'article', url: canonical, images: ogImage ? [{ url: ogImage }] : undefined },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: ogImage ? [ogImage] : undefined,
+      },
     };
   } catch {
     return { title: 'University Not Found' };

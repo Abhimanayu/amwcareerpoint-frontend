@@ -201,24 +201,34 @@ export function CountriesSection({ items }: CountriesSectionProps) {
         </div>
 
         <div className="px-1 sm:px-5">
-          <Carousel slideClass="basis-full px-1 sm:basis-1/2 sm:pl-5 sm:pr-0 lg:basis-1/3" maxDots={10}>
+          <Carousel slideClass="basis-full px-1 sm:basis-1/2 sm:pl-5 sm:pr-0 lg:basis-1/4" maxDots={10}>
             {usingFallback ? countries.map((c: any) => (
               <div key={`${c.code}-${c.name}`} className="rounded-xl border border-border bg-white overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
-                <div className="bg-navy px-4 py-3 text-white">
-                  <div className="flex items-center gap-2.5">
-                    <SafeImage 
-                      src={`https://flagcdn.com/w40/${c.code}.png`} 
-                      alt={`${c.name} flag`} 
-                      width={32}
-                      height={24}
-                      className="w-8 h-6 rounded-sm object-cover"
-                      fallbackElement={
-                        <div className="w-8 h-6 rounded-sm bg-white/20 flex items-center justify-center text-xs">🏳️</div>
-                      }
-                    />
-                    <div>
-                      <h3 className="font-heading text-[15px] font-bold truncate">{c.name}</h3>
-                      <span className="text-[11px] opacity-90">{c.unis} Universities</span>
+                <div className="relative h-36 sm:h-40 lg:aspect-[3/4] lg:h-auto overflow-hidden bg-navy">
+                  <SafeImage
+                    src={getStableCountryFallbackImage(c)}
+                    alt={`${c.name} MBBS destination`}
+                    fill
+                    className="object-cover"
+                    fallbackElement={<div className="absolute inset-0 bg-linear-to-br from-navy to-navy/80" />}
+                  />
+                  <div className="absolute inset-0 bg-linear-to-t from-navy/85 via-navy/40 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 px-4 pb-3 text-white">
+                    <div className="flex items-center gap-2.5">
+                      <SafeImage
+                        src={`https://flagcdn.com/w40/${c.code}.png`}
+                        alt={`${c.name} flag`}
+                        width={40}
+                        height={30}
+                        className="h-7.5 w-10 shrink-0 rounded-sm object-cover ring-1 ring-white/30"
+                        fallbackElement={
+                          <div className="flex h-7.5 w-10 shrink-0 items-center justify-center rounded-sm bg-white/20 text-xs">🏳️</div>
+                        }
+                      />
+                      <div className="min-w-0">
+                        <h3 className="font-heading text-lg sm:text-xl font-bold truncate drop-shadow-sm">{c.name}</h3>
+                        <span className="block truncate text-[11px] opacity-90 drop-shadow-sm">{c.unis} Universities</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -250,65 +260,41 @@ export function CountriesSection({ items }: CountriesSectionProps) {
               </div>
             )) : countries.map((c: any) => {
               const imageSource = c.heroImage || c.cardImage || getStableCountryFallbackImage(c);
+              const flagSource = c.flagImage || (c.code ? `https://flagcdn.com/w40/${String(c.code).toLowerCase()}.png` : '');
               const feeRange = c.feeRange || c.fees || c.annualFeeRange;
               const duration = c.duration || c.dur;
               const highlights = Array.isArray(c.highlights) ? c.highlights : [];
 
               return (
-              <div key={c._id} className="rounded-xl border border-border bg-white overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
-                {/* Hero image area — shown when heroImage is available */}
-                {imageSource ? (
-                  <div className="relative h-36 sm:h-40 overflow-hidden bg-navy">
-                    <SafeImage
-                      src={imageSource}
-                      alt={getCountryImageAlt(c, imageSource)}
-                      fill
-                      className="object-cover"
-                      fallbackElement={<div className="absolute inset-0 bg-linear-to-br from-navy to-navy/80" />}
-                    />
-                    <div className="absolute inset-0 bg-linear-to-t from-navy/80 via-navy/30 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 px-4 pb-3 flex items-end justify-between text-white">
+              <div key={c._id || c.slug || c.name} className="rounded-xl border border-border bg-white overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
+                <div className="relative h-36 sm:h-40 lg:aspect-[3/4] lg:h-auto overflow-hidden bg-navy">
+                  <SafeImage
+                    src={imageSource}
+                    alt={getCountryImageAlt(c, imageSource)}
+                    fill
+                    className="object-cover"
+                    fallbackElement={<div className="absolute inset-0 bg-linear-to-br from-navy to-navy/80" />}
+                  />
+                  <div className="absolute inset-0 bg-linear-to-t from-navy/80 via-navy/30 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 px-4 pb-3 text-white">
+                    <div className="flex items-center gap-2.5">
+                      <SafeImage
+                        src={flagSource}
+                        alt={(c.flagImageAlt as string) || `${c.name || 'Country'} flag`}
+                        width={40}
+                        height={30}
+                        className="h-7.5 w-10 shrink-0 rounded-sm object-cover ring-1 ring-white/30"
+                        fallbackElement={
+                          <div className="flex h-7.5 w-10 shrink-0 items-center justify-center rounded-sm bg-white/20 text-xs">🏳️</div>
+                        }
+                      />
                       <div className="min-w-0">
                         <h3 className="font-heading text-lg sm:text-xl font-bold truncate drop-shadow-sm">{c.name || 'Country'}</h3>
                         {c.tagline && <span className="block truncate text-[11px] opacity-90 drop-shadow-sm">{c.tagline}</span>}
                       </div>
-                      {c.flagImage && (
-                        <SafeImage
-                          src={c.flagImage}
-                          alt={(c.flagImageAlt as string) || `${c.name} flag`}
-                          width={36}
-                          height={26}
-                          className="h-6.5 w-9 shrink-0 rounded-sm object-cover ring-1 ring-white/30"
-                          fallbackElement={
-                            <div className="flex h-6.5 w-9 shrink-0 items-center justify-center rounded-sm bg-white/20 text-xs">🏳️</div>
-                          }
-                        />
-                      )}
                     </div>
                   </div>
-                ) : (
-                  /* Fallback: compact navy header when no hero image */
-                  <div className="bg-navy px-4 py-3 text-white">
-                    <div className="flex items-center justify-between gap-2.5">
-                      <div className="min-w-0">
-                        <h3 className="font-heading text-lg sm:text-xl font-bold truncate">{c.name || 'Country'}</h3>
-                        {c.tagline && <span className="block truncate text-[11px] opacity-90">{c.tagline}</span>}
-                      </div>
-                      {c.flagImage && (
-                        <SafeImage
-                          src={c.flagImage}
-                          alt={(c.flagImageAlt as string) || `${c.name} flag`}
-                          width={36}
-                          height={26}
-                          className="h-6.5 w-9 shrink-0 rounded-sm object-cover"
-                          fallbackElement={
-                            <div className="flex h-6.5 w-9 shrink-0 items-center justify-center rounded-sm bg-white/20 text-xs">🏳️</div>
-                          }
-                        />
-                      )}
-                    </div>
-                  </div>
-                )}
+                </div>
                 <div className="p-4 flex flex-col flex-1">
                   {/* Fee & Duration */}
                   {(feeRange || duration) && (

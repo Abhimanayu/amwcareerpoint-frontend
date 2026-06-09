@@ -38,21 +38,25 @@
   overscroll-behavior-x: contain;
   margin: 1.25rem 0;
   padding-bottom: 0.5rem;
+  padding-right: 0.5rem;
+  box-sizing: border-box;
 }
 
 .blog-content .table-wrapper>table,
 .blog-content .overflow-x-auto>table {
   max-width: none;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .blog-content th,
 .blog-content td {
   @apply border border-gray-300 p-2;
   min-width: 96px;
-  word-break: normal;
-  overflow-wrap: anywhere;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
   vertical-align: top;
-  white-space: normal;
+  white-space: normal !important;
 }
 
 .blog-content th *,
@@ -71,6 +75,24 @@
   border-collapse: collapse;
 }
 
+/* Single-column tables should wrap content instead of stretching to max-content width */
+.blog-content .content-table:has(tr > th:only-child),
+.blog-content .content-table:has(tr > td:only-child) {
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  table-layout: fixed;
+}
+
+.blog-content .content-table:has(tr > th:only-child) th,
+.blog-content .content-table:has(tr > td:only-child) td {
+  width: 100%;
+  max-width: 100%;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
 .blog-content .content-table-heading {
   background-color: #F9FAFB;
   font-weight: 600;
@@ -80,6 +102,28 @@
 .blog-content .content-table-heading {
   border: 1px solid #D1D5DB;
   padding: 0.5rem;
+}
+
+/* Fallback for browsers/states where :has-based single-column detection is not applied */
+.blog-content .content-table tr > td:only-child,
+.blog-content .content-table tr > th:only-child {
+  width: 100% !important;
+  max-width: 100% !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+.blog-content .content-table td p,
+.blog-content .content-table td span,
+.blog-content .content-table td div,
+.blog-content .content-table th p,
+.blog-content .content-table th span,
+.blog-content .content-table th div {
+  white-space: inherit !important;
+  word-break: inherit !important;
+  overflow-wrap: inherit !important;
+  max-width: 100%;
 }
 
 /* Table wrapper for horizontal scroll on mobile */
@@ -120,6 +164,32 @@
 .blog-content .overflow-x-auto::-webkit-scrollbar-thumb {
   background: #94A3B8;
   border-radius: 9999px;
+}
+
+@media (min-width: 1024px) {
+  /* Keep rich-text tables visually structured on desktop instead of looking left-shifted */
+  .blog-content .table-wrapper,
+  .blog-content .overflow-x-auto {
+    max-width: 980px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .blog-content .table-wrapper .content-table,
+  .blog-content .overflow-x-auto .content-table {
+    width: 100%;
+    min-width: 100%;
+    table-layout: fixed;
+  }
+
+  .blog-content .table-wrapper .content-table th,
+  .blog-content .table-wrapper .content-table td,
+  .blog-content .overflow-x-auto .content-table th,
+  .blog-content .overflow-x-auto .content-table td {
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+  }
 }
 
 /* Responsive Typography */
