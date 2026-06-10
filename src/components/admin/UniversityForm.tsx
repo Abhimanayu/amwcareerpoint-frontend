@@ -152,9 +152,10 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const L = LIMITS.university;
   const curriculumYearCount = Array.isArray(form.curriculum) ? form.curriculum.length : 0;
-  const curriculumHeading = curriculumYearCount > 0
+  const generatedCurriculumHeading = curriculumYearCount > 0
     ? `${curriculumYearCount}-Year MD Curriculum`
     : 'MD Curriculum';
+  const curriculumHeadingPreview = form.courseDuration.trim() || generatedCurriculumHeading;
 
   useEffect(() => {
     adminGetCountries({ limit: 100 }).then((res) => {
@@ -302,10 +303,6 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
               <input maxLength={L.accreditation.max} value={form.accreditation} onChange={(e) => updateField('accreditation', e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Course Duration</label>
-              <input maxLength={L.courseDuration.max} value={form.courseDuration} onChange={(e) => updateField('courseDuration', e.target.value)} placeholder="e.g., 5 years + 1 year internship" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
-            </div>
-            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Medium</label>
               <input maxLength={L.medium.max} value={form.medium} onChange={(e) => updateField('medium', e.target.value)} placeholder="e.g., English" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none" />
             </div>
@@ -361,16 +358,27 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
 
         {/* Curriculum */}
         <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-gray-900">{curriculumHeading}</h2>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div className="min-w-0 flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Curriculum Heading</label>
+              <input
+                maxLength={L.courseDuration.max}
+                value={form.courseDuration}
+                onChange={(e) => updateField('courseDuration', e.target.value)}
+                placeholder="e.g., Custom 6-Year MD Curriculum"
+                className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#F26419] outline-none"
+              />
+              <p className="mt-1 text-xs text-gray-500">This heading appears in the public curriculum section. It does not change the duration cards shown elsewhere. Leave it blank to auto-generate from the year count.</p>
+            </div>
             <button
               type="button"
               onClick={() => updateField('curriculum', [...form.curriculum, { year: `Year ${form.curriculum.length + 1}`, title: '', subjects: '', desc: '' }])}
-              className="text-sm text-[#F26419] font-medium"
+              className="text-sm text-[#F26419] font-medium sm:pb-2"
             >
               + Add Year
             </button>
           </div>
+          <p className="text-xs text-gray-500">Public page preview: {curriculumHeadingPreview}</p>
           {form.curriculum.map((item, i) => (
             <div key={`${item.year}-${i}`} className="rounded-xl border border-gray-200 p-4 space-y-3">
               <div className="flex items-center gap-2">

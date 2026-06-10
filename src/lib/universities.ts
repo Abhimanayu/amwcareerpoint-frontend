@@ -1,6 +1,9 @@
-import { cache } from "react";
 import { api, adminApi } from "./api";
-import { getServerCached, normalizeCacheParams } from "./serverRequestCache";
+import {
+  getServerCached,
+  invalidateServerCacheByPrefix,
+  normalizeCacheParams,
+} from "./serverRequestCache";
 
 type UniversitiesParams = Record<string, unknown>;
 
@@ -8,6 +11,15 @@ const CLIENT_UNIVERSITIES_TTL_MS = 120_000;
 
 const clientUniversitiesCache: Map<string, { payload: unknown; timestamp: number }> = new Map();
 const clientUniversitiesInflight: Map<string, Promise<unknown>> = new Map();
+
+function invalidateUniversitiesCache() {
+  clientUniversitiesCache.clear();
+  clientUniversitiesInflight.clear();
+  invalidateServerCacheByPrefix([
+    "universities:list:",
+    "universities:slug:",
+  ]);
+}
 
 function isBrowser() {
   return "window" in globalThis;
@@ -19,7 +31,7 @@ function normalizeParams(params: UniversitiesParams) {
 
 // ─── FRONTEND ─────────────────────────────────────────────────
 export const getUniversities = async (params = {}) => {
-  const queryParams = params as UniversitiesParams;
+  const queryParams: UniversitiesParams = params;
 
   if (!isBrowser()) {
     return getServerCached(
@@ -56,12 +68,12 @@ export const getUniversities = async (params = {}) => {
   }
 };
 
-export const getUniversityBySlug = cache(async (slug: string) => {
+export const getUniversityBySlug = async (slug: string) => {
   return getServerCached(
     `universities:slug:${slug}`,
     () => api.get(`/universities/${slug}`).then((res) => res.data)
   );
-});
+};
 
 // ─── ADMIN PANEL ──────────────────────────────────────────────
 export const adminGetUniversities = async (params = {}) => {
@@ -76,15 +88,18 @@ export const adminGetUniversityById = async (id: string) => {
 
 export const createUniversity = async (data: Record<string, unknown>) => {
   const res = await adminApi.post("/universities", data);
+  invalidateUniversitiesCache();
   return res.data;
 };
 
 export const updateUniversity = async (id: string, data: Record<string, unknown>) => {
   const res = await adminApi.put(`/universities/${id}`, data);
+  invalidateUniversitiesCache();
   return res.data;
 };
 
 export const deleteUniversity = async (id: string) => {
   const res = await adminApi.delete(`/universities/${id}`);
+  invalidateUniversitiesCache();
   return res.data;
 };

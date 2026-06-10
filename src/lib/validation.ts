@@ -361,7 +361,7 @@ export function validateUniversityForm(form: {
 
   if (form.ranking.length > L.ranking.max) errors.push({ field: 'ranking', message: `Ranking must not exceed ${L.ranking.max} characters` });
   if (form.accreditation.length > L.accreditation.max) errors.push({ field: 'accreditation', message: `Accreditation must not exceed ${L.accreditation.max} characters` });
-  if (form.courseDuration.length > L.courseDuration.max) errors.push({ field: 'courseDuration', message: `Course duration must not exceed ${L.courseDuration.max} characters` });
+  if (form.courseDuration.length > L.courseDuration.max) errors.push({ field: 'courseDuration', message: `Curriculum heading must not exceed ${L.courseDuration.max} characters` });
   if (form.annualFees.length > L.annualFees.max) errors.push({ field: 'annualFees', message: `Annual fees must not exceed ${L.annualFees.max} characters` });
   if (form.medium.length > L.medium.max) errors.push({ field: 'medium', message: `Medium must not exceed ${L.medium.max} characters` });
   if (form.hostelFees.length > L.hostelFees.max) errors.push({ field: 'hostelFees', message: `Hostel fees must not exceed ${L.hostelFees.max} characters` });

@@ -98,6 +98,73 @@ export function clampSeoDescription(value: unknown, fallback = '', maxLength = 1
   return clampText(text || fallbackText, maxLength);
 }
 
+function looksLikeUniversityDuration(value: string) {
+  return /\b(years?|yrs?|yr|semester|semesters|internship)\b/i.test(value);
+}
+
+function parseUniversityYears(value: string) {
+  const plusMatch = value.match(/\b(\d+)\s*\+\s*(\d+)\b/);
+  if (plusMatch) {
+    const totalYears = Number(plusMatch[1]) + Number(plusMatch[2]);
+    if (Number.isFinite(totalYears) && totalYears > 0) {
+      return totalYears;
+    }
+  }
+
+  const yearMatch = value.match(/\b(\d+)\b/);
+  if (yearMatch) {
+    const totalYears = Number(yearMatch[1]);
+    if (Number.isFinite(totalYears) && totalYears > 0) {
+      return totalYears;
+    }
+  }
+
+  return null;
+}
+
+export function resolveUniversityCurriculumHeading(
+  courseDuration: unknown,
+  curriculumYearCount: number,
+  fallback = 'MD curriculum'
+) {
+  const duration = normalizeDisplayText(courseDuration);
+
+  if (duration) {
+    if (/curriculum/i.test(duration)) {
+      return duration;
+    }
+
+    if (looksLikeUniversityDuration(duration)) {
+      const totalYears = parseUniversityYears(duration);
+      if (totalYears) {
+        return `${totalYears}-Year MD curriculum`;
+      }
+    }
+
+    return duration;
+  }
+
+  return curriculumYearCount > 0 ? `${curriculumYearCount}-Year MD curriculum` : fallback;
+}
+
+export function resolveUniversityDuration(
+  courseDuration: unknown,
+  curriculumYearCount: number,
+  fallback = '6 years'
+) {
+  const duration = normalizeDisplayText(courseDuration);
+
+  if (duration && looksLikeUniversityDuration(duration) && !/curriculum/i.test(duration)) {
+    return duration;
+  }
+
+  if (curriculumYearCount > 0) {
+    return `${curriculumYearCount} years`;
+  }
+
+  return duration || fallback;
+}
+
 export function serializeJsonLd(value: unknown) {
   return JSON.stringify(value).replace(/</g, '\\u003c');
 }

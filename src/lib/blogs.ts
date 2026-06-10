@@ -1,6 +1,10 @@
 import { cache } from "react";
 import { api, adminApi } from "./api";
-import { getServerCached, normalizeCacheParams } from "./serverRequestCache";
+import {
+  getServerCached,
+  invalidateServerCacheByPrefix,
+  normalizeCacheParams,
+} from "./serverRequestCache";
 
 type BlogsParams = Record<string, unknown>;
 
@@ -8,6 +12,16 @@ const CLIENT_BLOGS_TTL_MS = 120_000;
 
 const clientBlogsCache: Map<string, { payload: unknown; timestamp: number }> = new Map();
 const clientBlogsInflight: Map<string, Promise<unknown>> = new Map();
+
+function invalidateBlogsCache() {
+  clientBlogsCache.clear();
+  clientBlogsInflight.clear();
+  invalidateServerCacheByPrefix([
+    "blogs:list:",
+    "blogs:slug:",
+    "blogs:categories",
+  ]);
+}
 
 function isBrowser() {
   return "window" in globalThis;
@@ -19,7 +33,7 @@ function normalizeParams(params: BlogsParams) {
 
 // ─── FRONTEND ─────────────────────────────────────────────────
 export const getBlogs = async (params = {}) => {
-  const queryParams = params as BlogsParams;
+  const queryParams: BlogsParams = params;
 
   if (!isBrowser()) {
     return getServerCached(
@@ -83,31 +97,37 @@ export const adminGetBlogById = async (id: string) => {
 
 export const createBlog = async (data: Record<string, unknown>) => {
   const res = await adminApi.post("/blogs", data);
+  invalidateBlogsCache();
   return res.data;
 };
 
 export const updateBlog = async (id: string, data: Record<string, unknown>) => {
   const res = await adminApi.put(`/blogs/${id}`, data);
+  invalidateBlogsCache();
   return res.data;
 };
 
 export const deleteBlog = async (id: string) => {
   const res = await adminApi.delete(`/blogs/${id}`);
+  invalidateBlogsCache();
   return res.data;
 };
 
 // ─── BLOG CATEGORIES (Admin) ──────────────────────────────────
 export const createBlogCategory = async (name: string) => {
   const res = await adminApi.post("/blog-categories", { name });
+  invalidateBlogsCache();
   return res.data;
 };
 
 export const updateBlogCategory = async (id: string, name: string) => {
   const res = await adminApi.put(`/blog-categories/${id}`, { name });
+  invalidateBlogsCache();
   return res.data;
 };
 
 export const deleteBlogCategory = async (id: string) => {
   const res = await adminApi.delete(`/blog-categories/${id}`);
+  invalidateBlogsCache();
   return res.data;
 };

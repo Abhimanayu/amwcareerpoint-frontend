@@ -6,7 +6,13 @@ import { CollegeHero } from '@/components/ui/CollegeHero';
 import { CollegeGallery } from '@/components/ui/CollegeGallery';
 import { FeeCard } from '@/components/ui/FeeCard';
 import { SafeImage } from '@/components/ui/SafeImage';
-import { pickUniversityImageAltText, pickUniversityImageSource, sanitizeHtml } from '@/lib/utils';
+import {
+  pickUniversityImageAltText,
+  pickUniversityImageSource,
+  resolveUniversityCurriculumHeading,
+  resolveUniversityDuration,
+  sanitizeHtml,
+} from '@/lib/utils';
 import { sanitizeAndOptimizeMobileContent } from '@/lib/contentValidation';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -104,9 +110,8 @@ export default function UniversityDetailClient({
   const heroImageAlt = pickUniversityImageAltText(university);
   const curriculum = normalizeCurriculum(university);
   const curriculumYearCount = curriculum.length;
-  const curriculumHeading = curriculumYearCount > 0
-    ? `${curriculumYearCount}-Year MD curriculum`
-    : 'MD curriculum';
+  const curriculumHeading = resolveUniversityCurriculumHeading(university?.courseDuration, curriculumYearCount);
+  const displayDuration = resolveUniversityDuration(university?.courseDuration, curriculumYearCount, countryData?.duration);
   const activeCurriculumIndex = Math.min(currTab, curriculum.length - 1);
   const activeCurriculum = curriculum[activeCurriculumIndex];
 
@@ -130,7 +135,7 @@ export default function UniversityDetailClient({
         accreditation={university.accreditation}
         medium={university.medium}
         annualFees={university.annualFees}
-        courseDuration={university.courseDuration}
+        courseDuration={displayDuration}
         hostelFees={university.hostelFees}
       />
 
@@ -203,7 +208,7 @@ export default function UniversityDetailClient({
                 <div className="space-y-0 p-5">
                   {[
                     countryName && { label: 'Location', value: countryName },
-                    university.courseDuration && { label: 'Duration', value: university.courseDuration },
+                    displayDuration && { label: 'Duration', value: displayDuration },
                     university.medium && { label: 'Medium', value: university.medium },
                     university.ranking && { label: 'Ranking', value: university.ranking },
                     university.accreditation && { label: 'Accreditation', value: university.accreditation },
@@ -550,24 +555,32 @@ export default function UniversityDetailClient({
             </h2>
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {relatedUniversities.map((uni: any, i: number) => (
-                <Link key={uni._id || `rel-${i}`} href={`/college/${uni.slug}`} className="group overflow-hidden rounded-2xl border border-[#DDD9D2] bg-white transition-shadow hover:shadow-lg">
-                  <div className="relative h-40 bg-[#0D1B3E]">
-                    {pickUniversityImageSource(uni) ? (
-                      <SafeImage src={pickUniversityImageSource(uni)} alt={pickUniversityImageAltText(uni)} fill className="object-cover transition-transform duration-300 group-hover:scale-105" fallbackElement={<div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0D1B3E] to-[#162550] text-2xl text-white/30">🏫</div>} />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0D1B3E] to-[#162550] text-2xl text-white/30">🏫</div>
-                    )}
-                  </div>
-                  <div className="p-5">
-                    <h3 className="line-clamp-2 break-words font-semibold text-[#0D1B3E] transition-colors group-hover:text-[#F26419]">{uni.name || 'University'}</h3>
-                    <div className="mt-3 flex flex-wrap gap-3 text-xs text-[#4A4742]">
-                      {uni.annualFees && <span>💰 {uni.annualFees}</span>}
-                      {uni.courseDuration && <span>⏱ {uni.courseDuration}</span>}
+              {relatedUniversities.map((uni: any, i: number) => {
+                const relatedDuration = resolveUniversityDuration(
+                  uni.courseDuration,
+                  Array.isArray(uni.curriculum) ? uni.curriculum.length : 0,
+                  countryData?.duration
+                );
+
+                return (
+                  <Link key={uni._id || `rel-${i}`} href={`/college/${uni.slug}`} className="group overflow-hidden rounded-2xl border border-[#DDD9D2] bg-white transition-shadow hover:shadow-lg">
+                    <div className="relative h-40 bg-[#0D1B3E]">
+                      {pickUniversityImageSource(uni) ? (
+                        <SafeImage src={pickUniversityImageSource(uni)} alt={pickUniversityImageAltText(uni)} fill className="object-cover transition-transform duration-300 group-hover:scale-105" fallbackElement={<div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0D1B3E] to-[#162550] text-2xl text-white/30">🏫</div>} />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0D1B3E] to-[#162550] text-2xl text-white/30">🏫</div>
+                      )}
                     </div>
-                  </div>
-                </Link>
-              ))}
+                    <div className="p-5">
+                      <h3 className="line-clamp-2 break-words font-semibold text-[#0D1B3E] transition-colors group-hover:text-[#F26419]">{uni.name || 'University'}</h3>
+                      <div className="mt-3 flex flex-wrap gap-3 text-xs text-[#4A4742]">
+                        {uni.annualFees && <span>💰 {uni.annualFees}</span>}
+                        {relatedDuration && <span>⏱ {relatedDuration}</span>}
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
 
             <div className="mt-10 text-center">

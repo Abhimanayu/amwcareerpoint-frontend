@@ -1,7 +1,10 @@
-import { cache } from "react";
 import { api, adminApi } from "./api";
 import { getCountrySlugCandidates } from "./slugUtils";
-import { getServerCached, normalizeCacheParams } from "./serverRequestCache";
+import {
+  getServerCached,
+  invalidateServerCacheByPrefix,
+  normalizeCacheParams,
+} from "./serverRequestCache";
 
 type CountriesParams = Record<string, unknown>;
 
@@ -10,6 +13,15 @@ const CLIENT_COUNTRIES_SHARED_MIN_LIMIT = 12;
 
 let clientCountriesCache: { limit: number; payload: unknown; timestamp: number } | null = null;
 let clientCountriesInflight: { limit: number; promise: Promise<unknown> } | null = null;
+
+function invalidateCountriesCache() {
+  clientCountriesCache = null;
+  clientCountriesInflight = null;
+  invalidateServerCacheByPrefix([
+    "countries:list:",
+    "countries:slug:",
+  ]);
+}
 
 function isBrowser() {
   return "window" in globalThis;
@@ -183,7 +195,7 @@ async function fetchCountryBySlugCandidates(slug: string) {
   throw lastError;
 }
 
-export const getCountryBySlug = cache(async (slug: string) => fetchCountryBySlugCandidates(slug));
+export const getCountryBySlug = async (slug: string) => fetchCountryBySlugCandidates(slug);
 
 export const getCountryBySlugFresh = async (slug: string) => fetchCountryBySlugCandidates(slug);
 
@@ -200,20 +212,24 @@ export const adminGetCountryById = async (id: string) => {
 
 export const createCountry = async (data: Record<string, unknown>) => {
   const res = await adminApi.post("/countries", data);
+  invalidateCountriesCache();
   return res.data;
 };
 
 export const updateCountry = async (id: string, data: Record<string, unknown>) => {
   const res = await adminApi.put(`/countries/${id}`, data);
+  invalidateCountriesCache();
   return res.data;
 };
 
 export const deleteCountry = async (id: string) => {
   const res = await adminApi.delete(`/countries/${id}`);
+  invalidateCountriesCache();
   return res.data;
 };
 
 export const reorderCountries = async (items: { id: string; sortOrder: number }[]) => {
   const res = await adminApi.put("/countries/reorder", { items });
+  invalidateCountriesCache();
   return res.data;
 };

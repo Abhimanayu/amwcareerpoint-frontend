@@ -203,8 +203,13 @@ export function CountriesSection({ items }: CountriesSectionProps) {
         <div className="px-1 sm:px-5">
           <Carousel slideClass="basis-full px-1 sm:basis-1/2 sm:pl-5 sm:pr-0 lg:basis-1/4" maxDots={10}>
             {usingFallback ? countries.map((c: any) => (
-              <div key={`${c.code}-${c.name}`} className="rounded-xl border border-border bg-white overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
-                <div className="relative h-36 sm:h-40 lg:aspect-[3/4] lg:h-auto overflow-hidden bg-navy">
+              <div key={`${c.code}-${c.name}`} className="relative rounded-xl border border-border bg-white overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
+                <Link
+                  href={`/countries/${getCountrySlugFromObject(c)}`}
+                  className="absolute inset-0 z-10 sm:hidden"
+                  aria-label={`View universities in ${c.name}`}
+                />
+                <div className="relative aspect-[3/4] sm:h-40 sm:aspect-auto lg:aspect-[3/4] lg:h-auto overflow-hidden bg-navy">
                   <SafeImage
                     src={getStableCountryFallbackImage(c)}
                     alt={`${c.name} MBBS destination`}
@@ -232,7 +237,7 @@ export function CountriesSection({ items }: CountriesSectionProps) {
                     </div>
                   </div>
                 </div>
-                <div className="p-4 flex flex-col flex-1">
+                <div className="hidden sm:flex p-4 flex-col flex-1">
                   <div className="grid grid-cols-2 gap-2.5 mb-3">
                     <div className="rounded-lg bg-bg-light px-2.5 py-1.5 text-center">
                       <div className="text-[10px] uppercase text-text-body">Annual Fees</div>
@@ -266,8 +271,13 @@ export function CountriesSection({ items }: CountriesSectionProps) {
               const highlights = Array.isArray(c.highlights) ? c.highlights : [];
 
               return (
-              <div key={c._id || c.slug || c.name} className="rounded-xl border border-border bg-white overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
-                <div className="relative h-36 sm:h-40 lg:aspect-[3/4] lg:h-auto overflow-hidden bg-navy">
+              <div key={c._id || c.slug || c.name} className="relative rounded-xl border border-border bg-white overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
+                <Link
+                  href={`/countries/${getCountrySlugFromObject(c)}`}
+                  className="absolute inset-0 z-10 sm:hidden"
+                  aria-label={`View universities in ${c.name || 'country'}`}
+                />
+                <div className="relative aspect-[3/4] sm:h-40 sm:aspect-auto lg:aspect-[3/4] lg:h-auto overflow-hidden bg-navy">
                   <SafeImage
                     src={imageSource}
                     alt={getCountryImageAlt(c, imageSource)}
@@ -295,7 +305,7 @@ export function CountriesSection({ items }: CountriesSectionProps) {
                     </div>
                   </div>
                 </div>
-                <div className="p-4 flex flex-col flex-1">
+                <div className="hidden sm:flex p-4 flex-col flex-1">
                   {/* Fee & Duration */}
                   {(feeRange || duration) && (
                     <div className="grid grid-cols-2 gap-2.5 mb-3">

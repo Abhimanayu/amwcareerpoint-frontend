@@ -69,3 +69,21 @@ export async function getServerCached<T>(
     }
   }
 }
+
+export function invalidateServerCacheByPrefix(prefixes: string[]) {
+  if (!prefixes.length) {
+    return;
+  }
+
+  for (const key of serverCache.keys()) {
+    if (prefixes.some((prefix) => key.startsWith(prefix))) {
+      serverCache.delete(key);
+    }
+  }
+
+  for (const key of serverInflight.keys()) {
+    if (prefixes.some((prefix) => key.startsWith(prefix))) {
+      serverInflight.delete(key);
+    }
+  }
+}

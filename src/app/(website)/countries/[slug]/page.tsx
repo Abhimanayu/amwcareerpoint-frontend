@@ -7,7 +7,7 @@ import { getCountrySlugFromObject } from '@/lib/slugUtils';
 import { getPublicFaqs } from '@/lib/server/faqs';
 import { getUniversities, getUniversityBySlug } from '@/lib/universities';
 import { CounsellingForm } from '@/components/home/CounsellingForm';
-import { clampSeoDescription, extractCollectionData, pickUniversityImageSource, resolveCanonicalUrl, resolveMediaUrl, sanitizeHtml, serializeJsonLd, stripHtml } from '@/lib/utils';
+import { clampSeoDescription, extractCollectionData, pickUniversityImageSource, resolveCanonicalUrl, resolveMediaUrl, resolveUniversityDuration, sanitizeHtml, serializeJsonLd, stripHtml } from '@/lib/utils';
 import { sanitizeAndOptimizeMobileContent } from '@/lib/contentValidation';
 import { SEO_HOLD } from '@/lib/seoHold';
 import { CountryFAQSection } from './CountryFAQSection';
@@ -343,7 +343,9 @@ function getUniversityFee(university: UniversitySummary, countryFeeRange?: strin
 }
 
 function getUniversityDuration(university: UniversitySummary, countryDuration?: string) {
-  return university.duration || university.courseDuration || countryDuration || '6 years';
+  const universityWithCurriculum = university as UniversitySummary & { curriculum?: unknown[] };
+  const curriculumYearCount = Array.isArray(universityWithCurriculum.curriculum) ? universityWithCurriculum.curriculum.length : 0;
+  return resolveUniversityDuration(university.duration || university.courseDuration, curriculumYearCount, countryDuration);
 }
 
 function getUniversityHostel(university: UniversitySummary) {
@@ -1138,7 +1140,7 @@ export default async function CountryPage({ params }: Props) {
                             {hostelFee.value}
                           </span>
                         </td>
-                        <td className="px-5 py-4 text-[#4A4742] whitespace-normal break-words">{university.courseDuration || country.duration || '6 years'}</td>
+                        <td className="px-5 py-4 text-[#4A4742] whitespace-normal break-words">{getUniversityDuration(university, country.duration)}</td>
                         <td className="px-5 py-4 text-[#4A4742] whitespace-normal break-words">{university.medium || 'English'}</td>
                       </tr>
                     );

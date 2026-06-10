@@ -19,9 +19,21 @@ export const adminApi = axios.create({
 
 // Auto-inject token from localStorage on every admin request
 adminApi.interceptors.request.use((config) => {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("amw_token") : null;
+  const token = globalThis.window?.localStorage.getItem("amw_token") ?? null;
   if (token) config.headers.Authorization = `Bearer ${token}`;
+
+  const method = (config.method || "get").toLowerCase();
+  if (method === "get") {
+    const existingParams =
+      config.params && typeof config.params === "object"
+        ? (config.params as Record<string, unknown>)
+        : {};
+    config.params = {
+      ...existingParams,
+      _ts: Date.now(),
+    };
+  }
+
   return config;
 });
 
@@ -48,7 +60,7 @@ adminApi.interceptors.response.use(
     if (
       err.response?.status === 401 &&
       !originalRequest._retry &&
-      typeof window !== "undefined"
+      Boolean(globalThis.window)
     ) {
       // If already refreshing, queue this request
       if (isRefreshing) {
@@ -83,13 +95,13 @@ adminApi.interceptors.response.use(
         localStorage.removeItem("amw_token");
         localStorage.removeItem("amw_refresh_token");
         localStorage.removeItem("amw_user");
-        window.location.href = "/admin/login";
-        return Promise.reject(refreshErr);
+        globalThis.location.href = "/admin/login";
+        throw refreshErr;
       } finally {
         isRefreshing = false;
       }
     }
 
-    return Promise.reject(err);
+    throw err;
   }
 );

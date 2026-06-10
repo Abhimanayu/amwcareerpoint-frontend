@@ -4,7 +4,7 @@ import { getUniversities } from '@/lib/universities';
 import { getCountries, getCountryBySlug } from '@/lib/countries';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SafeImage } from '@/components/ui/SafeImage';
-import { clampText, extractCollectionData, pickUniversityImageSource, stripHtml } from '@/lib/utils';
+import { clampText, extractCollectionData, pickUniversityImageSource, resolveUniversityDuration, stripHtml } from '@/lib/utils';
 import { SEO_HOLD } from '@/lib/seoHold';
 
 export const metadata: Metadata = {
@@ -199,7 +199,7 @@ export default async function CollegesPage({ searchParams }: Readonly<Props>) {
                   fallback: 'On request',
                   preserveWords: false,
                 });
-                const duration = clampText(uni.courseDuration, 20, {
+                const duration = clampText(resolveUniversityDuration(uni.courseDuration, Array.isArray(uni.curriculum) ? uni.curriculum.length : 0), 20, {
                   fallback: 'See details',
                   preserveWords: false,
                 });
@@ -270,7 +270,7 @@ export default async function CollegesPage({ searchParams }: Readonly<Props>) {
                       </div>
                       <div className="min-w-0 rounded-lg bg-[#F9F8F6] px-2.5 py-1.5 text-center">
                         <div className="text-[10px] uppercase text-[#4A4742]">Duration</div>
-                        <div title={uni.courseDuration || duration} className="break-words text-[13px] font-bold text-[#0D1B3E] sm:truncate">
+                        <div title={resolveUniversityDuration(uni.courseDuration, Array.isArray(uni.curriculum) ? uni.curriculum.length : 0) || duration} className="break-words text-[13px] font-bold text-[#0D1B3E] sm:truncate">
                           {duration}
                         </div>
                       </div>
@@ -352,7 +352,7 @@ export default async function CollegesPage({ searchParams }: Readonly<Props>) {
                     </div>
                     <div className="rounded-lg bg-[#F9F8F6] px-2 py-1.5">
                       <div className="text-[10px] uppercase text-[#4A4742]">Duration</div>
-                      <div className="text-[12px] font-semibold text-[#0D1B3E] truncate">{uni.courseDuration || '—'}</div>
+                      <div className="text-[12px] font-semibold text-[#0D1B3E] truncate">{resolveUniversityDuration(uni.courseDuration, Array.isArray(uni.curriculum) ? uni.curriculum.length : 0) || '—'}</div>
                     </div>
                   </div>
                   <Link
@@ -386,7 +386,7 @@ export default async function CollegesPage({ searchParams }: Readonly<Props>) {
                       </td>
                       <td className="px-4 py-3 text-[#4A4742] whitespace-nowrap">{formatUniversityLocation(uni)}</td>
                       <td className="px-4 py-3 font-semibold text-[#F26419] whitespace-nowrap">{uni.annualFees || '—'}</td>
-                      <td className="px-4 py-3 text-[#4A4742] whitespace-nowrap">{uni.courseDuration || ''}</td>
+                      <td className="px-4 py-3 text-[#4A4742] whitespace-nowrap">{resolveUniversityDuration(uni.courseDuration, Array.isArray(uni.curriculum) ? uni.curriculum.length : 0) || ''}</td>
                       <td className="px-4 py-3">
                         <Link
                           href={`/college/${uni.slug}`}

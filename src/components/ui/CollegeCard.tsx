@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { SafeImage } from '@/components/ui/SafeImage';
-import { pickUniversityImageAltText, pickUniversityImageSource, stripHtml } from '@/lib/utils';
+import { pickUniversityImageAltText, pickUniversityImageSource, resolveUniversityDuration, stripHtml } from '@/lib/utils';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -17,7 +17,10 @@ export function CollegeCard({ university }: Readonly<CollegeCardProps>) {
   const slug = university?.slug;
   const country = university?.country?.name || '';
   const fees = university?.annualFees || '';
-  const duration = university?.courseDuration || '';
+  const duration = resolveUniversityDuration(
+    university?.courseDuration,
+    Array.isArray(university?.curriculum) ? university.curriculum.length : 0
+  );
   const heroImage = pickUniversityImageSource(university);
   const imageAlt = pickUniversityImageAltText(university);
   const useContainImage = typeof heroImage === 'string' && /logo|poster|banner|badge|emblem/i.test(heroImage);
