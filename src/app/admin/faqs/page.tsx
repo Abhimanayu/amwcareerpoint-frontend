@@ -170,11 +170,11 @@ export default function AdminFaqsPage() {
       <div className="space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-2xl font-bold text-gray-900">FAQs</h1>
-          <div className="flex items-center gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:flex sm:items-center">
             <select
               value={pageFilter}
               onChange={(e) => setPageFilter(e.target.value)}
-              className="px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#F26419]/30 focus:border-[#F26419] outline-none"
+              className="w-full sm:w-auto px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#F26419]/30 focus:border-[#F26419] outline-none"
             >
               <option value="">All Pages</option>
               <option value="home">Home</option>
@@ -186,7 +186,7 @@ export default function AdminFaqsPage() {
             </select>
             <button
               onClick={() => router.push('/admin/faqs/new')}
-              className="px-4 py-2 bg-[#F26419] hover:bg-[#FF8040] text-white text-sm font-semibold rounded-xl transition-colors"
+              className="w-full sm:w-auto px-4 py-2 bg-[#F26419] hover:bg-[#FF8040] text-white text-sm font-semibold rounded-xl transition-colors"
             >
               + Add FAQ
             </button>

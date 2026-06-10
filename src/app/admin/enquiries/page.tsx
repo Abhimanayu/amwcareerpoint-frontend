@@ -71,7 +71,7 @@ export default function AdminEnquiriesPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none"
+              className="w-full sm:w-auto px-3 py-2 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none"
             >
               <option value="">All Status</option>
               <option value="new">New</option>
@@ -91,21 +91,21 @@ export default function AdminEnquiriesPage() {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* Enquiry list */}
-            <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 overflow-hidden">
-              <div className="divide-y divide-gray-100">
+            <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="bg-gray-50/70 p-3 space-y-3 lg:bg-white lg:p-0 lg:space-y-0 lg:divide-y lg:divide-gray-100">
                 {enquiries.map((enq) => (
                   <button
                     key={enq._id as string}
                     onClick={() => setSelected(enq)}
-                    className={`w-full text-left px-4 py-3 flex items-center gap-4 hover:bg-gray-50 transition-colors ${selected?._id === enq._id ? 'bg-[#F26419]/5 border-l-2 border-l-[#F26419]' : ''}`}
+                    className={`w-full rounded-xl border border-gray-200 bg-white text-left px-3 py-3 flex items-start gap-3 shadow-sm hover:bg-gray-50 transition-colors lg:rounded-none lg:border-0 lg:shadow-none lg:px-4 ${selected?._id === enq._id ? 'bg-[#F26419]/5 ring-1 ring-[#F26419]/20 lg:ring-0 lg:border-l-2 lg:border-l-[#F26419]' : ''}`}
                   >
                     <div className="w-10 h-10 rounded-full bg-[#F26419]/10 flex items-center justify-center text-[#F26419] text-sm font-bold shrink-0">
                       {(enq.name as string)?.charAt(0) || '?'}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-start justify-between gap-2">
                         <span className="text-sm font-medium text-gray-900 truncate">{enq.name as string}</span>
-                        <StatusBadge status={enq.status as string} />
+                        <span className="shrink-0"><StatusBadge status={enq.status as string} /></span>
                       </div>
                       <div className="text-xs text-gray-500 truncate">{String(enq.email ?? '')} • {String(enq.phone ?? '')}</div>
                       <div className="text-xs text-gray-400 mt-0.5">
@@ -119,9 +119,9 @@ export default function AdminEnquiriesPage() {
 
               {/* Pagination */}
               {pagination.totalPages > 1 && (
-                <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
-                  <p className="text-sm text-gray-500">Page {pagination.page} of {pagination.totalPages}</p>
-                  <div className="flex gap-1">
+                <div className="flex flex-col gap-3 px-4 py-3 border-t border-gray-200 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-sm text-gray-500 text-center sm:text-left">Page {pagination.page} of {pagination.totalPages}</p>
+                  <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-1">
                     <button onClick={() => fetchData(pagination.page - 1)} disabled={pagination.page <= 1} className="px-3 py-1.5 text-sm rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50">Prev</button>
                     <button onClick={() => fetchData(pagination.page + 1)} disabled={pagination.page >= pagination.totalPages} className="px-3 py-1.5 text-sm rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50">Next</button>
                   </div>

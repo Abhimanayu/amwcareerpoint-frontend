@@ -117,9 +117,9 @@ export default function AdminUniversitiesPage() {
   return (
     <AdminLayout>
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-2xl font-bold text-gray-900">Universities</h1>
-          <button onClick={() => router.push('/admin/universities/new')} className="px-4 py-2 bg-orange hover:bg-orange-hover text-white text-sm font-semibold rounded-xl transition-colors">
+          <button onClick={() => router.push('/admin/universities/new')} className="w-full sm:w-auto px-4 py-2 bg-orange hover:bg-orange-hover text-white text-sm font-semibold rounded-xl transition-colors">
             + Add University
           </button>
         </div>

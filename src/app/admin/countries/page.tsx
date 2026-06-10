@@ -96,11 +96,11 @@ export default function AdminCountriesPage() {
   return (
     <AdminLayout>
       <div className="space-y-4">
-        <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
           <h1 className="text-2xl font-bold text-gray-900">Countries</h1>
           
           {/* Sort controls */}
-          <div className="flex gap-2 flex-wrap">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:flex lg:flex-wrap">
             <button
               onClick={() => setSortBy(sortBy === 'sortOrder' ? null : 'sortOrder')}
               className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -158,7 +158,7 @@ export default function AdminCountriesPage() {
           
           <button
             onClick={() => router.push('/admin/countries/new')}
-            className="px-4 py-2 bg-orange hover:bg-orange-hover text-white text-sm font-semibold rounded-xl transition-colors whitespace-nowrap"
+            className="w-full sm:w-auto px-4 py-2 bg-orange hover:bg-orange-hover text-white text-sm font-semibold rounded-xl transition-colors whitespace-nowrap"
           >
             + Add Country
           </button>
