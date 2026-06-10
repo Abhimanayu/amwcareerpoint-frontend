@@ -181,6 +181,13 @@ function getColSpan(cellOpenTag: string): number {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
 }
 
+function getCellInnerHtml(cellHtml: string): string {
+  return cellHtml
+    .replace(/^<t[dh]\b[^>]*>/i, '')
+    .replace(/<\/t[dh]>$/i, '')
+    .trim();
+}
+
 function addDataLabelToTdTag(tag: string, label: string): string {
   if (/\sdata-label=("|').*?\1/i.test(tag)) {
     return tag;
@@ -208,6 +215,43 @@ function shouldHideGenericCardLabel(label: string): boolean {
     || normalized === 'description';
 }
 
+function tableToComparisonGrid(tableHtml: string, rows: string[], headerLabels: string[], inferredHeaderRowIndex: number): string {
+  const cards = rows.flatMap((row, rowIndex) => {
+    if (rowIndex === inferredHeaderRowIndex || /<th\b/i.test(row)) {
+      return [];
+    }
+
+    const cells = row.match(/<t[dh]\b[^>]*>[\s\S]*?<\/t[dh]>/gi) || [];
+    if (cells.length <= 1) {
+      return [];
+    }
+
+    const title = getCellInnerHtml(cells[0] || '');
+    const fields = cells.slice(1).flatMap((cell, index) => {
+      const value = getCellInnerHtml(cell);
+      if (!stripHtml(value)) {
+        return [];
+      }
+
+      const label = headerLabels[index + 1]?.trim() || `Detail ${index + 1}`;
+      const safeLabel = escapeAttributeValue(label);
+      return [`<div class="content-comparison-field"><span class="content-comparison-label">${safeLabel}</span><div class="content-comparison-value">${value}</div></div>`];
+    }).join('');
+
+    if (!stripHtml(title) && !fields) {
+      return [];
+    }
+
+    return [`<article class="content-comparison-card"><div class="content-comparison-title">${title}</div><div class="content-comparison-fields">${fields}</div></article>`];
+  }).join('');
+
+  if (!cards) {
+    return tableHtml;
+  }
+
+  return `<div class="content-comparison-grid">${cards}</div>`;
+}
+
 function addMobileCardLabelsToTable(tableHtml: string): string {
   const rowRegex = /<tr\b[^>]*>[\s\S]*?<\/tr>/gi;
   const rows = tableHtml.match(rowRegex) || [];
@@ -220,6 +264,10 @@ function addMobileCardLabelsToTable(tableHtml: string): string {
     .map((label) => label);
 
   let inferredHeaderRowIndex = -1;
+  const maxCols = rows.reduce((max, row) => {
+    const cellCount = (row.match(/<td\b[^>]*>[\s\S]*?<\/td>/gi) || []).length;
+    return Math.max(max, cellCount);
+  }, 0);
 
   let hasValidHeaderRow = headerLabels.length > 0 && headerLabels.some((label) => label.length > 0);
   if (!hasValidHeaderRow) {
@@ -259,11 +307,6 @@ function addMobileCardLabelsToTable(tableHtml: string): string {
 
   if (!hasValidHeaderRow) {
     // Final fallback: still convert to cards and generate neutral labels for non-title columns.
-    const maxCols = rows.reduce((max, row) => {
-      const cellCount = (row.match(/<td\b[^>]*>[\s\S]*?<\/td>/gi) || []).length;
-      return Math.max(max, cellCount);
-    }, 0);
-
     if (maxCols <= 1) {
       return tableHtml;
     }
@@ -275,8 +318,22 @@ function addMobileCardLabelsToTable(tableHtml: string): string {
 
   const tableTagMatch = tableHtml.match(/<table\b[^>]*>/i);
   let enhancedTableHtml = tableHtml;
-  if (tableTagMatch && !hasClassName(tableTagMatch[0], 'content-table-mobile-cards')) {
-    enhancedTableHtml = enhancedTableHtml.replace(/<table\b[^>]*>/i, (tableTag) => addClassNameToTag(tableTag, 'content-table-mobile-cards'));
+  const shouldCardify = maxCols >= 4 || rows.length >= 5;
+  if (shouldCardify) {
+    return tableToComparisonGrid(tableHtml, rows, headerLabels, inferredHeaderRowIndex);
+  }
+
+  if (tableTagMatch) {
+    enhancedTableHtml = enhancedTableHtml.replace(/<table\b[^>]*>/i, (tableTag) => {
+      let updatedTag = tableTag;
+      if (!hasClassName(updatedTag, 'content-table-mobile-cards')) {
+        updatedTag = addClassNameToTag(updatedTag, 'content-table-mobile-cards');
+      }
+      if (shouldCardify && !hasClassName(updatedTag, 'content-table-responsive-cards')) {
+        updatedTag = addClassNameToTag(updatedTag, 'content-table-responsive-cards');
+      }
+      return updatedTag;
+    });
   }
 
   let rowIndex = -1;

@@ -22,11 +22,14 @@
 
 /* Responsive Tables */
 .blog-content table {
-  @apply border-collapse border border-gray-300 text-sm;
-  width: max-content;
-  min-width: 100%;
+  width: 100%;
+  min-width: 720px;
   max-width: none;
   table-layout: auto;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.9375rem;
+  line-height: 1.55;
 }
 
 .blog-content .table-wrapper,
@@ -36,43 +39,93 @@
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
-  margin: 1.25rem 0;
-  padding-bottom: 0.5rem;
-  padding-right: 0.5rem;
+  margin: 1.5rem 0;
+  border: 1px solid #D7DDE6;
+  border-top: 3px solid #F26419;
+  border-radius: 0.875rem;
+  background: #FFFFFF;
+  box-shadow: 0 14px 34px rgba(13, 27, 62, 0.08);
   box-sizing: border-box;
 }
 
 .blog-content .table-wrapper>table,
 .blog-content .overflow-x-auto>table {
   max-width: none;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0;
 }
 
 .blog-content th,
 .blog-content td {
-  @apply border border-gray-300 p-2;
-  min-width: 96px;
-  word-break: break-word !important;
-  overflow-wrap: anywhere !important;
+  min-width: 9rem;
+  border: 0;
+  border-right: 1px solid #E3E8EF;
+  border-bottom: 1px solid #E3E8EF;
+  padding: 0.875rem 1rem;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
   vertical-align: top;
   white-space: normal !important;
+  text-align: left;
+}
+
+.blog-content tr:last-child td {
+  border-bottom: 0;
+}
+
+.blog-content th:last-child,
+.blog-content td:last-child {
+  border-right: 0;
+}
+
+.blog-content th {
+  min-width: 10rem;
+  background: #F5F7FA;
+  color: #0D1B3E;
+  font-weight: 700;
+  vertical-align: middle;
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  letter-spacing: 0.01em;
+}
+
+.blog-content td {
+  color: #374151;
+}
+
+.blog-content tbody tr:nth-child(even) td {
+  background: #FAFBFC;
+}
+
+.blog-content tbody tr:hover td {
+  background: #FFF7F2;
+}
+
+.blog-content tbody td:first-child {
+  font-weight: 600;
+  color: #111827;
+  background-clip: padding-box;
+}
+
+.blog-content tbody tr:nth-child(even) td:first-child {
+  background: #F8FAFC;
+}
+
+.blog-content tbody tr:hover td:first-child {
+  background: #FFF3E9;
 }
 
 .blog-content th *,
 .blog-content td * {
   max-width: 100%;
   white-space: normal !important;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   word-break: normal;
 }
 
-.blog-content th {
-  @apply bg-gray-50 font-semibold;
-}
-
 .blog-content .content-table {
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
 /* Single-column tables should wrap content instead of stretching to max-content width */
@@ -100,8 +153,7 @@
 
 .blog-content .content-table-cell,
 .blog-content .content-table-heading {
-  border: 1px solid #D1D5DB;
-  padding: 0.5rem;
+  padding: 0.875rem 1rem;
 }
 
 /* Fallback for browsers/states where :has-based single-column detection is not applied */
@@ -126,6 +178,85 @@
   max-width: 100%;
 }
 
+.blog-content .table-wrapper:has(.content-comparison-grid) {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.blog-content .content-comparison-grid {
+  display: grid;
+  width: 100%;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.blog-content .content-comparison-card {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.9fr) minmax(0, 2.1fr);
+  overflow: hidden;
+  border: 1px solid #DDD9D2;
+  border-radius: 1rem;
+  background: #FFFFFF;
+  box-shadow: 0 18px 40px rgba(13, 27, 62, 0.09);
+}
+
+.blog-content .content-comparison-title {
+  display: flex;
+  align-items: center;
+  min-height: 100%;
+  padding: 1.15rem 1.25rem;
+  border-right: 1px solid #F3D8C9;
+  background:
+    linear-gradient(135deg, rgba(242, 100, 25, 0.13) 0%, rgba(255, 255, 255, 0.95) 62%),
+    #FFF7F2;
+  color: #0D1B3E;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.blog-content .content-comparison-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  background: #FFFFFF;
+}
+
+.blog-content .content-comparison-field {
+  min-width: 0;
+  padding: 1rem 1.15rem;
+  border-right: 1px solid #ECE7DF;
+  border-bottom: 1px solid #ECE7DF;
+}
+
+.blog-content .content-comparison-field:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.blog-content .content-comparison-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: #F26419;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.blog-content .content-comparison-value {
+  color: #253044;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+.blog-content .content-comparison-value p:last-child {
+  margin-bottom: 0;
+}
+
 /* Table wrapper for horizontal scroll on mobile */
 .blog-content .table-wrapper {
   scrollbar-width: thin;
@@ -138,12 +269,12 @@
 }
 
 .blog-content .table-wrapper::-webkit-scrollbar-track {
-  background: #E2E8F0;
+  background: #EEF2F6;
   border-radius: 9999px;
 }
 
 .blog-content .table-wrapper::-webkit-scrollbar-thumb {
-  background: #94A3B8;
+  background: #AAB6C5;
   border-radius: 9999px;
 }
 
@@ -157,38 +288,256 @@
 }
 
 .blog-content .overflow-x-auto::-webkit-scrollbar-track {
-  background: #E2E8F0;
+  background: #EEF2F6;
   border-radius: 9999px;
 }
 
 .blog-content .overflow-x-auto::-webkit-scrollbar-thumb {
-  background: #94A3B8;
+  background: #AAB6C5;
   border-radius: 9999px;
+}
+
+.blog-content .table-wrapper .content-table-responsive-cards,
+.blog-content .overflow-x-auto .content-table-responsive-cards {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  border: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  display: block;
+}
+
+.blog-content .table-wrapper .content-table-responsive-cards thead,
+.blog-content .overflow-x-auto .content-table-responsive-cards thead,
+.blog-content .table-wrapper .content-table-responsive-cards .content-table-mobile-header-row,
+.blog-content .overflow-x-auto .content-table-responsive-cards .content-table-mobile-header-row {
+  display: none;
+}
+
+.blog-content .table-wrapper .content-table-responsive-cards tbody,
+.blog-content .table-wrapper .content-table-responsive-cards tr,
+.blog-content .table-wrapper .content-table-responsive-cards td,
+.blog-content .table-wrapper .content-table-responsive-cards th,
+.blog-content .overflow-x-auto .content-table-responsive-cards tbody,
+.blog-content .overflow-x-auto .content-table-responsive-cards tr,
+.blog-content .overflow-x-auto .content-table-responsive-cards td,
+.blog-content .overflow-x-auto .content-table-responsive-cards th {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.blog-content .table-wrapper .content-table-responsive-cards tr,
+.blog-content .overflow-x-auto .content-table-responsive-cards tr {
+  margin-bottom: 0.9rem;
+  border: 1px solid #D7DDE6;
+  border-radius: 0.875rem;
+  overflow: hidden;
+  background-color: #FFFFFF;
+  box-shadow: 0 8px 22px rgba(13, 27, 62, 0.06);
+}
+
+.blog-content .table-wrapper .content-table-responsive-cards tr:last-child,
+.blog-content .overflow-x-auto .content-table-responsive-cards tr:last-child {
+  margin-bottom: 0;
+}
+
+.blog-content .table-wrapper .content-table-responsive-cards td.content-table-card-title,
+.blog-content .overflow-x-auto .content-table-responsive-cards td.content-table-card-title {
+  display: block;
+  border: 0;
+  border-bottom: 1px solid #E5E7EB;
+  padding: 1rem 1.05rem;
+  margin: 0;
+  line-height: 1.35;
+  font-weight: 700;
+  color: #111827;
+  background-color: #F5F7FA;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  text-align: left;
+  text-overflow: clip;
+  font-size: 0.95rem;
+}
+
+.blog-content .table-wrapper .content-table-responsive-cards td.content-table-card-title::before,
+.blog-content .overflow-x-auto .content-table-responsive-cards td.content-table-card-title::before {
+  content: none;
+}
+
+.blog-content .table-wrapper .content-table-responsive-cards td.content-table-card-field,
+.blog-content .overflow-x-auto .content-table-responsive-cards td.content-table-card-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.25rem;
+  align-items: start;
+  border: 0;
+  border-bottom: 1px solid #E5E7EB;
+  padding: 0.95rem 1.05rem;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  text-align: left;
+  text-overflow: clip;
+  background: #FFFFFF;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.blog-content .table-wrapper .content-table-responsive-cards td.content-table-card-field:last-child,
+.blog-content .overflow-x-auto .content-table-responsive-cards td.content-table-card-field:last-child {
+  border-bottom: 0;
+}
+
+.blog-content .table-wrapper .content-table-responsive-cards td.content-table-card-field::before,
+.blog-content .overflow-x-auto .content-table-responsive-cards td.content-table-card-field::before {
+  content: attr(data-label);
+  display: block;
+  margin-bottom: 0.125rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: #6B7280;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+.blog-content .table-wrapper .content-table-responsive-cards td.content-table-empty-cell,
+.blog-content .overflow-x-auto .content-table-responsive-cards td.content-table-empty-cell {
+  display: none;
+}
+
+.blog-content .table-wrapper .content-table-responsive-cards td.content-table-empty-label,
+.blog-content .overflow-x-auto .content-table-responsive-cards td.content-table-empty-label {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.blog-content .table-wrapper .content-table-responsive-cards td.content-table-empty-label::before,
+.blog-content .overflow-x-auto .content-table-responsive-cards td.content-table-empty-label::before {
+  content: none;
+}
+
+.blog-content .table-wrapper .content-table-responsive-cards td *,
+.blog-content .overflow-x-auto .content-table-responsive-cards td * {
+  max-width: 100%;
+  min-width: 0;
+  white-space: normal !important;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  text-align: left !important;
 }
 
 @media (min-width: 1024px) {
   /* Keep rich-text tables visually structured on desktop instead of looking left-shifted */
   .blog-content .table-wrapper,
   .blog-content .overflow-x-auto {
-    max-width: 980px;
+    max-width: min(100%, 1080px);
     margin-left: auto;
     margin-right: auto;
   }
 
   .blog-content .table-wrapper .content-table,
   .blog-content .overflow-x-auto .content-table {
-    width: 100%;
-    min-width: 100%;
-    table-layout: fixed;
+    width: max-content;
+    min-width: max(100%, 860px);
+    table-layout: auto;
   }
 
   .blog-content .table-wrapper .content-table th,
   .blog-content .table-wrapper .content-table td,
   .blog-content .overflow-x-auto .content-table th,
   .blog-content .overflow-x-auto .content-table td {
+    min-width: 9rem;
     white-space: normal !important;
-    word-break: break-word !important;
-    overflow-wrap: anywhere !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .blog-content .table-wrapper .content-table th,
+  .blog-content .overflow-x-auto .content-table th {
+    min-width: 10rem;
+    overflow-wrap: normal !important;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    box-shadow: inset 0 -1px 0 #D7DDE6;
+  }
+
+  .blog-content .table-wrapper .content-table td:first-child,
+  .blog-content .table-wrapper .content-table th:first-child,
+  .blog-content .overflow-x-auto .content-table td:first-child,
+  .blog-content .overflow-x-auto .content-table th:first-child {
+    min-width: 14rem;
+  }
+
+  .blog-content .table-wrapper .content-table td:last-child,
+  .blog-content .table-wrapper .content-table th:last-child,
+  .blog-content .overflow-x-auto .content-table td:last-child,
+  .blog-content .overflow-x-auto .content-table th:last-child {
+    min-width: 18rem;
+  }
+
+  .blog-content .table-wrapper .content-table td:nth-child(2),
+  .blog-content .table-wrapper .content-table th:nth-child(2),
+  .blog-content .overflow-x-auto .content-table td:nth-child(2),
+  .blog-content .overflow-x-auto .content-table th:nth-child(2),
+  .blog-content .table-wrapper .content-table td:nth-child(3),
+  .blog-content .table-wrapper .content-table th:nth-child(3),
+  .blog-content .overflow-x-auto .content-table td:nth-child(3),
+  .blog-content .overflow-x-auto .content-table th:nth-child(3) {
+    min-width: 10rem;
+  }
+
+  .blog-content .table-wrapper .content-table-responsive-cards tr,
+  .blog-content .overflow-x-auto .content-table-responsive-cards tr {
+    display: grid;
+    width: 100%;
+    max-width: 100%;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 0;
+  }
+
+  .blog-content .table-wrapper .content-table-responsive-cards td.content-table-card-title,
+  .blog-content .overflow-x-auto .content-table-responsive-cards td.content-table-card-title {
+    display: grid;
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    border-right: 1px solid #E5E7EB;
+    border-bottom: 0;
+    background: linear-gradient(135deg, #FFF7F2 0%, #FFFFFF 100%);
+  }
+
+  .blog-content .table-wrapper .content-table-responsive-cards td.content-table-card-title::before,
+  .blog-content .overflow-x-auto .content-table-responsive-cards td.content-table-card-title::before {
+    content: "Item";
+    display: block;
+    margin-bottom: 0.125rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #F26419;
+  }
+
+  .blog-content .table-wrapper .content-table-responsive-cards td.content-table-card-field,
+  .blog-content .overflow-x-auto .content-table-responsive-cards td.content-table-card-field {
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    border-right: 1px solid #E5E7EB;
+    border-bottom: 0;
+  }
+
+  .blog-content .table-wrapper .content-table-responsive-cards td:last-child,
+  .blog-content .overflow-x-auto .content-table-responsive-cards td:last-child {
+    border-right: 0;
   }
 }
 
@@ -349,20 +698,87 @@
 
   .blog-content table {
     font-size: 0.8125rem;
-    width: max-content;
+    width: 100%;
     min-width: 100%;
   }
 
   .blog-content th,
   .blog-content td {
     padding: 0.625rem 0.75rem;
-    min-width: 96px;
+    min-width: 0;
   }
 
   /* Keep tables visually contained and clear sticky mobile actions below content */
   .blog-content .table-wrapper {
     margin-bottom: calc(1.25rem + 4rem);
     overflow-x: auto;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .blog-content .content-comparison-grid {
+    gap: 0.75rem;
+    margin: 1rem 0 1.25rem;
+  }
+
+  .blog-content .content-comparison-card {
+    grid-template-columns: 1fr;
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 20px rgba(13, 27, 62, 0.07);
+  }
+
+  .blog-content .content-comparison-title {
+    border-right: 0;
+    border-bottom: 1px solid #F3D8C9;
+    padding: 0.75rem 0.875rem;
+    font-size: 0.9rem;
+    line-height: 1.3;
+  }
+
+  .blog-content .content-comparison-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .blog-content .content-comparison-field {
+    display: grid;
+    grid-template-columns: minmax(5.8rem, 0.9fr) minmax(0, 1.2fr);
+    align-items: start;
+    gap: 0.75rem;
+    padding: 0.7rem 0.875rem;
+    border-right: 0;
+  }
+
+  .blog-content .content-comparison-field:nth-last-child(-n + 2) {
+    border-bottom: 1px solid #ECE7DF;
+  }
+
+  .blog-content .content-comparison-field:last-child {
+    border-bottom: 0;
+  }
+
+  .blog-content .content-comparison-value {
+    font-size: 0.86rem;
+    line-height: 1.45;
+    text-align: right;
+  }
+
+  .blog-content .content-comparison-label {
+    margin-bottom: 0;
+    color: #6B7280;
+    font-size: 0.64rem;
+    letter-spacing: 0.025em;
+    line-height: 1.25;
+  }
+
+  .blog-content .content-comparison-value p {
+    margin-bottom: 0;
+  }
+
+  .blog-content .content-comparison-value .break-all {
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
   }
 
   .blog-content .table-wrapper .content-table-mobile-cards {
@@ -410,10 +826,11 @@
 
   .blog-content .table-wrapper .content-table-mobile-cards tr {
     margin-bottom: 0.75rem;
-    border: 1px solid #D1D5DB;
+    border: 1px solid #D7DDE6;
     border-radius: 0.75rem;
     overflow: visible;
     background-color: #FFFFFF;
+    box-shadow: 0 8px 22px rgba(13, 27, 62, 0.06);
   }
 
   .blog-content .table-wrapper .content-table-mobile-cards tr:last-child {
@@ -433,6 +850,8 @@
     overflow-wrap: anywhere;
     text-align: left;
     text-overflow: clip;
+    background: #FFFFFF;
+    font-size: 0.8125rem;
   }
 
   .blog-content .table-wrapper .content-table-mobile-cards td.content-table-card-field:last-child {
@@ -474,12 +893,13 @@
     line-height: 1.35;
     font-weight: 700;
     color: #111827;
-    background-color: #F9FAFB;
+    background-color: #F5F7FA;
     white-space: normal;
     word-break: break-word;
     overflow-wrap: anywhere;
     text-align: left;
     text-overflow: clip;
+    font-size: 0.875rem;
   }
 
   .blog-content .table-wrapper .content-table-mobile-cards td.content-table-card-title::before {
@@ -518,4 +938,6 @@
   .blog-content ol {
     padding-left: 1.25rem;
   }
+
+  /* wide comparison tables now share the same responsive grid treatment above */
 }

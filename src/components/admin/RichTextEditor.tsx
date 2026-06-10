@@ -86,6 +86,9 @@ export function RichTextEditor({ content, onChange, className = '' }: Readonly<R
       }),
       Table.configure({
         resizable: true,
+        HTMLAttributes: {
+          class: 'admin-editor-table',
+        },
       }),
       TableRow,
       TableHeader,
@@ -126,9 +129,9 @@ export function RichTextEditor({ content, onChange, className = '' }: Readonly<R
           'admin-rich-editor prose prose-sm sm:prose-base max-w-none min-h-[300px] p-4 border-0 focus:outline-none',
           'prose-headings:font-heading prose-headings:text-gray-900',
           'prose-img:max-w-full prose-img:h-auto prose-img:rounded prose-img:mx-auto',
-          'prose-table:w-full prose-table:border-collapse prose-table:border prose-table:border-gray-300',
-          'prose-th:border prose-th:border-gray-300 prose-th:p-2 prose-th:bg-gray-50',
-          'prose-td:border prose-td:border-gray-300 prose-td:p-2',
+          'prose-table:border-collapse prose-table:border prose-table:border-gray-300',
+          'prose-th:border prose-th:border-gray-300 prose-th:bg-gray-50',
+          'prose-td:border prose-td:border-gray-300',
           'prose-a:text-blue-600 prose-a:break-words',
           className
         ].filter(Boolean).join(' '),
@@ -153,7 +156,7 @@ export function RichTextEditor({ content, onChange, className = '' }: Readonly<R
 
   const insertTable = useCallback(() => {
     if (editor) {
-      editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+      editor.chain().focus().insertTable({ rows: 4, cols: 4, withHeaderRow: true }).run();
     }
   }, [editor]);
 
@@ -469,7 +472,7 @@ export function RichTextEditor({ content, onChange, className = '' }: Readonly<R
         <div className="w-px h-6 bg-gray-300 mx-1"></div>
 
         {/* Table controls */}
-        <div className="flex gap-1">
+        <div className={`flex gap-1 rounded-lg border px-1 py-0.5 ${editor.isActive('table') ? 'border-orange/30 bg-orange/10' : 'border-transparent'}`}>
           <button
             type="button"
             onClick={() => editor.chain().focus().addRowBefore().run()}
@@ -499,7 +502,7 @@ export function RichTextEditor({ content, onChange, className = '' }: Readonly<R
           </button>
         </div>
 
-        <div className="flex gap-1">
+        <div className={`flex gap-1 rounded-lg border px-1 py-0.5 ${editor.isActive('table') ? 'border-orange/30 bg-orange/10' : 'border-transparent'}`}>
           <button
             type="button"
             onClick={() => editor.chain().focus().addColumnBefore().run()}
@@ -529,7 +532,7 @@ export function RichTextEditor({ content, onChange, className = '' }: Readonly<R
           </button>
         </div>
 
-        <div className="flex gap-1">
+        <div className={`flex gap-1 rounded-lg border px-1 py-0.5 ${editor.isActive('table') ? 'border-orange/30 bg-orange/10' : 'border-transparent'}`}>
           <button
             type="button"
             onClick={() => editor.chain().focus().toggleHeaderRow().run()}
