@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { FaqAnswer } from '@/components/common/FaqAnswer';
 import type { PublicFaqItem } from '@/lib/server/faqs';
 
 interface FAQSectionProps {
@@ -23,7 +24,7 @@ export function FAQSection({ faqs }: FAQSectionProps) {
                 <span className="shrink-0 text-lg font-light leading-none text-[#F26419]">+</span>
               </div>
               <div className="px-5 py-4">
-                <p className="text-sm leading-7 text-[#4A4742]">{faq.answer}</p>
+                <FaqAnswer answer={faq.answer} className="text-sm leading-7 text-[#4A4742]" />
               </div>
             </article>
           ))}

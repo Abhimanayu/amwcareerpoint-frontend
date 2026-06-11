@@ -1,6 +1,8 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { ContactForm } from '@/components/contact/ContactForm';
+import { FaqAnswer } from '@/components/common/FaqAnswer';
+import { stripFaqMarkdownLinks } from '@/lib/faqLinks';
 import { contactFallbackFaqs, getPublicFaqs } from '@/lib/server/faqs';
 import { SEO_HOLD } from '@/lib/seoHold';
 
@@ -35,7 +37,7 @@ export default async function ContactPage() {
           name: faq.question.trim(),
           acceptedAnswer: {
             '@type': 'Answer',
-            text: faq.answer.trim(),
+            text: stripFaqMarkdownLinks(faq.answer.trim()),
           },
         })),
       }
@@ -166,7 +168,7 @@ export default async function ContactPage() {
             {faqs.map((faq) => (
               <div key={faq.question} className="rounded-xl border border-[#DDD9D2] bg-white p-5 hover:shadow-md transition-shadow">
                 <h3 className="font-heading text-base font-bold text-[#0D1B3E] mb-2">{faq.question}</h3>
-                <p className="text-[13px] text-[#4A4742] leading-relaxed">{faq.answer}</p>
+                <FaqAnswer answer={faq.answer} className="text-[13px] text-[#4A4742] leading-relaxed" />
               </div>
             ))}
           </div>

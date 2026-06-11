@@ -10,6 +10,7 @@ import { CounsellingForm } from '@/components/home/CounsellingForm';
 import { clampSeoDescription, extractCollectionData, pickUniversityImageSource, resolveCanonicalUrl, resolveMediaUrl, resolveUniversityDuration, sanitizeHtml, serializeJsonLd, stripHtml } from '@/lib/utils';
 import { sanitizeAndOptimizeMobileContent } from '@/lib/contentValidation';
 import { SEO_HOLD } from '@/lib/seoHold';
+import { stripFaqMarkdownLinks } from '@/lib/faqLinks';
 import { CountryFAQSection } from './CountryFAQSection';
 import { CountryScrollTop } from './CountryScrollTop';
 
@@ -560,7 +561,7 @@ export default async function CountryPage({ params }: Props) {
           name: faq.question.trim(),
           acceptedAnswer: {
             '@type': 'Answer',
-            text: faq.answer.trim(),
+            text: stripFaqMarkdownLinks(faq.answer.trim()),
           },
         })),
       }

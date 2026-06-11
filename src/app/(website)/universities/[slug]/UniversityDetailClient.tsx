@@ -6,6 +6,7 @@ import { CollegeHero } from '@/components/ui/CollegeHero';
 import { CollegeGallery } from '@/components/ui/CollegeGallery';
 import { FeeCard } from '@/components/ui/FeeCard';
 import { SafeImage } from '@/components/ui/SafeImage';
+import { FaqAnswer } from '@/components/common/FaqAnswer';
 import {
   pickUniversityImageAltText,
   pickUniversityImageSource,
@@ -537,7 +538,7 @@ export default function UniversityDetailClient({
                     <span className="shrink-0 text-xl font-light leading-none text-[#F26419]">+</span>
                   </div>
                   <div className="px-6 py-5">
-                    <p className="break-words text-sm leading-7 text-[#4A4742]">{faq.answer || 'Answer not available.'}</p>
+                    <FaqAnswer answer={faq.answer || 'Answer not available.'} className="break-words text-sm leading-7 text-[#4A4742]" />
                   </div>
                 </article>
               ))}

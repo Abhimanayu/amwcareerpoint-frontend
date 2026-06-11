@@ -1424,6 +1424,7 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
                 rows={4}
                 className={`${compactInputClass} resize-y`}
               />
+              <p className="text-xs text-gray-500">Add internal links with markdown, for example: [MBBS in Russia](/countries/russia)</p>
             </div>
           ))}
         </section>

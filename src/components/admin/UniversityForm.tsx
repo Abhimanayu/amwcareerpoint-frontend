@@ -573,6 +573,7 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
                 {form.faqs.length > 1 && <button type="button" onClick={() => updateField('faqs', form.faqs.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600 px-2">×</button>}
               </div>
               <textarea maxLength={L.faqs.answerMax} value={f.answer} onChange={(e) => { const arr = [...form.faqs]; arr[i] = { ...arr[i], answer: e.target.value }; updateField('faqs', arr); }} placeholder="Answer" rows={4} className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm resize-y" />
+              <p className="text-xs text-gray-500">Add internal links with markdown, for example: [MBBS in Russia](/countries/russia)</p>
             </div>
           ))}
         </section>

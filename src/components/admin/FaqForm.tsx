@@ -137,6 +137,9 @@ export default function FaqForm({ initialData, isEdit }: Readonly<FaqFormProps>)
                 className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419]/30 focus:border-[#F26419] outline-none resize-y"
               />
               <div className="text-xs text-gray-400 mt-1 text-right">{form.answer.length}/2000</div>
+              <p className="mt-1 text-xs text-gray-500">
+                Add internal links with markdown, for example: [MBBS in Russia](/countries/russia)
+              </p>
             </div>
 
             {/* Page */}
