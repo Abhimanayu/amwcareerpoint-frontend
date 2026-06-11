@@ -107,7 +107,7 @@ export function UniversitiesSection({ items }: UniversitiesSectionProps) {
             We Partner With
           </h2>
           <p className="mt-2 text-[13px] sm:text-[14px] text-[#4A4742] max-w-2xl">
-            All partner universities are NMC approved and WHO recognized — your degree will be valid to practice in India after clearing FMGE/NExT.
+            W.H.O & WDOMS listed, Complies with NMC & FMGL Gazette 2021
           </p>
           <p className="mt-2 text-xs sm:text-sm text-[#4A4742]/80 max-w-2xl">
             {visibleCount}+ active university options available.

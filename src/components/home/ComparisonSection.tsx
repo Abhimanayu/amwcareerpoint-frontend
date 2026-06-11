@@ -6,7 +6,7 @@ export function ComparisonSection() {
     { factor: 'Annual Fees', india: 'Rs. 25,000 - 1.00L (Govt) / Rs. 60L to 1.50cr (Pvt)', abroad: 'Rs. 2.5-8 Lakhs' },
     { factor: 'Donation', india: 'No Donation Required', abroad: 'No Donation Required' },
     { factor: 'Seat Availability', india: 'Limited - High Competition', abroad: 'Seat depends on the university intake or an interview/exam may be required' },
-    { factor: 'Recognition', india: 'NMC Approved', abroad: 'WHO & NMC Approved' },
+    { factor: 'Recognition', india: 'NMC Approved', abroad: 'WHO & NMC approved' },
     { factor: 'Infrastructure', india: 'Varies (Govt Good, Pvt Mixed)', abroad: 'World-Class Infrastructure' },
     { factor: 'Clinical Exposure', india: 'Limited in Pvt Colleges', abroad: 'Excellent Clinical Training' },
     { factor: 'Total Investment', india: 'Rs. 60L - 1.50 Crores', abroad: 'Rs. 15L - 50L' },
