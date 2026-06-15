@@ -9,6 +9,7 @@ import StatusBadge from '@/components/admin/StatusBadge';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { adminGetBlogs, deleteBlog } from '@/lib/blogs';
 import { handleApiError } from '@/lib/handleApiError';
+import { revalidateContentPages } from '@/lib/server/revalidate';
 
 export default function AdminBlogsPage() {
   const router = useRouter();
@@ -58,6 +59,10 @@ export default function AdminBlogsPage() {
     setDeleting(true);
     try {
       await deleteBlog(deleteTarget._id as string);
+      await revalidateContentPages({
+        type: 'blog',
+        slug: deleteTarget.slug as string,
+      }).catch(() => {});
       setDeleteTarget(null);
       fetchData(pagination.page);
     } catch (err) {

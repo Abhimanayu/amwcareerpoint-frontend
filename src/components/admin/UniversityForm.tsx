@@ -8,6 +8,7 @@ import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { createUniversity, updateUniversity } from '@/lib/universities';
 import { adminGetCountries } from '@/lib/countries';
 import { handleApiError } from '@/lib/handleApiError';
+import { revalidateContentPages } from '@/lib/server/revalidate';
 import { validateUniversityForm, getFieldError, LIMITS, type ValidationError } from '@/lib/validation';
 import { FieldError, CharCount, ValidationBanner } from '@/components/admin/FormValidation';
 
@@ -146,7 +147,7 @@ function buildUniversityForm(initialData?: Record<string, unknown>) {
 export default function UniversityForm({ initialData, isEdit }: UniversityFormProps) {
   const router = useRouter();
   const [form, setForm] = useState(() => buildUniversityForm(initialData));
-  const [countries, setCountries] = useState<{ _id: string; name: string }[]>([]);
+  const [countries, setCountries] = useState<{ _id: string; name: string; slug?: string }[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
@@ -202,6 +203,16 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
       } else {
         await createUniversity(payload);
       }
+      const selectedCountry = countries.find((country) => country._id === form.country);
+      const initialCountry = typeof initialData?.country === 'object'
+        ? initialData.country as Record<string, unknown>
+        : null;
+      await revalidateContentPages({
+        type: 'university',
+        slug: form.slug,
+        previousSlug: (initialData?.slug as string) || null,
+        countrySlug: selectedCountry?.slug || (initialCountry?.slug as string) || null,
+      }).catch(() => {});
       router.push('/admin/universities');
     } catch (err) {
       setError(handleApiError(err));

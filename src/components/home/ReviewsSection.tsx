@@ -1,106 +1,185 @@
-﻿const reviews = [
+import Image from 'next/image';
+
+type Review = {
+  name: string;
+  role: 'Student' | 'Parent';
+  location: string;
+  image: string;
+  text: string;
+};
+
+const reviews: Review[] = [
   {
-    name: 'Dr. Messi Khan',
-    time: 'London, England',
-    rating: 5,
-    text: 'Hi, I am Dr. Messi Khan from Madhya Pradesh. I got admission to a reputed medical university with the guidance and support of the team at AMW Career Point. The consultancy provided excellent assistance throughout the entire admission process, from documentation to university selection. Today, I am proudly working at Frimley Park Hospital, England. I highly recommend AMW Career Point to students planning to pursue MBBS abroad.',
+    name: 'Govind Agarwal',
+    role: 'Student',
+    location: 'MBBS Abroad Student',
+    image: '/reviews/govind-agarwal.png',
+    text: 'AMW Career Point gave proper guidance for my future. The team was available for hostel, mess, classes and every query during my MBBS abroad journey.',
   },
   {
-    name: 'Jitendra Khatri',
-    time: 'Rajasthan, India',
-    rating: 5,
-    text: 'Hello, I am Jitendra Khatri from Rajasthan. I would like to thank AMW Career Point for helping me secure admission in Ontario, Canada. The team guided me properly and provided complete transparency without any hidden costs or donations. Thanks to their support, I am receiving quality English-medium education abroad. I truly appreciate their honest guidance and professional services.',
+    name: 'Mann Chourasiya',
+    role: 'Student',
+    location: 'Avicenna International Medical University',
+    image: '/reviews/mann-chourasiya.png',
+    text: 'My admission was done through Dr. Haripal sir and AMW Career Point. He guided me at every step and gave us confidence throughout the process.',
   },
   {
-    name: 'Tarun Jain',
-    time: 'Kyrgyzstan',
-    rating: 5,
-    text: 'Hello, I am Tarun Jain, currently studying in the 5th year of MBBS in Kyrgyzstan. My experience with AMW Career Point has been excellent. The entire team was very supportive and guided me throughout the admission process. Their continuous assistance and professional approach made my MBBS journey smooth and stress-free. I am thankful to the team for their tremendous support.',
+    name: 'Lalit Kumar Jatav',
+    role: 'Parent',
+    location: 'Parent of MBBS Abroad Student',
+    image: '/reviews/lalit-kumar-jatav.png',
+    text: 'I chose AMW Career Point for my son Prashant Jhajiya admission abroad. Their guidance, support and professionalism made the process smooth and stress-free.',
   },
   {
-    name: 'Pratap Singh',
-    time: 'Rajasthan, India',
-    rating: 5,
-    text: 'Hey, I am Pratap Singh from Rajasthan. I joined AMW Career Point for my MBBS admission in Kazakhstan, and I received highly professional guidance and support throughout the process. The team helped me at every step, from admission to documentation and travel assistance. Thank you so much to the entire team for guiding me so well and making my dream come true.',
+    name: 'Hriday Vasistha',
+    role: 'Student',
+    location: '4th Year MBBS Student',
+    image: '/reviews/hriday-vasistha.jpeg',
+    text: 'My experience while taking admission was really good. AMW Career Point coordinated everything well and made the admission process worth it.',
   },
   {
-    name: 'Pankaj Hathniya',
-    time: 'Georgia',
-    rating: 5,
-    text: 'Hello, I am Pankaj Hathniya. I took admission in Georgia through AMW Career Point, and I am very thankful to Dr. Haripal Sir for his guidance and continuous support. The consultancy team helped me in every aspect of my studies and settlement abroad. AMW Career Point is truly one of the best consultancies for MBBS abroad, and today I am proud to be pursuing my medical career successfully.',
+    name: 'Aastha Khare',
+    role: 'Student',
+    location: 'MBBS Abroad Student',
+    image: '/reviews/aastha-khare.jpeg',
+    text: 'AMW Career Point understands student needs and helps with the procedures required for foreign medical education. They look after every small and big need.',
   },
   {
-    name: 'Nikita Rohila',
-    time: 'Russia',
-    rating: 5,
-    text: 'Hi, I am Nikita Rohila. AMW Career Point is a trustworthy consultancy for students planning to study abroad. The management and staff members were extremely supportive during my admission process in Russia. They helped me with hostel arrangements, college admission, and overall settlement abroad. Their guidance and support made my transition smooth and comfortable. I highly recommend AMW Career Point for higher studies abroad.',
+    name: 'Dimpal Saini',
+    role: 'Parent',
+    location: 'Family Review',
+    image: '/reviews/dimpal-saini.png',
+    text: 'Dr. Haripal sir and his dedicated team helped my younger brother secure admission to his desired medical college with care and professionalism.',
   },
   {
-    name: 'Shreya Tyagi',
-    time: 'Delhi, India',
-    rating: 5,
-    text: 'Hello, I am Shreya Tyagi from Delhi and currently a 3rd-year MBBS student in Russia. I got admission through AMW Career Point, and my experience with the consultancy has been wonderful. The staff members are very humble, supportive, and always ready to help students whenever needed. I am grateful to the entire team for helping me achieve my dream of studying MBBS abroad.',
+    name: 'Shiran',
+    role: 'Student',
+    location: 'MBBS Abroad Student',
+    image: '/reviews/shiran.png',
+    text: 'Very good work done by Dr. Haripal sir. They really take care of every student going outside India for higher studies.',
+  },
+  {
+    name: 'Deepak Kumar Sharma',
+    role: 'Student',
+    location: 'MBBS Abroad Student',
+    image: '/reviews/deepak-kumar-sharma.png',
+    text: 'Best consultant for MBBS abroad in India. Many of my friends went abroad through this consultancy and Dr. Haripal sir is always very helpful.',
+  },
+  {
+    name: 'Dr. Bijendra Singh',
+    role: 'Parent',
+    location: 'Parent Review',
+    image: '/reviews/dr-bijendra-singh.png',
+    text: 'A reputed medical consultancy with excellent guidance, FMG preparation support and a good environment for students to live and study.',
   },
 ];
 
 const GOOGLE_REVIEWS_URL = 'https://www.google.com/search?q=AMW+Career+Point+Jaipur+reviews';
 
-function getInitials(name: string) {
-  return name
-    .replace(/^Dr\.\s*/i, '')
-    .split(' ')
-    .filter(Boolean)
-    .map((part) => part[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
-}
-
 export function ReviewsSection() {
   return (
-    <section className="bg-[#F9F8F6] py-10 sm:py-14">
+    <section className="bg-[#F9F8F6] py-12 sm:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-6 sm:mb-8">
-          <span className="inline-block text-xs font-semibold text-[#F26419] uppercase tracking-wider mb-2">Verified Reviews</span>
-          <h2 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0D1B3E]">What Parents &amp; Students Say</h2>
-        </div>
+        <div className="overflow-hidden rounded-2xl bg-[#0D1B3E] shadow-[0_24px_70px_rgba(13,27,62,0.18)]">
+          <div className="grid gap-6 px-5 py-8 sm:px-8 lg:grid-cols-[1fr_auto] lg:items-end lg:px-10 lg:py-10">
+            <div>
+              <span className="inline-flex rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#FFB38A]">
+                Verified Google Reviews
+              </span>
+              <h2 className="mt-4 font-heading text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-5xl">
+                What Parents &amp; Students Say
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/72 sm:text-base">
+                Real admission journeys from students and families guided by AMW Career Point.
+              </p>
+            </div>
 
-        <div className="flex justify-center mb-6 sm:mb-8">
-          <div className="inline-flex items-center gap-2 sm:gap-3 rounded-xl border border-[#DDD9D2] bg-white px-4 sm:px-5 py-2.5 sm:py-3">
-            <span className="font-heading text-xl sm:text-2xl font-bold text-[#F26419]">5.0</span>
-            <span className="text-[12px] sm:text-[13px] font-semibold text-[#0D1B3E]">5/5 Rating</span>
-            <span className="text-[12px] sm:text-[13px] text-[#4A4742]">Trusted by AMW students worldwide</span>
-          </div>
-        </div>
-
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5">
-          {reviews.slice(0, 6).map((review) => (
-            <div key={review.name} className="rounded-xl border border-[#DDD9D2] bg-white p-4 sm:p-5">
-              <div className="flex items-center gap-3 mb-2.5">
-                <div className="w-9 h-9 rounded-full bg-[#0D1B3E] flex items-center justify-center text-white text-[11px] font-bold">
-                  {getInitials(review.name)}
-                </div>
+            <div className="rounded-xl border border-white/15 bg-white px-5 py-4 shadow-xl sm:min-w-72">
+              <div className="flex items-center gap-4">
                 <div>
-                  <div className="text-[13px] font-bold text-[#0D1B3E]">{review.name}</div>
-                  <div className="text-[10px] text-[#4A4742]">{review.time}</div>
+                  <div className="font-heading text-4xl font-bold leading-none text-[#F26419]">5.0</div>
+                  <div className="mt-1 text-[11px] font-bold uppercase tracking-wider text-[#6B665F]">Google Rating</div>
+                </div>
+                <div className="h-12 w-px bg-[#E7DED5]" />
+                <div>
+                  <div className="text-lg leading-none text-[#F5B400]" aria-label="5 star rating">
+                    ★★★★★
+                  </div>
+                  <div className="mt-2 text-xs font-semibold text-[#0D1B3E]">Students + Parents</div>
                 </div>
               </div>
-              <div className="text-[#F26419] text-[13px] font-semibold mb-1.5">{review.rating}/5 Verified Review</div>
-              <p className="text-[13px] text-[#4A4742] leading-relaxed">{review.text}</p>
             </div>
-          ))}
-        </div>
+          </div>
 
-        <div className="mt-8 text-center">
-          <a
-            href={GOOGLE_REVIEWS_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#0D1B3E] px-7 py-3 text-sm font-bold text-white transition-colors hover:bg-[#142a5a]"
-            aria-label="View all reviews on Google"
-          >
-            View All Reviews on Google
-          </a>
+          <div className="bg-[#FFFDF9] px-4 pb-5 pt-5 sm:px-6 sm:pb-6 lg:px-8 lg:pb-8">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {reviews.map((review) => (
+                <article
+                  key={review.name}
+                  className="group relative flex h-full min-h-[285px] flex-col overflow-hidden rounded-xl border border-[#E4D8CD] bg-white shadow-[0_14px_35px_rgba(13,27,62,0.08)] transition hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(13,27,62,0.14)]"
+                >
+                  <div className="h-1.5 bg-[#F26419]" />
+                  <div className="flex items-start gap-4 p-5 pb-4">
+                    <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2 border-white bg-[#F9F8F6] shadow-md ring-1 ring-[#E9DED3]">
+                      <Image
+                        src={review.image}
+                        alt={`${review.name} review photo`}
+                        fill
+                        sizes="80px"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1 pt-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-base font-bold leading-snug text-[#0D1B3E]">{review.name}</h3>
+                        <span
+                          className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${
+                            review.role === 'Student'
+                              ? 'bg-[#DDF5EE] text-[#08735C]'
+                              : 'bg-[#FFE7D8] text-[#B9410B]'
+                          }`}
+                        >
+                          {review.role}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs leading-relaxed text-[#6B665F]">{review.location}</p>
+                    </div>
+                  </div>
+
+                  <div className="mx-5 flex items-center justify-between gap-3 border-y border-[#EFE5DC] py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[15px] leading-none text-[#F5B400]" aria-label="5 star rating">
+                        ★★★★★
+                      </span>
+                      <span className="text-xs font-bold text-[#F26419]">5/5</span>
+                    </div>
+                    <span className="rounded-full bg-[#F4F7FB] px-2.5 py-1 text-[11px] font-semibold text-[#536070]">
+                      Google Review
+                    </span>
+                  </div>
+
+                  <div className="relative flex flex-1 flex-col px-5 pb-5 pt-4">
+                    <span className="absolute right-5 top-1 font-heading text-6xl leading-none text-[#F26419]/10">
+                      &quot;
+                    </span>
+                    <p className="relative flex-1 text-sm leading-7 text-[#31343A]">{review.text}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <div className="mt-8 text-center">
+              <a
+                href={GOOGLE_REVIEWS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#F26419] px-7 py-3 text-sm font-bold text-white shadow-[0_12px_28px_rgba(242,100,25,0.25)] transition-colors hover:bg-[#d94f0d]"
+                aria-label="View all reviews on Google"
+              >
+                View All Reviews on Google
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </section>

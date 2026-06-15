@@ -9,6 +9,7 @@ import StatusBadge from '@/components/admin/StatusBadge';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { adminGetCountries, deleteCountry } from '@/lib/countries';
 import { handleApiError } from '@/lib/handleApiError';
+import { revalidateContentPages } from '@/lib/server/revalidate';
 
 const ADMIN_COUNTRIES_LIST_LIMIT = 100;
 
@@ -54,6 +55,10 @@ export default function AdminCountriesPage() {
     setDeleting(true);
     try {
       await deleteCountry(deleteTarget._id as string);
+      await revalidateContentPages({
+        type: 'country',
+        slug: deleteTarget.slug as string,
+      }).catch(() => {});
       setDeleteTarget(null);
       fetchCountries(pagination.page);
     } catch (err) {

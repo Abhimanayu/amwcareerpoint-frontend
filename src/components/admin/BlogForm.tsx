@@ -7,6 +7,7 @@ import ImageUploader from '@/components/admin/ImageUploader';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { createBlog, updateBlog, getBlogCategories, createBlogCategory } from '@/lib/blogs';
 import { handleApiError } from '@/lib/handleApiError';
+import { revalidateContentPages } from '@/lib/server/revalidate';
 import { validateBlogForm, getFieldError, LIMITS, type ValidationError } from '@/lib/validation';
 import { validateBlogContent, type ContentValidationResult } from '@/lib/contentValidation';
 import { FieldError, CharCount, ValidationBanner } from '@/components/admin/FormValidation';
@@ -117,6 +118,11 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
       } else {
         await createBlog(payload);
       }
+      await revalidateContentPages({
+        type: 'blog',
+        slug: form.slug,
+        previousSlug: (initialData?.slug as string) || null,
+      }).catch(() => {});
       router.push('/admin/blogs');
     } catch (err) {
       setError(handleApiError(err));

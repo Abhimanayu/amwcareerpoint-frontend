@@ -7,6 +7,7 @@ import ImageUploader from '@/components/admin/ImageUploader';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { createCountry, updateCountry } from '@/lib/countries';
 import { handleApiError } from '@/lib/handleApiError';
+import { revalidateContentPages } from '@/lib/server/revalidate';
 import { validateCountryForm, getFieldError, LIMITS, type ValidationError } from '@/lib/validation';
 import { FieldError, CharCount, ValidationBanner } from '@/components/admin/FormValidation';
 
@@ -638,6 +639,11 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
       } else {
         await createCountry(payload);
       }
+      await revalidateContentPages({
+        type: 'country',
+        slug: form.slug,
+        previousSlug: (initialData?.slug as string) || null,
+      }).catch(() => {});
       router.push('/admin/countries');
     } catch (err) {
       setError(handleApiError(err));

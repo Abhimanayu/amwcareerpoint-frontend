@@ -13,7 +13,7 @@ type Props = {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-export const revalidate = 600;
+export const revalidate = 120;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (SEO_HOLD) {

@@ -18,6 +18,7 @@ import {
   type HomeStatItem,
 } from '@/lib/homeSettings';
 import { handleApiError } from '@/lib/handleApiError';
+import { revalidateContentPages } from '@/lib/server/revalidate';
 import { adminGetUniversities } from '@/lib/universities';
 import { extractCollectionData, pickBlogImageSource, pickUniversityImageSource } from '@/lib/utils';
 
@@ -574,6 +575,7 @@ export default function AdminHomePage() {
         sections: settings.sections,
       };
       const saved = await updateHomeSettings(payload);
+      await revalidateContentPages({ type: 'home' }).catch(() => {});
       const merged = mergeHomeSettings(saved);
       setSettings({ ...merged, ...homeItems });
       setSaveMessage('Home page settings saved successfully.');
@@ -650,6 +652,7 @@ export default function AdminHomePage() {
         homeUniversities: homeItems.homeUniversities.map((item) => item._id),
         homeBlogs: homeItems.homeBlogs.map((item) => item._id),
       });
+      await revalidateContentPages({ type: 'home' }).catch(() => {});
       setSettings((prev) => ({ ...prev, ...homeItems }));
       setItemsSaveMessage('Home items saved successfully.');
     } catch (err) {

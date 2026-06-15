@@ -95,8 +95,6 @@ export default function UniversityDetailClient({
   relatedUniversities: any[];
   apiFaqs?: { question: string; answer: string }[];
 }) {
-  const [currTab, setCurrTab] = useState(0);
-
   const countryName = university.country?.name || '';
   const admissionProcess = Array.isArray(countryData?.admissionProcess) ? countryData.admissionProcess.slice(0, 10) : [];
   const highlights = Array.isArray(university.highlights) ? university.highlights.slice(0, 20) : [];
@@ -113,8 +111,6 @@ export default function UniversityDetailClient({
   const curriculumYearCount = curriculum.length;
   const curriculumHeading = resolveUniversityCurriculumHeading(university?.courseDuration, curriculumYearCount);
   const displayDuration = resolveUniversityDuration(university?.courseDuration, curriculumYearCount, countryData?.duration);
-  const activeCurriculumIndex = Math.min(currTab, curriculum.length - 1);
-  const activeCurriculum = curriculum[activeCurriculumIndex];
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -310,32 +306,57 @@ export default function UniversityDetailClient({
             A structured program that takes you from foundational sciences to clinical mastery.
           </p>
 
-          {/* Year tabs */}
-          <div className="mt-10 flex flex-wrap gap-2 sm:flex-nowrap sm:overflow-x-auto sm:pb-2">
-            {curriculum.map((c, i) => (
-              <button
-                key={`ct-${i}`}
-                onClick={() => setCurrTab(i)}
-                className={`inline-flex min-h-11 items-center cursor-pointer whitespace-nowrap rounded-full px-4 py-2.5 text-[13px] font-medium transition-colors sm:px-5 sm:py-2.5 sm:text-sm ${
-                  currTab === i
-                    ? 'bg-[#0D1B3E] text-white'
-                    : 'border border-[#DDD9D2] bg-[#F9F8F6] text-[#4A4742] hover:border-[#0D1B3E]'
-                }`}
-              >
-                {c.year}
-              </button>
-            ))}
-          </div>
-
-          <div className="mt-6 rounded-2xl border border-[#DDD9D2] bg-[#F9F8F6] p-6 sm:p-8">
-            <div className="mb-4 flex items-center gap-3">
-              <span className="rounded-full bg-[#F26419] px-3 py-1 text-xs font-bold text-white">{activeCurriculum.year}</span>
-              <h3 className="text-lg font-bold text-[#0D1B3E]">{activeCurriculum.title}</h3>
+          <div className="mt-10 overflow-hidden rounded-2xl border border-[#DDD9D2] bg-[#F9F8F6] shadow-sm">
+            <div className="hidden grid-cols-[150px_220px_1fr] gap-10 border-b border-[#DDD9D2] bg-[#F1EFEA] px-6 py-4 text-sm font-bold text-[#4A4742] md:grid">
+              <div>Year</div>
+              <div>Phase</div>
+              <div>Key Subjects</div>
             </div>
-            <p className="mb-3 text-sm leading-relaxed text-[#4A4742]">{activeCurriculum.desc}</p>
-            {activeCurriculum.subjects && (
-              <p className="text-sm text-[#0D1B3E]"><span className="font-semibold">Key subjects:</span> {activeCurriculum.subjects}</p>
-            )}
+
+            <div className="divide-y divide-[#DDD9D2]">
+              {curriculum.map((item, index) => {
+                const toneClasses = [
+                  'bg-[#EAF4FF] text-[#1D5D92]',
+                  'bg-[#EDF8E5] text-[#477C1C]',
+                  'bg-[#FFF2DA] text-[#9B6414]',
+                  'bg-[#FDEBE5] text-[#9B4C35]',
+                  'bg-[#EFEDFF] text-[#4C45A0]',
+                  'bg-[#EAF7F2] text-[#08735C]',
+                ];
+                const tone = toneClasses[index % toneClasses.length];
+
+                return (
+                  <div
+                    key={`${item.year}-${index}`}
+                    className="grid gap-4 bg-white px-5 py-5 md:grid-cols-[150px_220px_1fr] md:gap-10 md:bg-transparent md:px-6 md:py-6"
+                  >
+                    <div>
+                      <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-[#7A746C] md:hidden">Year</div>
+                      <span className={`inline-flex rounded-full px-3 py-1.5 text-xs font-bold ${tone}`}>
+                        {item.year}
+                      </span>
+                    </div>
+
+                    <div>
+                      <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-[#7A746C] md:hidden">Phase</div>
+                      <h3 className="text-base font-bold leading-snug text-[#0D1B3E] md:text-lg">{item.title}</h3>
+                      {item.desc && (
+                        <p className="mt-1 text-sm leading-relaxed text-[#4A4742]">{item.desc}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-[#7A746C] md:hidden">Key Subjects</div>
+                      {item.subjects ? (
+                        <p className="text-base font-semibold leading-relaxed text-[#222222]">{item.subjects}</p>
+                      ) : (
+                        <p className="text-sm leading-relaxed text-[#4A4742]">{item.desc}</p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>

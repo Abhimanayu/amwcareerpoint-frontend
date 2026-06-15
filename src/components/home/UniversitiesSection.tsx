@@ -107,7 +107,7 @@ export function UniversitiesSection({ items }: UniversitiesSectionProps) {
             We Partner With
           </h2>
           <p className="mt-2 text-[13px] sm:text-[14px] text-[#4A4742] max-w-2xl">
-            W.H.O & WDOMS listed, Complies with NMC & FMGL Gazette 2021
+            All partner universities are W.H.O. & WDOMS listed in the FMGL Gazette 2021, and comply with NMC and FMGL Regulation.
           </p>
           <p className="mt-2 text-xs sm:text-sm text-[#4A4742]/80 max-w-2xl">
             {visibleCount}+ active university options available.

@@ -14,7 +14,7 @@ import { stripFaqMarkdownLinks } from '@/lib/faqLinks';
 import { CountryFAQSection } from './CountryFAQSection';
 import { CountryScrollTop } from './CountryScrollTop';
 
-export const revalidate = 600;
+export const revalidate = 120;
 
 type Props = Readonly<{ params: Promise<{ slug: string }> }>;
 

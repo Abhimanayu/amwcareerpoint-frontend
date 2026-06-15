@@ -9,6 +9,7 @@ import StatusBadge from '@/components/admin/StatusBadge';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { adminGetUniversities, deleteUniversity } from '@/lib/universities';
 import { handleApiError } from '@/lib/handleApiError';
+import { revalidateContentPages } from '@/lib/server/revalidate';
 
 export default function AdminUniversitiesPage() {
   const router = useRouter();
@@ -58,6 +59,14 @@ export default function AdminUniversitiesPage() {
     setDeleting(true);
     try {
       await deleteUniversity(deleteTarget._id as string);
+      const targetCountry = typeof deleteTarget.country === 'object'
+        ? deleteTarget.country as Record<string, unknown>
+        : null;
+      await revalidateContentPages({
+        type: 'university',
+        slug: deleteTarget.slug as string,
+        countrySlug: targetCountry?.slug as string,
+      }).catch(() => {});
       setDeleteTarget(null);
       fetchData(pagination.page);
     } catch (err) {

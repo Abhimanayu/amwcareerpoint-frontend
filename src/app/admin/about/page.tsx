@@ -6,6 +6,7 @@ import { ValidationBanner } from '@/components/admin/FormValidation';
 import { adminGetAboutSettings, updateAboutSettings } from '@/lib/about';
 import { defaultAboutSettings, mergeAboutSettings, type AboutSettings } from '@/lib/aboutSettings';
 import { handleApiError } from '@/lib/handleApiError';
+import { revalidateContentPages } from '@/lib/server/revalidate';
 
 type ValidationError = { field: string; message: string };
 
@@ -107,6 +108,7 @@ export default function AdminAboutPage() {
     setError('');
     try {
       await updateAboutSettings(settings);
+      await revalidateContentPages({ type: 'about' }).catch(() => {});
     } catch (submitError) {
       setError(handleApiError(submitError));
     } finally {
