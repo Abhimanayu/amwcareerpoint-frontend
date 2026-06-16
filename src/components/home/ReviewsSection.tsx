@@ -126,7 +126,7 @@ export function ReviewsSection() {
                         alt={`${review.name} review photo`}
                         fill
                         sizes="80px"
-                        className="object-cover"
+                        className="object-cover object-top"
                       />
                     </div>
                     <div className="min-w-0 flex-1 pt-1">
