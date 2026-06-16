@@ -1,4 +1,7 @@
+'use client';
+
 import Image from 'next/image';
+import { Carousel } from '@/components/ui/Carousel';
 
 type Review = {
   name: string;
@@ -112,7 +115,7 @@ export function ReviewsSection() {
           </div>
 
           <div className="bg-[#FFFDF9] px-4 pb-5 pt-5 sm:px-6 sm:pb-6 lg:px-8 lg:pb-8">
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <Carousel slideClass="basis-full px-2 sm:basis-1/2 sm:pl-4 sm:pr-0 lg:basis-1/3">
               {reviews.map((review) => (
                 <article
                   key={review.name}
@@ -166,7 +169,7 @@ export function ReviewsSection() {
                   </div>
                 </article>
               ))}
-            </div>
+            </Carousel>
 
             <div className="mt-8 text-center">
               <a
