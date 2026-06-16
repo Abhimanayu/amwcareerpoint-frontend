@@ -123,13 +123,13 @@ export function ReviewsSection() {
                 >
                   <div className="h-1.5 bg-[#F26419]" />
                   <div className="flex items-start gap-4 p-5 pb-4">
-                    <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2 border-white bg-[#F9F8F6] shadow-md ring-1 ring-[#E9DED3]">
+                    <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2 border-white bg-[#F9F8F6] shadow-md ring-1 ring-[#E9DED3]">
                       <Image
                         src={review.image}
                         alt={`${review.name} review photo`}
-                        fill
-                        sizes="80px"
-                        className="object-cover object-top"
+                        width={80}
+                        height={80}
+                        className="h-full w-full object-cover object-top"
                       />
                     </div>
                     <div className="min-w-0 flex-1 pt-1">
