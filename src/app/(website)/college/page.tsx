@@ -39,6 +39,9 @@ const UNIVERSITY_PROMISES = [
   { id: 'faculty', icon: '👨‍🏫', title: 'Expert Faculty', desc: 'Experienced professors and international teaching staff.' },
 ];
 
+const PARTNER_COLLEGE_COMPLIANCE_TEXT =
+  'All Partner colleges are W.H.O. & WDOMS listed in the FMGL Gazette 2021, and comply with NMC & FMGL Regulation.';
+
 function isMongoId(value: string) {
   return /^[a-f0-9]{24}$/i.test(value);
 }
@@ -161,7 +164,7 @@ export default async function CollegesPage({ searchParams }: Readonly<Props>) {
           <p className="text-[14px] sm:text-[15px] text-blue-100 max-w-2xl mx-auto">
             {isIndia
               ? 'Discover top NMC approved medical colleges offering quality MBBS education in India.'
-              : 'All partner colleges are NMC approved and WHO recognized — your degree will be valid to practice in India.'}
+              : PARTNER_COLLEGE_COMPLIANCE_TEXT}
           </p>
         </div>
       </section>
@@ -170,7 +173,7 @@ export default async function CollegesPage({ searchParams }: Readonly<Props>) {
       <section className="bg-[#F9F8F6] border-b border-[#DDD9D2] py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-[14px] text-[#4A4742]">
-            <span className="font-bold text-[#0D1B3E]">{universities.length}</span> Colleges Available · All <span className="font-semibold text-[#F26419]">WHO Approved</span> & <span className="font-semibold text-[#F26419]">NMC Recognized</span>
+            <span className="font-bold text-[#0D1B3E]">{universities.length}</span> Colleges Available · <span className="font-semibold text-[#F26419]">{PARTNER_COLLEGE_COMPLIANCE_TEXT}</span>
           </p>
         </div>
       </section>
