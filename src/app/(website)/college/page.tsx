@@ -133,7 +133,7 @@ export default async function CollegesPage({ searchParams }: Readonly<Props>) {
   const filtersToTry = countryFilterCandidates.length > 0 ? countryFilterCandidates : [''];
   for (const countryFilter of filtersToTry) {
     try {
-      const params: Record<string, any> = { limit: 100, sort: 'sortOrder' };
+      const params: Record<string, any> = { limit: 500, sort: 'sortOrder' };
       if (countryFilter) params.country = countryFilter;
       const res = await getUniversities(params);
       universities = extractCollectionData<any>(res, ['universities']);
