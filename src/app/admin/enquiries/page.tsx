@@ -108,6 +108,11 @@ export default function AdminEnquiriesPage() {
                         <span className="shrink-0"><StatusBadge status={enq.status as string} /></span>
                       </div>
                       <div className="text-xs text-gray-500 truncate">{String(enq.email ?? '')} • {String(enq.phone ?? '')}</div>
+                      {(enq.city || enq.pinCode) ? (
+                        <div className="mt-0.5 text-xs text-gray-500 truncate">
+                          {[enq.city, enq.pinCode].filter(Boolean).map(String).join(' - ')}
+                        </div>
+                      ) : null}
                       <div className="text-xs text-gray-400 mt-0.5">
                         {enq.source ? <span className="mr-2">{String(enq.source)}</span> : null}
                         {enq.createdAt ? new Date(enq.createdAt as string).toLocaleDateString() : ''}
@@ -146,6 +151,8 @@ export default function AdminEnquiriesPage() {
                   <div className="space-y-3 text-sm">
                     <div><span className="text-gray-500 block text-xs mb-0.5">Email</span>{String(selected.email ?? '')}</div>
                     <div><span className="text-gray-500 block text-xs mb-0.5">Phone</span>{String(selected.phone ?? '')}</div>
+                    {selected.city ? <div><span className="text-gray-500 block text-xs mb-0.5">City</span>{String(selected.city)}</div> : null}
+                    {selected.pinCode ? <div><span className="text-gray-500 block text-xs mb-0.5">Pin Code</span>{String(selected.pinCode)}</div> : null}
                     {selected.interestedCountry ? <div><span className="text-gray-500 block text-xs mb-0.5">Interested Country</span>{String(selected.interestedCountry)}</div> : null}
                     {selected.source ? <div><span className="text-gray-500 block text-xs mb-0.5">Source</span>{String(selected.source)}</div> : null}
                     {selected.message ? <div><span className="text-gray-500 block text-xs mb-0.5">Message</span><p className="text-gray-700">{String(selected.message)}</p></div> : null}

@@ -1,21 +1,65 @@
 ﻿'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { submitEnquiry } from '@/lib/enquiries';
+import { getCountries } from '@/lib/countries';
+import { extractCollectionData } from '@/lib/utils';
+
+const fallbackDestinations = [
+  'India',
+  'Russia',
+  'Ukraine',
+  'Georgia',
+  'Kazakhstan',
+  'Uzbekistan',
+];
 
 export function CounsellingForm() {
   const [formData, setFormData] = useState({
     fullName: '',
     phoneNo: '',
+    city: '',
+    pinCode: '',
     emailAddress: '',
     neetScore: '',
     preference: '',
     message: '',
   });
+  const [destinations, setDestinations] = useState<string[]>(fallbackDestinations);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    let mounted = true;
+
+    getCountries({ limit: 500, sort: 'sortOrder' })
+      .then((res) => {
+        if (!mounted) return;
+
+        const countries = extractCollectionData<Record<string, unknown>>(res, ['countries']);
+        const names = countries
+          .map((country) => (typeof country.name === 'string' ? country.name.trim() : ''))
+          .filter(Boolean);
+        const uniqueNames = Array.from(new Set(names));
+
+        if (uniqueNames.length > 0) {
+          setDestinations(uniqueNames);
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setDestinations(fallbackDestinations);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const destinationOptions = useMemo(() => [...destinations].sort((a, b) => a.localeCompare(b)), [destinations]);
 
   const validate = () => {
     const errors: Record<string, string> = {};
@@ -23,6 +67,10 @@ export function CounsellingForm() {
     else if (formData.fullName.trim().length < 2) errors.fullName = 'Name must be at least 2 characters';
     if (!formData.phoneNo.trim()) errors.phoneNo = 'Phone number is required';
     else if (!/^[\d+\-\s()]{7,15}$/.test(formData.phoneNo.trim())) errors.phoneNo = 'Enter a valid phone number';
+    if (!formData.city.trim()) errors.city = 'City is required';
+    else if (formData.city.trim().length < 2) errors.city = 'Enter a valid city';
+    if (!formData.pinCode.trim()) errors.pinCode = 'Pin code is required';
+    else if (!/^\d{4,10}$/.test(formData.pinCode.trim())) errors.pinCode = 'Enter a valid pin code';
     if (!formData.emailAddress.trim()) errors.emailAddress = 'Email is required';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.emailAddress.trim())) errors.emailAddress = 'Enter a valid email';
     if (!formData.neetScore) errors.neetScore = 'Select NEET score range';
@@ -37,18 +85,25 @@ export function CounsellingForm() {
     setSubmitting(true);
     setError('');
     try {
+      const leadDetails = [
+        `City: ${formData.city.trim()}`,
+        `Pin Code: ${formData.pinCode.trim()}`,
+        formData.neetScore ? `NEET Score: ${formData.neetScore}` : '',
+        formData.message.trim(),
+      ].filter(Boolean).join('. ');
+
       await submitEnquiry({
         name: formData.fullName,
         email: formData.emailAddress,
         phone: formData.phoneNo,
+        city: formData.city,
+        pinCode: formData.pinCode,
         interestedCountry: formData.preference,
-        message: formData.neetScore
-          ? `NEET Score: ${formData.neetScore}. ${formData.message}`.trim()
-          : formData.message,
+        message: leadDetails,
         source: 'counselling-form',
       });
       setSubmitted(true);
-      setFormData({ fullName: '', phoneNo: '', emailAddress: '', neetScore: '', preference: '', message: '' });
+      setFormData({ fullName: '', phoneNo: '', city: '', pinCode: '', emailAddress: '', neetScore: '', preference: '', message: '' });
     } catch {
       setError('Something went wrong. Please try again.');
     } finally {
@@ -103,6 +158,19 @@ export function CounsellingForm() {
           </div>
         </div>
 
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <label className={labelClass}>City</label>
+            <input type="text" name="city" placeholder="Your City" value={formData.city} onChange={handleChange} className={fieldErrors.city ? errorInputClass : inputClass} />
+            {fieldErrors.city && <p className={fieldErrorClass}>{fieldErrors.city}</p>}
+          </div>
+          <div>
+            <label className={labelClass}>Pin Code</label>
+            <input type="text" name="pinCode" inputMode="numeric" placeholder="Pin Code" value={formData.pinCode} onChange={handleChange} className={fieldErrors.pinCode ? errorInputClass : inputClass} />
+            {fieldErrors.pinCode && <p className={fieldErrorClass}>{fieldErrors.pinCode}</p>}
+          </div>
+        </div>
+
         <div>
           <label className={labelClass}>Email Address</label>
           <input type="email" name="emailAddress" placeholder="you@email.com" value={formData.emailAddress} onChange={handleChange} className={fieldErrors.emailAddress ? errorInputClass : inputClass} />
@@ -127,12 +195,9 @@ export function CounsellingForm() {
             <label className={labelClass}>Preference</label>
             <select name="preference" value={formData.preference} onChange={handleChange} className={fieldErrors.preference ? errorInputClass : inputClass}>
               <option value="">Study Destination</option>
-              <option value="India">MBBS in India</option>
-              <option value="Russia">MBBS in Russia</option>
-              <option value="Ukraine">MBBS in Ukraine</option>
-              <option value="Georgia">MBBS in Georgia</option>
-              <option value="Kazakhstan">MBBS in Kazakhstan</option>
-              <option value="Uzbekistan">MBBS in Uzbekistan</option>
+              {destinationOptions.map((country) => (
+                <option key={country} value={country}>MBBS in {country}</option>
+              ))}
             </select>
             {fieldErrors.preference && <p className={fieldErrorClass}>{fieldErrors.preference}</p>}
           </div>
