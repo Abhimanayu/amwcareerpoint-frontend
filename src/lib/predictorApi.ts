@@ -40,11 +40,17 @@ export type PredictorPlan = {
 export type PredictorMetadata = {
   state: string | null;
   category: string | null;
+  quotaGroup?: string | null;
   states: string[];
   categories: string[];
   subCategories: string[];
   rawCategories: string[];
   quotas: string[];
+  quotaGroups?: string[];
+  quotaGroupOptions?: Array<{
+    value: string;
+    label: string;
+  }>;
   categoryOptions: Array<{
     category: string;
     subCategories: string[];
@@ -59,6 +65,11 @@ export type PredictorResult = {
   subCategory: string | null;
   closingRank: number;
   quota: string;
+  rawQuota?: string;
+  quotaGroup?: string;
+  quotaGroupLabel?: string;
+  rankMargin?: number | null;
+  chance?: string;
 };
 
 export type PredictorSearchPayload = {
@@ -66,9 +77,13 @@ export type PredictorSearchPayload = {
   state?: string;
   category?: string;
   subCategory?: string;
+  quotaGroup?: string;
   quota?: string;
+  college?: string;
   page?: number;
   limit?: number;
+  sortBy?: 'closingRank' | 'college' | 'state';
+  sortDir?: 'asc' | 'desc';
 };
 
 export type PredictorSearchResponse = {
@@ -302,10 +317,11 @@ export async function getPredictorPlan() {
   return request<PredictorPlan>('/predictor/payment/plan', {}, false);
 }
 
-export async function getPredictorMetadata(params: { state?: string; category?: string } = {}) {
+export async function getPredictorMetadata(params: { state?: string; category?: string; quotaGroup?: string } = {}) {
   const searchParams = new URLSearchParams();
   if (params.state) searchParams.set('state', params.state);
   if (params.category) searchParams.set('category', params.category);
+  if (params.quotaGroup) searchParams.set('quotaGroup', params.quotaGroup);
 
   const query = searchParams.toString();
   return request<PredictorMetadata>(`/predictor/metadata${query ? `?${query}` : ''}`, {}, false);

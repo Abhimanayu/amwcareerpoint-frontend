@@ -20,7 +20,7 @@ import {
 import { handleApiError } from '@/lib/handleApiError';
 import { revalidateContentPages } from '@/lib/server/revalidate';
 import { adminGetUniversities } from '@/lib/universities';
-import { extractCollectionData, pickBlogImageSource, pickUniversityImageSource } from '@/lib/utils';
+import { extractCollectionData, pickBlogImageSource, pickUniversityImageSource, resolveCanonicalUrl } from '@/lib/utils';
 
 const LIMITS = {
   metaTitle: 70,
@@ -67,6 +67,20 @@ type HomeItemsState = {
 type HomeItemKey = keyof HomeItemsState;
 type SearchLoadingState = Record<HomeItemKey, boolean>;
 type SearchQueryState = Record<HomeItemKey, string>;
+
+function normalizeCanonicalInput(value: string) {
+  const looksLikeCanonicalTag =
+    /<\s*link\b/i.test(value) ||
+    /rel\s*=\s*["']?canonical/i.test(value) ||
+    /%3c\s*link/i.test(value) ||
+    /rel%3d/i.test(value);
+
+  if (!looksLikeCanonicalTag) {
+    return value;
+  }
+
+  return resolveCanonicalUrl(value, defaultHomeSettings.seo.canonicalUrl);
+}
 
 const EMPTY_HOME_ITEMS: HomeItemsState = {
   homeCountries: [],
@@ -400,11 +414,18 @@ export default function AdminHomePage() {
         const payload = await adminGetHomeSettings();
         if (isMounted) {
           const merged = mergeHomeSettings(payload);
-          setSettings(merged);
+          const normalizedMerged = {
+            ...merged,
+            seo: {
+              ...merged.seo,
+              canonicalUrl: normalizeCanonicalInput(merged.seo.canonicalUrl),
+            },
+          };
+          setSettings(normalizedMerged);
           setHomeItems({
-            homeCountries: merged.homeCountries,
-            homeUniversities: merged.homeUniversities,
-            homeBlogs: merged.homeBlogs,
+            homeCountries: normalizedMerged.homeCountries,
+            homeUniversities: normalizedMerged.homeUniversities,
+            homeBlogs: normalizedMerged.homeBlogs,
           });
         }
       } catch {
@@ -536,7 +557,8 @@ export default function AdminHomePage() {
   }, [searchQuery.homeBlogs]);
 
   const updateSeoField = (field: keyof HomeSettings['seo'], value: string) => {
-    setSettings((prev) => ({ ...prev, seo: { ...prev.seo, [field]: value } }));
+    const nextValue = field === 'canonicalUrl' ? normalizeCanonicalInput(value) : value;
+    setSettings((prev) => ({ ...prev, seo: { ...prev.seo, [field]: nextValue } }));
   };
 
   const updateHeroField = (field: keyof HomeSettings['hero'], value: string) => {
@@ -568,8 +590,12 @@ export default function AdminHomePage() {
 
     setSaving(true);
     try {
+      const normalizedSeo = {
+        ...settings.seo,
+        canonicalUrl: normalizeCanonicalInput(settings.seo.canonicalUrl),
+      };
       const payload: HomeContentSettings = {
-        seo: settings.seo,
+        seo: normalizedSeo,
         hero: settings.hero,
         stats: settings.stats,
         sections: settings.sections,
@@ -577,7 +603,14 @@ export default function AdminHomePage() {
       const saved = await updateHomeSettings(payload);
       await revalidateContentPages({ type: 'home' }).catch(() => {});
       const merged = mergeHomeSettings(saved);
-      setSettings({ ...merged, ...homeItems });
+      setSettings({
+        ...merged,
+        ...homeItems,
+        seo: {
+          ...merged.seo,
+          canonicalUrl: normalizeCanonicalInput(merged.seo.canonicalUrl),
+        },
+      });
       setSaveMessage('Home page settings saved successfully.');
     } catch (err) {
       setErrors([{ field: 'api', message: handleApiError(err) }]);

@@ -24,6 +24,7 @@ import {
   parseSchemaMarkup,
   type HomeSettings,
 } from '@/lib/homeSettings';
+import { resolveCanonicalUrl } from '@/lib/utils';
 
 export const revalidate = 120;
 
@@ -229,8 +230,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = settings.seo.metaTitle || defaultHomeSettings.seo.metaTitle;
   const description =
     settings.seo.metaDescription || defaultHomeSettings.seo.metaDescription;
-  const canonicalUrl =
-    settings.seo.canonicalUrl || defaultHomeSettings.seo.canonicalUrl;
+  const canonicalUrl = resolveCanonicalUrl(
+    settings.seo.canonicalUrl,
+    defaultHomeSettings.seo.canonicalUrl
+  );
   const keywords = splitKeywords(settings.seo.keywords);
 
   return {

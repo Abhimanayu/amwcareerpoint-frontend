@@ -92,8 +92,8 @@ function JourneyStepper({ currentStep }: Readonly<{ currentStep: PredictorStep }
   const currentIndex = STEP_SEQUENCE.findIndex((step) => step.id === currentStep);
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white shadow-lg shadow-gray-200/60 px-4 py-4 sm:px-5">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+    <div className="rounded-2xl border border-gray-100 bg-white/95 px-3 py-3 shadow-xl shadow-gray-200/70 backdrop-blur sm:px-5 sm:py-4">
+      <div className="flex gap-3 overflow-x-auto pb-1 sm:grid sm:grid-cols-4 sm:overflow-visible sm:pb-0">
         {STEP_SEQUENCE.map((step, index) => {
           const isComplete = index < currentIndex;
           const isCurrent = index === currentIndex;
@@ -101,7 +101,7 @@ function JourneyStepper({ currentStep }: Readonly<{ currentStep: PredictorStep }
           return (
             <div
               key={step.id}
-              className={`relative rounded-xl border px-3 py-3 transition-colors ${
+              className={`relative min-w-[190px] rounded-xl border px-3 py-3 transition-colors sm:min-w-0 ${
                 isCurrent
                   ? 'border-orange bg-orange/10'
                   : isComplete
@@ -158,12 +158,25 @@ function loadRazorpayScript() {
   });
 }
 
+function getChanceBadgeClass(chance: string | undefined) {
+  if (chance === 'Strong Match') return 'bg-green-50 text-green-700 border-green-200';
+  if (chance === 'Possible Match') return 'bg-blue-50 text-blue-700 border-blue-200';
+  if (chance === 'Borderline') return 'bg-amber-50 text-amber-700 border-amber-200';
+  return 'bg-gray-50 text-gray-600 border-gray-200';
+}
+
+function formatRankMargin(value: number | null | undefined) {
+  if (!Number.isFinite(value)) return '-';
+  return `+${Number(value).toLocaleString('en-IN')}`;
+}
+
 type ResultsSectionProps = {
   response: PredictorSearchResponse;
   rank: number;
   selectedState: string;
   selectedCategory: string;
   selectedSubCategory: string;
+  selectedQuotaGroup: string;
   selectedQuota: string;
   resultsRef: RefObject<HTMLDivElement | null>;
   page: number;
@@ -176,6 +189,7 @@ function ResultsSection({
   selectedState,
   selectedCategory,
   selectedSubCategory,
+  selectedQuotaGroup,
   selectedQuota,
   resultsRef,
   page,
@@ -209,6 +223,11 @@ function ResultsSection({
             {selectedSubCategory && (
               <span className="text-xs bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full border border-indigo-100">
                 {selectedSubCategory}
+              </span>
+            )}
+            {selectedQuotaGroup && (
+              <span className="text-xs bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full border border-emerald-100">
+                {selectedQuotaGroup.replace(/_/g, ' ')}
               </span>
             )}
             {selectedQuota && (
@@ -250,6 +269,9 @@ function ResultsSection({
                     <th className="text-left px-4 py-3 font-semibold min-w-28">Category</th>
                     <th className="text-left px-4 py-3 font-semibold min-w-32">Sub Category</th>
                     <th className="text-left px-4 py-3 font-semibold min-w-32">Closing Rank</th>
+                    <th className="text-left px-4 py-3 font-semibold min-w-36">Chance</th>
+                    <th className="text-left px-4 py-3 font-semibold min-w-36">Rank Margin</th>
+                    <th className="text-left px-4 py-3 font-semibold min-w-40">Quota Type</th>
                     <th className="text-left px-4 py-3 font-semibold min-w-36">Quota</th>
                   </tr>
                 </thead>
@@ -274,7 +296,19 @@ function ResultsSection({
                       <td className="px-4 py-3">
                         <span className="font-semibold text-gray-800">{result.closingRank.toLocaleString('en-IN')}</span>
                       </td>
-                      <td className="px-4 py-3 text-gray-500 text-xs">{result.quota}</td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex items-center whitespace-nowrap rounded-full border px-2.5 py-1 text-xs font-bold ${getChanceBadgeClass(result.chance)}`}>
+                          {result.chance || 'Possible'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-gray-700 font-semibold">{formatRankMargin(result.rankMargin)}</td>
+                      <td className="px-4 py-3 text-gray-600 text-xs">{result.quotaGroupLabel || '-'}</td>
+                      <td className="px-4 py-3 text-gray-500 text-xs">
+                        {result.quota}
+                        {result.rawQuota && result.rawQuota !== result.quota && (
+                          <div className="mt-0.5 text-[10px] text-gray-400">{result.rawQuota}</div>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -602,6 +636,7 @@ export function CollegePredictorClient() {
   const [state, setState] = useState('');
   const [category, setCategory] = useState('');
   const [subCategory, setSubCategory] = useState('');
+  const [quotaGroup, setQuotaGroup] = useState('');
   const [quota, setQuota] = useState('');
   const [metadata, setMetadata] = useState<PredictorMetadata | null>(null);
   const [stateMetadata, setStateMetadata] = useState<PredictorMetadata | null>(null);
@@ -626,10 +661,11 @@ export function CollegePredictorClient() {
 
   const hasAccess = Boolean(access?.hasAccess);
 
-  const selectedMetadata = state ? stateMetadata : metadata;
+  const selectedMetadata = state || category || quotaGroup ? (stateMetadata || metadata) : metadata;
   const states = metadata?.states || [];
   const categories = selectedMetadata?.categories || [];
   const quotas = selectedMetadata?.quotas || [];
+  const quotaGroupOptions = selectedMetadata?.quotaGroupOptions || [];
   const subCategories = selectedMetadata?.subCategories || [];
   const hasImportedData = states.length > 0;
   const currentStep: PredictorStep = !user ? 'account' : !hasAccess ? 'payment' : response ? 'results' : 'predict';
@@ -707,14 +743,14 @@ export function CollegePredictorClient() {
     let mounted = true;
 
     async function loadStateMeta() {
-      if (!state) {
+      if (!state && !category && !quotaGroup) {
         setStateMetadata(null);
         return;
       }
 
       setMetaLoading(true);
       try {
-        const nextMeta = await getPredictorMetadata({ state, category });
+        const nextMeta = await getPredictorMetadata({ state, category, quotaGroup });
         if (mounted) setStateMetadata(nextMeta);
       } catch (err) {
         if (mounted) setError(getErrorMessage(err));
@@ -727,7 +763,7 @@ export function CollegePredictorClient() {
     return () => {
       mounted = false;
     };
-  }, [state, category]);
+  }, [state, category, quotaGroup]);
 
   const handleAuthSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -852,6 +888,7 @@ export function CollegePredictorClient() {
     setState(nextState);
     setCategory('');
     setSubCategory('');
+    setQuotaGroup('');
     setQuota('');
     setResponse(null);
     setError('');
@@ -860,6 +897,13 @@ export function CollegePredictorClient() {
   const handleCategoryChange = (nextCategory: string) => {
     setCategory(nextCategory);
     setSubCategory('');
+    setQuota('');
+    setResponse(null);
+    setError('');
+  };
+
+  const handleQuotaGroupChange = (nextQuotaGroup: string) => {
+    setQuotaGroup(nextQuotaGroup);
     setQuota('');
     setResponse(null);
     setError('');
@@ -894,6 +938,7 @@ export function CollegePredictorClient() {
         state: state || undefined,
         category: category || undefined,
         subCategory: subCategory || undefined,
+        quotaGroup: quotaGroup || undefined,
         quota: quota || undefined,
         page: 1,
         limit: 100,
@@ -908,7 +953,7 @@ export function CollegePredictorClient() {
     } finally {
       setLoading(false);
     }
-  }, [activeRank, category, hasAccess, quota, refreshAccess, state, subCategory, user]);
+  }, [activeRank, category, hasAccess, quota, quotaGroup, refreshAccess, state, subCategory, user]);
 
   return (
     <div className="min-h-screen bg-[#F6F8FB]">
@@ -959,7 +1004,7 @@ export function CollegePredictorClient() {
       <section className="mx-auto -mt-8 max-w-6xl px-4 sm:px-6 lg:px-8">
         <JourneyStepper currentStep={currentStep} />
 
-        <div className="mt-6 grid grid-cols-1 items-start gap-6 lg:grid-cols-[1fr_380px]">
+        <div className="mt-6 grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
           <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-lg shadow-gray-200/70">
             <div className="border-b border-gray-100 bg-white px-6 py-5 sm:px-8">
               <p className="text-xs font-bold uppercase tracking-wide text-orange">Predictor details</p>
@@ -981,8 +1026,8 @@ export function CollegePredictorClient() {
             </div>
             <div className="p-6 sm:p-8">
             <form onSubmit={handlePredict} className="space-y-5">
-              <div>
-                <label htmlFor="predictor-rank" className="block text-sm font-semibold text-gray-700 mb-1.5">
+              <div className="rounded-2xl border border-orange/20 bg-gradient-to-br from-orange/10 via-white to-[#0D1B3E]/5 p-4 sm:p-5">
+                <label htmlFor="predictor-rank" className="mb-1.5 block text-sm font-bold text-gray-800">
                   NEET rank <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -996,13 +1041,13 @@ export function CollegePredictorClient() {
                     setResponse(null);
                   }}
                   placeholder="e.g. 50000"
-                  className="w-full h-12 px-4 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange/50 focus:border-orange text-gray-900 text-base transition-colors disabled:bg-gray-50"
+                  className="h-14 w-full rounded-2xl border border-orange/30 bg-white px-4 text-lg font-semibold text-gray-950 shadow-sm outline-none transition-colors placeholder:text-gray-400 focus:border-orange focus:ring-4 focus:ring-orange/15 disabled:bg-gray-50"
                   required
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                <div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3">
+                <div className="min-w-0">
                   <label htmlFor="predictor-state" className="block text-sm font-semibold text-gray-700 mb-1.5">
                     State
                   </label>
@@ -1011,7 +1056,7 @@ export function CollegePredictorClient() {
                     value={state}
                     onChange={(event) => handleStateChange(event.target.value)}
                     disabled={metaLoading || !hasImportedData}
-                    className="w-full h-12 px-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange/50 focus:border-orange text-gray-900 text-sm bg-white disabled:opacity-60"
+                    className="h-12 w-full min-w-0 rounded-xl border border-gray-200 bg-white px-3 text-sm font-medium text-gray-900 outline-none transition-colors focus:border-orange focus:ring-4 focus:ring-orange/15 disabled:opacity-60"
                   >
                     <option value="">All States</option>
                     {states.map((item) => (
@@ -1020,7 +1065,7 @@ export function CollegePredictorClient() {
                   </select>
                 </div>
 
-                <div>
+                <div className="min-w-0">
                   <label htmlFor="predictor-category" className="block text-sm font-semibold text-gray-700 mb-1.5">
                     Category
                   </label>
@@ -1028,18 +1073,18 @@ export function CollegePredictorClient() {
                     id="predictor-category"
                     value={category}
                     onChange={(event) => handleCategoryChange(event.target.value)}
-                    disabled={metaLoading || !state}
-                    className="w-full h-12 px-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange/50 focus:border-orange text-gray-900 text-sm bg-white disabled:opacity-60"
+                    disabled={metaLoading || !hasImportedData}
+                    className="h-12 w-full min-w-0 rounded-xl border border-gray-200 bg-white px-3 text-sm font-medium text-gray-900 outline-none transition-colors focus:border-orange focus:ring-4 focus:ring-orange/15 disabled:opacity-60"
                   >
                     <option value="">All Categories</option>
                     {categories.map((item) => (
                       <option key={item} value={item}>{item}</option>
                     ))}
                   </select>
-                  {!state && <p className="mt-1 text-xs text-gray-400">Select a state to view categories.</p>}
+                  {!state && <p className="mt-1 text-xs text-gray-400">Optional; select state for tighter choices.</p>}
                 </div>
 
-                <div>
+                <div className="min-w-0">
                   <label htmlFor="predictor-sub-category" className="block text-sm font-semibold text-gray-700 mb-1.5">
                     Sub category
                   </label>
@@ -1051,7 +1096,7 @@ export function CollegePredictorClient() {
                       setResponse(null);
                     }}
                     disabled={metaLoading || !category || subCategories.length === 0}
-                    className="w-full h-12 px-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange/50 focus:border-orange text-gray-900 text-sm bg-white disabled:opacity-60"
+                    className="h-12 w-full min-w-0 rounded-xl border border-gray-200 bg-white px-3 text-sm font-medium text-gray-900 outline-none transition-colors focus:border-orange focus:ring-4 focus:ring-orange/15 disabled:opacity-60"
                   >
                     <option value="">{subCategories.length ? 'All Sub Categories' : 'No sub categories'}</option>
                     {subCategories.map((item) => (
@@ -1060,9 +1105,27 @@ export function CollegePredictorClient() {
                   </select>
                 </div>
 
-                <div>
+                <div className="min-w-0">
+                  <label htmlFor="predictor-quota-group" className="block text-sm font-semibold text-gray-700 mb-1.5">
+                    Quota type
+                  </label>
+                  <select
+                    id="predictor-quota-group"
+                    value={quotaGroup}
+                    onChange={(event) => handleQuotaGroupChange(event.target.value)}
+                    disabled={metaLoading || !hasImportedData || quotaGroupOptions.length === 0}
+                    className="h-12 w-full min-w-0 rounded-xl border border-gray-200 bg-white px-3 text-sm font-medium text-gray-900 outline-none transition-colors focus:border-orange focus:ring-4 focus:ring-orange/15 disabled:opacity-60"
+                  >
+                    <option value="">All Quota Types</option>
+                    {quotaGroupOptions.map((item) => (
+                      <option key={item.value} value={item.value}>{item.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="min-w-0 md:col-span-2 2xl:col-span-2">
                   <label htmlFor="predictor-quota" className="block text-sm font-semibold text-gray-700 mb-1.5">
-                    Quota
+                    Specific quota
                   </label>
                   <select
                     id="predictor-quota"
@@ -1071,8 +1134,8 @@ export function CollegePredictorClient() {
                       setQuota(event.target.value);
                       setResponse(null);
                     }}
-                    disabled={metaLoading || !state || quotas.length === 0}
-                    className="w-full h-12 px-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange/50 focus:border-orange text-gray-900 text-sm bg-white disabled:opacity-60"
+                    disabled={metaLoading || quotas.length === 0}
+                    className="h-12 w-full min-w-0 rounded-xl border border-gray-200 bg-white px-3 text-sm font-medium text-gray-900 outline-none transition-colors focus:border-orange focus:ring-4 focus:ring-orange/15 disabled:opacity-60"
                   >
                     <option value="">All Quotas</option>
                     {quotas.map((item) => (
@@ -1141,6 +1204,7 @@ export function CollegePredictorClient() {
           selectedState={state}
           selectedCategory={category}
           selectedSubCategory={subCategory}
+          selectedQuotaGroup={quotaGroup}
           selectedQuota={quota}
           resultsRef={resultsRef}
           page={page}
