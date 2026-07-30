@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ImageUploader from '@/components/admin/ImageUploader';
@@ -8,7 +8,7 @@ import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { createCountry, updateCountry } from '@/lib/countries';
 import { handleApiError } from '@/lib/handleApiError';
 import { revalidateContentPages } from '@/lib/server/revalidate';
-import { validateCountryForm, getFieldError, LIMITS, type ValidationError } from '@/lib/validation';
+import { validateCountryForm, getFieldError, getRichTextTextLength, LIMITS, type ValidationError } from '@/lib/validation';
 import { FieldError, CharCount, ValidationBanner } from '@/components/admin/FormValidation';
 
 interface CountryFormProps {
@@ -532,6 +532,10 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
   const compactInputClass = 'w-full px-3 py-2 rounded-lg border border-gray-200 text-sm';
   const addButtonClass = 'text-sm text-orange font-medium';
   const submitButtonLabel = getSubmitButtonLabel(saving, isEdit);
+  const descriptionTextLength = useMemo(
+    () => getRichTextTextLength(form.description),
+    [form.description],
+  );
   const studentLifeDescriptionBackendLength = getBackendStudentLifeDescriptionLength(form.studentLife.description);
 
   const updateStudentLife = (value: StudentLifeForm) => {
@@ -712,7 +716,20 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
               content={form.description}
               onChange={(html) => updateField('description', html)}
             />
-            <FieldError message={getFieldError(validationErrors, 'description')} />
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+              <FieldError message={getFieldError(validationErrors, 'description')} />
+              <div className="flex flex-wrap justify-end gap-x-3 text-[11px] text-gray-400">
+                <span className={descriptionTextLength > L.description.max ? 'font-medium text-red-600' : undefined}>
+                  Visible: {descriptionTextLength.toLocaleString()}/{L.description.max.toLocaleString()}
+                </span>
+                <span className={form.description.length > L.description.maxHtml ? 'font-medium text-red-600' : undefined}>
+                  Formatted HTML: {form.description.length.toLocaleString()}/{L.description.maxHtml.toLocaleString()}
+                </span>
+              </div>
+            </div>
+            <p className="mt-1 text-xs text-gray-500">
+              Rich formatting and tables use additional HTML storage but do not reduce the visible content limit.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

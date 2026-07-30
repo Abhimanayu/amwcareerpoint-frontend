@@ -5,6 +5,24 @@ export interface ValidationError {
   message: string;
 }
 
+export function getRichTextTextLength(value: string): number {
+  if (!value) return 0;
+
+  if (typeof document !== 'undefined') {
+    const container = document.createElement('div');
+    container.innerHTML = value;
+    return (container.textContent || '').trim().length;
+  }
+
+  return value
+    .replaceAll(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replaceAll(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replaceAll(/<[^>]+>/g, '')
+    .replaceAll(/&(?:#\d+|#x[\da-f]+|[a-z][\da-z]+);/gi, ' ')
+    .trim()
+    .length;
+}
+
 type SeoFields = {
   metaTitle: string;
   metaDescription: string;
@@ -32,7 +50,7 @@ export const LIMITS = {
     name: { min: 2, max: 80 },
     slug: { min: 2, max: 120 },
     tagline: { max: 260 },
-    description: { min: 20, max: 50000 },
+    description: { min: 20, max: 100000, maxHtml: 500000 },
     feeRange: { max: 120 },
     feeRangeUSD: { max: 140 },
     duration: { max: 120 },
@@ -169,8 +187,10 @@ export function validateCountryForm(form: {
 
   if (form.tagline.length > L.tagline.max) errors.push({ field: 'tagline', message: `Tagline must not exceed ${L.tagline.max} characters` });
 
-  if (form.description && form.description.length < L.description.min) errors.push({ field: 'description', message: `Description must be at least ${L.description.min} characters` });
-  if (form.description.length > L.description.max) errors.push({ field: 'description', message: `Description must not exceed ${L.description.max} characters` });
+  const descriptionTextLength = getRichTextTextLength(form.description);
+  if (form.description && descriptionTextLength < L.description.min) errors.push({ field: 'description', message: `Description must be at least ${L.description.min} visible characters` });
+  if (descriptionTextLength > L.description.max) errors.push({ field: 'description', message: `Description must not exceed ${L.description.max} visible characters` });
+  if (form.description.length > L.description.maxHtml) errors.push({ field: 'description', message: `Formatted description is too large and must not exceed ${L.description.maxHtml} HTML characters` });
   if (form.feeRange.length > L.feeRange.max) errors.push({ field: 'feeRange', message: `Tuition fee must not exceed ${L.feeRange.max} characters` });
   if (form.feeRangeUSD.length > L.feeRangeUSD.max) errors.push({ field: 'feeRangeUSD', message: `Tuition fee must not exceed ${L.feeRangeUSD.max} characters` });
   if (form.duration.length > L.duration.max) errors.push({ field: 'duration', message: `Duration must not exceed ${L.duration.max} characters` });
