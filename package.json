@@ -9,7 +9,11 @@
     "start": "node scripts/start-next.mjs",
     "lint": "eslint",
     "test:college-predictor": "bash ./test_college_predictor.sh",
-    "cleanup": "bash ./scripts/cleanup-temp.sh"
+    "cleanup": "bash ./scripts/cleanup-temp.sh",
+    "imagekit:upload-backup": "node scripts/upload-cloudinary-backup-to-imagekit.mjs",
+    "imagekit:rewrite-payloads": "node scripts/apply-imagekit-url-mapping-to-api-payloads.mjs",
+    "imagekit:update-api:dry-run": "node scripts/update-api-image-urls-from-mapping.mjs",
+    "imagekit:update-api:apply": "node scripts/update-api-image-urls-from-mapping.mjs tmp/imagekit-url-mapping.json --apply"
   },
   "dependencies": {
     "@tiptap/extension-bubble-menu": "^3.22.3",
