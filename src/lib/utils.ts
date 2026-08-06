@@ -174,12 +174,12 @@ export function isRemoteImageUrl(src: unknown): src is string {
 }
 
 const UNIVERSITY_FALLBACK_IMAGES = [
-  '/universities/moscow.jpg',
-  '/universities/astana.jpg',
-  '/universities/kyrgyz.jpg',
-  '/universities/tashkent.jpg',
-  '/universities/aiims.jpg',
-  '/universities/china.jpg',
+  '/static-universities/moscow.jpg',
+  '/static-universities/astana.jpg',
+  '/static-universities/kyrgyz.jpg',
+  '/static-universities/tashkent.jpg',
+  '/static-universities/aiims.jpg',
+  '/static-universities/china.jpg',
   '/blogs/mbbs-georgia-vs-india.jpg',
 ];
 

@@ -21,12 +21,12 @@ const fallbackCountries = [
 ];
 
 const COUNTRY_HERO_FALLBACKS = [
-  '/universities/moscow.jpg',
-  '/universities/tashkent.jpg',
-  '/universities/astana.jpg',
-  '/universities/kyrgyz.jpg',
-  '/universities/china.jpg',
-  '/universities/aiims.jpg',
+  '/static-universities/moscow.jpg',
+  '/static-universities/tashkent.jpg',
+  '/static-universities/astana.jpg',
+  '/static-universities/kyrgyz.jpg',
+  '/static-universities/china.jpg',
+  '/static-universities/aiims.jpg',
 ] as const;
 
 function getStableCountryFallbackImage(country: { slug?: string; name?: string }) {

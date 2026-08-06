@@ -11,12 +11,12 @@ import { extractCollectionData, pickUniversityImageAltText, pickUniversityImageS
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 const fallbackUniversities = [
-  { name: 'Kharkiv National Medical University', country: 'Ukraine', image: '/universities/kharkiv.jpg' },
-  { name: 'NJSC Astana Medical University', country: 'Kazakhstan', image: '/universities/astana.jpg' },
-  { name: 'I.K. Akhunbaev Kyrgyz State Medical Academy', country: 'Kyrgyzstan', image: '/universities/kyrgyz.jpg' },
-  { name: 'Tashkent Medical Academy', country: 'Uzbekistan', image: '/universities/tashkent.jpg' },
-  { name: 'First Moscow State Medical University', country: 'Russia', image: '/universities/moscow.jpg' },
-  { name: 'Bogomolets National Medical University', country: 'Ukraine', image: '/universities/bogomolets.jpg' },
+  { name: 'Kharkiv National Medical University', country: 'Ukraine', image: '/static-universities/kharkiv.jpg' },
+  { name: 'NJSC Astana Medical University', country: 'Kazakhstan', image: '/static-universities/astana.jpg' },
+  { name: 'I.K. Akhunbaev Kyrgyz State Medical Academy', country: 'Kyrgyzstan', image: '/static-universities/kyrgyz.jpg' },
+  { name: 'Tashkent Medical Academy', country: 'Uzbekistan', image: '/static-universities/tashkent.jpg' },
+  { name: 'First Moscow State Medical University', country: 'Russia', image: '/static-universities/moscow.jpg' },
+  { name: 'Bogomolets National Medical University', country: 'Ukraine', image: '/static-universities/bogomolets.jpg' },
 ];
 
 type UniversitiesSectionProps = {
