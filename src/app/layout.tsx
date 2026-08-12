@@ -1,8 +1,23 @@
 import type { Metadata } from "next";
+import { DM_Sans, Fraunces } from 'next/font/google';
 import "./globals.css";
 import { SEO_HOLD } from '@/lib/seoHold';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
+
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-dm-sans',
+  display: 'swap',
+});
+
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800', '900'],
+  variable: '--font-fraunces',
+  display: 'swap',
+});
 
 const siteIcons: Metadata['icons'] = {
   icon: [
@@ -77,7 +92,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
+    <html lang="en" className={`h-full antialiased ${dmSans.variable} ${fraunces.variable}`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col bg-white font-sans" suppressHydrationWarning>
         {children}
       </body>

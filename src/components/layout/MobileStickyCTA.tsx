@@ -2,10 +2,16 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { type MouseEvent } from 'react';
+import { useEffect, useState, type MouseEvent } from 'react';
 
 export function MobileStickyCTA() {
   const pathname = usePathname();
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setIsVisible(true), 2500);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
     const counsellingSection = document.getElementById('counselling');
@@ -20,7 +26,7 @@ export function MobileStickyCTA() {
   };
 
   const isContactPage = pathname === '/contact';
-  if (isContactPage) {
+  if (isContactPage || !isVisible) {
     return null;
   }
 

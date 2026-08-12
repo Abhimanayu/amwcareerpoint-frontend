@@ -1,4 +1,19 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+
 export function WhatsAppFloater() {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setIsVisible(true), 2500);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  if (!isVisible) {
+    return null;
+  }
+
   return (
     <a
       href="https://wa.me/919929299268"
