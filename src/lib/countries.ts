@@ -10,6 +10,7 @@ type CountriesParams = Record<string, unknown>;
 
 const CLIENT_COUNTRIES_TTL_MS = 120_000;
 const CLIENT_COUNTRIES_SHARED_MIN_LIMIT = 12;
+const SERVER_DETAIL_RETRY_DELAYS_MS = [0, 250, 750];
 
 let clientCountriesCache: { limit: number; payload: unknown; timestamp: number } | null = null;
 let clientCountriesInflight: { limit: number; promise: Promise<unknown> } | null = null;
@@ -25,6 +26,48 @@ function invalidateCountriesCache() {
 
 function isBrowser() {
   return "window" in globalThis;
+}
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getApiBaseUrl() {
+  return String(api.defaults.baseURL || "").replace(/\/+$/, "");
+}
+
+async function fetchCountryBySlugNoStore(candidate: string) {
+  const baseUrl = getApiBaseUrl();
+  if (!baseUrl) {
+    throw new Error("API base URL is not configured");
+  }
+
+  let lastError: unknown;
+
+  for (const delay of SERVER_DETAIL_RETRY_DELAYS_MS) {
+    if (delay > 0) {
+      await wait(delay);
+    }
+
+    try {
+      const response = await fetch(`${baseUrl}/countries/${encodeURIComponent(candidate)}`, {
+        cache: "no-store",
+        next: { revalidate: 0 },
+        headers: { accept: "application/json" },
+      });
+
+      if (!response.ok) {
+        lastError = new Error(`Country detail request failed with ${response.status}`);
+        continue;
+      }
+
+      return response.json();
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError;
 }
 
 function getLimitValue(params: CountriesParams) {
@@ -189,6 +232,14 @@ async function fetchCountryBySlugCandidates(slug: string) {
       );
     } catch (error) {
       lastError = error;
+    }
+
+    if (!isBrowser()) {
+      try {
+        return await fetchCountryBySlugNoStore(candidate);
+      } catch (error) {
+        lastError = error;
+      }
     }
   }
 

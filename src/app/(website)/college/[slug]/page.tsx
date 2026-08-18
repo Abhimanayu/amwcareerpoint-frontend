@@ -18,12 +18,18 @@ export const revalidate = 0;
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
+const DETAIL_RETRY_DELAYS_MS = [0, 250, 750];
+
 function unwrapApiPayload(payload: any) {
   if (payload?.data && typeof payload.data === 'object') {
     return payload.data;
   }
 
   return payload;
+}
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function fetchUniversityDetail(slug: string) {
@@ -38,23 +44,33 @@ async function fetchUniversityDetail(slug: string) {
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
-  try {
-    const response = await fetch(`${baseUrl}/universities/${encodeURIComponent(slug)}`, {
-      cache: 'no-store',
-      next: { revalidate: 0 },
-      headers: { accept: 'application/json' },
-    });
-
-    if (!response.ok) {
-      return null;
+  for (const delay of DETAIL_RETRY_DELAYS_MS) {
+    if (delay > 0) {
+      await wait(delay);
     }
 
-    const payload = await response.json();
-    const university = unwrapApiPayload(payload);
-    return university?._id || university?.slug || university?.name ? university : null;
-  } catch {
-    return null;
+    try {
+      const response = await fetch(`${baseUrl}/universities/${encodeURIComponent(slug)}`, {
+        cache: 'no-store',
+        next: { revalidate: 0 },
+        headers: { accept: 'application/json' },
+      });
+
+      if (!response.ok) {
+        continue;
+      }
+
+      const payload = await response.json();
+      const university = unwrapApiPayload(payload);
+      if (university?._id || university?.slug || university?.name) {
+        return university;
+      }
+    } catch {
+      // Retry transient failures before treating the page as missing.
+    }
   }
+
+  return null;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
