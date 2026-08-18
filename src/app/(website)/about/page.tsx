@@ -5,6 +5,7 @@ import { getAboutSettings } from '@/lib/about';
 import { defaultAboutSettings, mergeAboutSettings } from '@/lib/aboutSettings';
 import { SEO_HOLD } from '@/lib/seoHold';
 import { getPublicFaqs } from '@/lib/server/faqs';
+import { resolveCanonicalUrl } from '@/lib/utils';
 
 async function readAboutSettings() {
   try {
@@ -47,13 +48,14 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 
   const settings = await readAboutSettings();
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
   return {
     title: {
       absolute: settings.seo.metaTitle || defaultAboutSettings.seo.metaTitle,
     },
     description: settings.seo.metaDescription || defaultAboutSettings.seo.metaDescription,
     keywords: settings.seo.keywords || undefined,
-    alternates: { canonical: settings.seo.canonicalUrl || '/about' },
+    alternates: { canonical: resolveCanonicalUrl(settings.seo.canonicalUrl, `${siteUrl}/about`) },
   };
 }
 
