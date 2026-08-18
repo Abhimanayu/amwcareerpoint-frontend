@@ -451,7 +451,49 @@ export function resolveCanonicalUrl(value: unknown, fallback: string): string {
   if (!/^(https?:\/\/|\/)/i.test(candidate)) return fallback;
 
   try {
-    return new URL(candidate, fallback).toString();
+    const fallbackUrl = new URL(fallback);
+    const candidateUrl = new URL(candidate, fallbackUrl);
+    const host = candidateUrl.hostname.toLowerCase();
+    const fallbackHost = fallbackUrl.hostname.toLowerCase();
+    const isAmwHost = host === 'amwcareerpoint.com' || host === 'www.amwcareerpoint.com';
+    const isCurrentHost = host === fallbackHost || host === `www.${fallbackHost}`;
+
+    if (!isAmwHost && !isCurrentHost) {
+      return fallbackUrl.toString();
+    }
+
+    candidateUrl.protocol = fallbackUrl.protocol;
+    candidateUrl.hostname = fallbackHost;
+
+    if (/^\/index\.php\/.+/i.test(candidateUrl.pathname)) {
+      candidateUrl.pathname = candidateUrl.pathname.replace(/^\/index\.php/i, '') || '/';
+    }
+
+    if (/^\/mbbs-in-[^/]+\/?$/i.test(candidateUrl.pathname)) {
+      candidateUrl.pathname = `/countries${candidateUrl.pathname.replace(/\/$/, '')}`;
+    }
+
+    if (/^\/universities(\/|$)/i.test(candidateUrl.pathname)) {
+      candidateUrl.pathname = candidateUrl.pathname.replace(/^\/universities/i, '/college') || '/college';
+    }
+
+    if (/^\/blog(\/|$)/i.test(candidateUrl.pathname)) {
+      candidateUrl.pathname = candidateUrl.pathname.replace(/^\/blog/i, '/blogs') || '/blogs';
+    }
+
+    if (/^\/colleges\/?$/i.test(candidateUrl.pathname)) {
+      candidateUrl.pathname = '/college';
+    }
+
+    if (/^\/contact-us\/?$/i.test(candidateUrl.pathname)) {
+      candidateUrl.pathname = '/contact';
+    }
+
+    if (/^\/admin(\/|$)/i.test(candidateUrl.pathname)) {
+      return fallbackUrl.toString();
+    }
+
+    return candidateUrl.toString();
   } catch {
     return fallback;
   }

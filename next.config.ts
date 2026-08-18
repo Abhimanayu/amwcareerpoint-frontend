@@ -24,6 +24,11 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        source: '/index.php/:path*',
+        destination: '/:path*',
+        permanent: true,
+      },
+      {
         source: '/contact-us',
         destination: '/contact',
         permanent: true,
@@ -44,6 +49,26 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        source: '/country-colleges/:country',
+        destination: '/college?country=:country',
+        permanent: true,
+      },
+      {
+        source: '/country-colleges/:country/',
+        destination: '/college?country=:country',
+        permanent: true,
+      },
+      {
+        source: '/blog',
+        destination: '/blogs',
+        permanent: true,
+      },
+      {
+        source: '/blog/',
+        destination: '/blogs',
+        permanent: true,
+      },
+      {
         source: '/blog/:slug',
         destination: '/blogs/:slug',
         permanent: true,
@@ -51,6 +76,36 @@ const nextConfig: NextConfig = {
       {
         source: '/blog/:slug/',
         destination: '/blogs/:slug',
+        permanent: true,
+      },
+      {
+        source: '/predictor',
+        destination: '/college-predictor',
+        permanent: true,
+      },
+      {
+        source: '/predictor/',
+        destination: '/college-predictor',
+        permanent: true,
+      },
+      {
+        source: '/predictors',
+        destination: '/college-predictor',
+        permanent: true,
+      },
+      {
+        source: '/predictors/',
+        destination: '/college-predictor',
+        permanent: true,
+      },
+      {
+        source: '/package',
+        destination: '/college-predictor',
+        permanent: true,
+      },
+      {
+        source: '/package/',
+        destination: '/college-predictor',
         permanent: true,
       },
       {

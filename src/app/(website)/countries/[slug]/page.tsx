@@ -525,7 +525,7 @@ export default async function CountryPage({ params }: Props) {
       '@type': 'WebPage',
       name: `MBBS in ${country.name}`,
       description: clampSeoDescription(country.description || country.tagline, `Study MBBS in ${country.name} with AMW Career Point.`),
-      url: `${siteUrl}/countries/${slug}`,
+      url: `${siteUrl}/countries/${resolvedSlug}`,
       publisher: { '@type': 'Organization', name: 'AMW Career Point', url: siteUrl },
     };
   const breadcrumbSchemaJsonLd = {
