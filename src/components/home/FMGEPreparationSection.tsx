@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export function FMGEPreparationSection() {
   return (
     <section className="bg-gradient-to-br from-red-50 to-orange-50 py-10 sm:py-16">
@@ -96,12 +98,12 @@ export function FMGEPreparationSection() {
         </div>
 
         <div className="text-center mt-8 sm:mt-12">
-          <a 
-            href="/contact" 
+          <Link
+            href="/contact"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold hover:from-red-700 hover:to-red-800 transition-all shadow-lg hover:shadow-xl"
           >
             Learn About Our FMGE Programme →
-          </a>
+          </Link>
         </div>
       </div>
     </section>
