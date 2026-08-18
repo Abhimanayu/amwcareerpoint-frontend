@@ -493,6 +493,12 @@ export function resolveCanonicalUrl(value: unknown, fallback: string): string {
       return fallbackUrl.toString();
     }
 
+    if (/^\/(college|countries|blogs)\//i.test(fallbackUrl.pathname)) {
+      candidateUrl.pathname = fallbackUrl.pathname;
+      candidateUrl.search = fallbackUrl.search;
+      candidateUrl.hash = fallbackUrl.hash;
+    }
+
     return candidateUrl.toString();
   } catch {
     return fallback;

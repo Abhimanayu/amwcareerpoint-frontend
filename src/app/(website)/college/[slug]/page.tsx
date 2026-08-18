@@ -15,6 +15,47 @@ type Props = {
 
 // Keep detail pages fresh after admin edits (curriculum, fees, seo, etc.)
 export const revalidate = 0;
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
+function unwrapApiPayload(payload: any) {
+  if (payload?.data && typeof payload.data === 'object') {
+    return payload.data;
+  }
+
+  return payload;
+}
+
+async function fetchUniversityDetail(slug: string) {
+  try {
+    const payload = await getUniversityBySlug(slug);
+    const university = unwrapApiPayload(payload);
+    if (university?._id || university?.slug || university?.name) {
+      return university;
+    }
+  } catch {
+    // Fall through to a direct no-store fetch. This avoids stale server-cache misses.
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+  try {
+    const response = await fetch(`${baseUrl}/universities/${encodeURIComponent(slug)}`, {
+      cache: 'no-store',
+      next: { revalidate: 0 },
+      headers: { accept: 'application/json' },
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const payload = await response.json();
+    const university = unwrapApiPayload(payload);
+    return university?._id || university?.slug || university?.name ? university : null;
+  } catch {
+    return null;
+  }
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (SEO_HOLD) {
@@ -31,8 +72,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
   try {
-    const res = await getUniversityBySlug(slug);
-    const university = res.data || res;
+    const university = await fetchUniversityDetail(slug);
     if (!university) return { title: 'University Not Found' };
     const title = university.seo?.metaTitle || `${university.name} - MBBS Admission`;
     const description = clampSeoDescription(
@@ -67,8 +107,7 @@ export default async function CollegeDetailPage({ params }: Readonly<Props>) {
   let relatedUniversities: any[] = [];
 
   try {
-    const res = await getUniversityBySlug(slug);
-    university = res.data || res;
+    university = await fetchUniversityDetail(slug);
   } catch { /* not found */ }
 
   if (!university) notFound();
