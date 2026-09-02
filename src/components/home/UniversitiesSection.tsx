@@ -19,6 +19,8 @@ const fallbackUniversities = [
   { name: 'Bogomolets National Medical University', country: 'Ukraine', image: '/static-universities/bogomolets.jpg' },
 ];
 
+const HOME_UNIVERSITY_DISPLAY_LIMIT = 12;
+
 type UniversitiesSectionProps = {
   readonly items?: readonly HomeCuratedUniversity[];
 };
@@ -62,7 +64,7 @@ export function UniversitiesSection({ items }: UniversitiesSectionProps) {
   const [totalUniversities, setTotalUniversities] = useState(fallbackUniversities.length);
 
   useEffect(() => {
-    getUniversities({ limit: 32, sort: 'sortOrder' })
+    getUniversities({ limit: HOME_UNIVERSITY_DISPLAY_LIMIT, sort: 'sortOrder' })
       .then((res) => {
         const items = extractCollectionData<any>(res, ['universities']);
         setTotalUniversities(Math.max(readUniversityTotal(res, items.length), items.length));
@@ -89,6 +91,7 @@ export function UniversitiesSection({ items }: UniversitiesSectionProps) {
   }, [hasCuratedItems]);
 
   const universities = hasCuratedItems ? (items ?? []) : fetchedUniversities;
+  const visibleUniversities = universities.slice(0, HOME_UNIVERSITY_DISPLAY_LIMIT);
   const usingFallback = hasCuratedItems ? false : usingFetchedFallback;
   const visibleCount = Math.max(totalUniversities, universities.length);
 
@@ -117,7 +120,7 @@ export function UniversitiesSection({ items }: UniversitiesSectionProps) {
         {/* Image carousel */}
         <div className="px-1 sm:px-5">
           <Carousel slideClass="basis-full px-1 sm:basis-1/2 sm:pl-4 sm:pr-0 lg:basis-1/4">
-            {usingFallback ? universities.map((uni) => (
+            {usingFallback ? visibleUniversities.map((uni) => (
               <div key={`${uni.name}-${uni.country}`} className="relative rounded-xl overflow-hidden group cursor-pointer aspect-[3/4] sm:aspect-[3/4] lg:aspect-[3/4]">
                 <SafeImage 
                   src={uni.image} 
@@ -131,7 +134,7 @@ export function UniversitiesSection({ items }: UniversitiesSectionProps) {
                   <p className="text-white text-[11px] sm:text-xs font-medium leading-snug drop-shadow-md">{uni.name}</p>
                 </div>
               </div>
-            )) : universities.map((uni: any) => {
+            )) : visibleUniversities.map((uni: any) => {
               const imageSource = pickUniversityImageSource(uni);
 
               return (

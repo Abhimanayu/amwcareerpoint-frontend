@@ -29,6 +29,8 @@ const COUNTRY_HERO_FALLBACKS = [
   '/static-universities/aiims.jpg',
 ] as const;
 
+const HOME_COUNTRY_DISPLAY_LIMIT = 16;
+
 function getStableCountryFallbackImage(country: { slug?: string; name?: string }) {
   const seed = `${country.slug || ''}|${country.name || ''}`.trim();
   if (!seed) return COUNTRY_HERO_FALLBACKS[0];
@@ -162,7 +164,7 @@ export function CountriesSection({ items }: CountriesSectionProps) {
 
   useEffect(() => {
     // Keep this above current production count, but avoid unnecessarily heavy homepage API payloads.
-    getCountries({ limit: 32 })
+    getCountries({ limit: HOME_COUNTRY_DISPLAY_LIMIT })
       .then((res) => {
         const apiCountries = extractCollectionData<any>(res, ['countries']);
         setFetchedCountries(apiCountries);
@@ -187,6 +189,7 @@ export function CountriesSection({ items }: CountriesSectionProps) {
         ? fallbackCountries
         : fallbackCountries;
   const usingFallback = countries === fallbackCountries;
+  const visibleCountries = countries.slice(0, HOME_COUNTRY_DISPLAY_LIMIT);
   const totalCountries = Math.max(fetchedTotalCountries, countries.length);
   const countLabel = totalCountries;
   const countNoun = countLabel === 1 ? 'Country' : 'Countries';
@@ -202,7 +205,7 @@ export function CountriesSection({ items }: CountriesSectionProps) {
 
         <div className="px-1 sm:px-5">
           <Carousel slideClass="basis-full px-1 sm:basis-1/2 sm:pl-5 sm:pr-0 lg:basis-1/4" maxDots={10}>
-            {usingFallback ? countries.map((c: any) => (
+            {usingFallback ? visibleCountries.map((c: any) => (
               <div key={`${c.code}-${c.name}`} className="relative rounded-xl border border-border bg-white overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
                 <Link
                   href={`/countries/${getCountrySlugFromObject(c)}`}
@@ -263,7 +266,7 @@ export function CountriesSection({ items }: CountriesSectionProps) {
                   </div>
                 </div>
               </div>
-            )) : countries.map((c: any) => {
+            )) : visibleCountries.map((c: any) => {
               const imageSource = c.heroImage || c.cardImage || getStableCountryFallbackImage(c);
               const flagSource = c.flagImage || (c.code ? `https://flagcdn.com/w40/${String(c.code).toLowerCase()}.png` : '');
               const feeRange = c.feeRange || c.fees || c.annualFeeRange;

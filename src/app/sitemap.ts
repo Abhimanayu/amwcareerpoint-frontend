@@ -5,6 +5,9 @@ import { getBlogs } from '@/lib/blogs';
 import { extractCollectionData } from '@/lib/utils';
 import { SEO_HOLD } from '@/lib/seoHold';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 function normalizeSlug(slug: unknown): string | null {
   if (typeof slug !== 'string') return null;
   const normalized = slug.trim().replace(/^\/+|\/+$/g, '');
