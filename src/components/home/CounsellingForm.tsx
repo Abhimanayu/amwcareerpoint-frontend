@@ -147,40 +147,40 @@ export function CounsellingForm() {
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
-            <label className={labelClass}>Full Name</label>
-            <input type="text" name="fullName" placeholder="Your Name" value={formData.fullName} onChange={handleChange} className={fieldErrors.fullName ? errorInputClass : inputClass} />
+            <label htmlFor="counselling-full-name" className={labelClass}>Full Name</label>
+            <input id="counselling-full-name" type="text" name="fullName" placeholder="Your Name" value={formData.fullName} onChange={handleChange} className={fieldErrors.fullName ? errorInputClass : inputClass} />
             {fieldErrors.fullName && <p className={fieldErrorClass}>{fieldErrors.fullName}</p>}
           </div>
           <div>
-            <label className={labelClass}>Phone No.</label>
-            <input type="tel" name="phoneNo" placeholder="+91 XXXXX XXXXX" value={formData.phoneNo} onChange={handleChange} className={fieldErrors.phoneNo ? errorInputClass : inputClass} />
+            <label htmlFor="counselling-phone" className={labelClass}>Phone No.</label>
+            <input id="counselling-phone" type="tel" name="phoneNo" placeholder="+91 XXXXX XXXXX" value={formData.phoneNo} onChange={handleChange} className={fieldErrors.phoneNo ? errorInputClass : inputClass} />
             {fieldErrors.phoneNo && <p className={fieldErrorClass}>{fieldErrors.phoneNo}</p>}
           </div>
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
-            <label className={labelClass}>City</label>
-            <input type="text" name="city" placeholder="Your City" value={formData.city} onChange={handleChange} className={fieldErrors.city ? errorInputClass : inputClass} />
+            <label htmlFor="counselling-city" className={labelClass}>City</label>
+            <input id="counselling-city" type="text" name="city" placeholder="Your City" value={formData.city} onChange={handleChange} className={fieldErrors.city ? errorInputClass : inputClass} />
             {fieldErrors.city && <p className={fieldErrorClass}>{fieldErrors.city}</p>}
           </div>
           <div>
-            <label className={labelClass}>Pin Code</label>
-            <input type="text" name="pinCode" inputMode="numeric" placeholder="Pin Code" value={formData.pinCode} onChange={handleChange} className={fieldErrors.pinCode ? errorInputClass : inputClass} />
+            <label htmlFor="counselling-pin" className={labelClass}>Pin Code</label>
+            <input id="counselling-pin" type="text" name="pinCode" inputMode="numeric" placeholder="Pin Code" value={formData.pinCode} onChange={handleChange} className={fieldErrors.pinCode ? errorInputClass : inputClass} />
             {fieldErrors.pinCode && <p className={fieldErrorClass}>{fieldErrors.pinCode}</p>}
           </div>
         </div>
 
         <div>
-          <label className={labelClass}>Email Address</label>
-          <input type="email" name="emailAddress" placeholder="you@email.com" value={formData.emailAddress} onChange={handleChange} className={fieldErrors.emailAddress ? errorInputClass : inputClass} />
+          <label htmlFor="counselling-email" className={labelClass}>Email Address</label>
+          <input id="counselling-email" type="email" name="emailAddress" placeholder="you@email.com" value={formData.emailAddress} onChange={handleChange} className={fieldErrors.emailAddress ? errorInputClass : inputClass} />
           {fieldErrors.emailAddress && <p className={fieldErrorClass}>{fieldErrors.emailAddress}</p>}
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
-            <label className={labelClass}>NEET Score</label>
-            <select name="neetScore" value={formData.neetScore} onChange={handleChange} className={fieldErrors.neetScore ? errorInputClass : inputClass}>
+            <label htmlFor="counselling-neet" className={labelClass}>NEET Score</label>
+            <select id="counselling-neet" name="neetScore" value={formData.neetScore} onChange={handleChange} className={fieldErrors.neetScore ? errorInputClass : inputClass}>
               <option value="">Select Range</option>
               <option value="600+">600+</option>
               <option value="500-599">500-599</option>
@@ -192,8 +192,8 @@ export function CounsellingForm() {
             {fieldErrors.neetScore && <p className={fieldErrorClass}>{fieldErrors.neetScore}</p>}
           </div>
           <div>
-            <label className={labelClass}>Preference</label>
-            <select name="preference" value={formData.preference} onChange={handleChange} className={fieldErrors.preference ? errorInputClass : inputClass}>
+            <label htmlFor="counselling-preference" className={labelClass}>Preference</label>
+            <select id="counselling-preference" name="preference" value={formData.preference} onChange={handleChange} className={fieldErrors.preference ? errorInputClass : inputClass}>
               <option value="">Study Destination</option>
               {destinationOptions.map((country) => (
                 <option key={country} value={country}>MBBS in {country}</option>
@@ -204,8 +204,8 @@ export function CounsellingForm() {
         </div>
 
         <div>
-          <label className={labelClass}>Message (Optional)</label>
-          <textarea name="message" placeholder="Tell us about your goals..." rows={3} value={formData.message} onChange={handleChange} className="w-full resize-none rounded-xl border border-[#DDD9D2] bg-white px-4 py-3 text-sm text-[#0D1B3E] outline-none transition-all placeholder:text-[#9AA3B7] focus:border-[#F26419] focus:ring-2 focus:ring-orange-100" />
+          <label htmlFor="counselling-message" className={labelClass}>Message (Optional)</label>
+          <textarea id="counselling-message" name="message" placeholder="Tell us about your goals..." rows={3} value={formData.message} onChange={handleChange} className="w-full resize-none rounded-xl border border-[#DDD9D2] bg-white px-4 py-3 text-sm text-[#0D1B3E] outline-none transition-all placeholder:text-[#9AA3B7] focus:border-[#F26419] focus:ring-2 focus:ring-orange-100" />
         </div>
 
         <button type="submit" disabled={submitting} className="w-full rounded-full bg-[#F26419] py-4 text-sm font-bold text-white transition-colors hover:bg-[#FF8040] disabled:opacity-50">

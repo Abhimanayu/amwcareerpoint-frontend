@@ -54,6 +54,7 @@ export const LIMITS = {
     feeRange: { max: 120 },
     feeRangeUSD: { max: 140 },
     duration: { max: 120 },
+    cardHighlight: { max: 240 },
     medium: { max: 120 },
     livingCost: { max: 120 },
     countryCode: { max: 20 },
@@ -143,6 +144,7 @@ export function validateCountryForm(form: {
   feeRange: string;
   feeRangeUSD: string;
   duration: string;
+  cardHighlight: string;
   medium: string;
   livingCost: string;
   countryCode: string;
@@ -193,6 +195,7 @@ export function validateCountryForm(form: {
   if (form.description.length > L.description.maxHtml) errors.push({ field: 'description', message: `Formatted description is too large and must not exceed ${L.description.maxHtml} HTML characters` });
   if (form.feeRange.length > L.feeRange.max) errors.push({ field: 'feeRange', message: `Tuition fee must not exceed ${L.feeRange.max} characters` });
   if (form.feeRangeUSD.length > L.feeRangeUSD.max) errors.push({ field: 'feeRangeUSD', message: `Tuition fee must not exceed ${L.feeRangeUSD.max} characters` });
+  if (form.cardHighlight.length > L.cardHighlight.max) errors.push({ field: 'cardHighlight', message: `Related-card highlight must not exceed ${L.cardHighlight.max} characters` });
   if (form.duration.length > L.duration.max) errors.push({ field: 'duration', message: `Duration must not exceed ${L.duration.max} characters` });
   if (form.medium.length > L.medium.max) errors.push({ field: 'medium', message: `Medium must not exceed ${L.medium.max} characters` });
   if (form.livingCost.length > L.livingCost.max) errors.push({ field: 'livingCost', message: `Living cost must not exceed ${L.livingCost.max} characters` });

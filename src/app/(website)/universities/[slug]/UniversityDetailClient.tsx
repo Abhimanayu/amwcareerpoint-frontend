@@ -210,12 +210,23 @@ export default function UniversityDetailClient({
                     university.ranking && { label: 'Ranking', value: university.ranking },
                     university.accreditation && { label: 'Accreditation', value: university.accreditation },
                     university.eligibility && { label: 'Eligibility', value: university.eligibility },
-                  ].filter(Boolean).map((item: any, i: number) => (
+                  ].filter(Boolean).map((item: any, i: number) => {
+                    const values = item.label === 'Eligibility'
+                      ? String(item.value).split(/\r?\n|(?=[●•])/).map((value) => value.replace(/^[\s●•-]+/, '').trim()).filter(Boolean)
+                      : [];
+                    return (
                     <div key={`qf-${i}`} className="flex items-start justify-between border-b border-[#DDD9D2]/50 py-3 last:border-0">
                       <span className="min-w-0 text-sm text-[#4A4742]">{item.label}</span>
-                      <span className="min-w-0 max-w-[55%] break-words text-right text-sm font-semibold text-[#0D1B3E]">{item.value}</span>
+                      {values.length > 1 ? (
+                        <ul className="min-w-0 max-w-[62%] list-disc space-y-1 pl-4 text-left text-sm font-semibold text-[#0D1B3E]">
+                          {values.map((value) => <li key={value}>{value}</li>)}
+                        </ul>
+                      ) : (
+                        <span className="min-w-0 max-w-[55%] break-words text-right text-sm font-semibold text-[#0D1B3E]">{item.value}</span>
+                      )}
                     </div>
-                  ))}
+                    );
+                  })}
                   {recognition.length > 0 && (
                     <div className="pt-3">
                       <span className="mb-2 block text-sm text-[#4A4742]">Recognition</span>
@@ -376,10 +387,10 @@ export default function UniversityDetailClient({
           <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
             {/* Image */}
             <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-[#F9F8F6]">
-              {gallery.length > 0 ? (
+              {university.lifeImage || gallery.length > 0 ? (
                 <SafeImage
-                  src={gallery[Math.min(1, gallery.length - 1)]}
-                  alt={`${university.name || 'University'} campus life`}
+                  src={university.lifeImage || gallery[Math.min(1, gallery.length - 1)]}
+                  alt={university.lifeImageAlt || `${university.name || 'University'} campus life`}
                   fill
                   className="object-cover object-center"
                   fallbackElement={

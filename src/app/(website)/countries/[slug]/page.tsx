@@ -141,8 +141,11 @@ type CountrySummary = {
   _id?: string;
   slug?: string;
   name?: string;
+  tagline?: string;
   feeRange?: string;
   duration?: string;
+  cardHighlight?: string;
+  highlights?: string[];
   flagImage?: string;
 };
 
@@ -482,11 +485,12 @@ async function fetchCountryUniversities(countryId: string, countrySlug: string) 
 
     const filtered = list.filter((university) => isUniversityForCountry(university, countryId, countrySlug));
     if (filtered.length > 0 || attempt.source === 'slug') {
-      return filtered;
+      const total = typeof response?.total === 'number' ? response.total : filtered.length;
+      return { items: filtered, total };
     }
   }
 
-  return [] as UniversitySummary[];
+  return { items: [] as UniversitySummary[], total: 0 };
 }
 
 export default async function CountryPage({ params }: Props) {
@@ -599,12 +603,12 @@ export default async function CountryPage({ params }: Props) {
   );
 
   // Parallelize independent data fetches
-  const [countryUniversities, countriesRes] = await Promise.all([
+  const [countryUniversityResult, countriesRes] = await Promise.all([
     fetchCountryUniversities(countryId, countryFilterSlug),
     getCountries({ limit: 12 }).catch(() => null),
   ]);
 
-  const universities = await enrichUniversityHostelFees(countryUniversities);
+  const universities = await enrichUniversityHostelFees(countryUniversityResult.items);
   const otherCountries = extractCollectionData<CountrySummary>(countriesRes, ['countries'])
     .filter((item) => item.slug !== slug)
     .slice(0, 5);
@@ -646,7 +650,7 @@ export default async function CountryPage({ params }: Props) {
   ];
 
   const countrySnapshot = [
-    { value: `${universities.length || 0}+`, label: 'Partner universities' },
+    { value: `${countryUniversityResult.total}`, label: 'Partner universities' },
     { value: `${admissionSteps.length || 0}`, label: 'Admission steps' },
     { value: `${eligibility.length || 0}+`, label: 'Eligibility checkpoints' },
   ];
@@ -908,7 +912,7 @@ export default async function CountryPage({ params }: Props) {
               About {country.name}
             </span>
             <h2 className="mt-3 font-heading text-2xl sm:text-3xl font-bold text-[#0D1B3E]">
-              MBBS in {country.name} — overview
+              MBBS in {country.name} Overview
             </h2>
             <div
               className="blog-content prose prose-sm sm:prose-base max-w-none mt-6 text-[#4A4742] leading-relaxed"
@@ -1381,10 +1385,9 @@ export default async function CountryPage({ params }: Props) {
                   >
                     <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70">{item.slug?.toUpperCase()}</div>
                     <div className="mt-2 text-lg font-semibold">{item.name}</div>
-                    <div className="mt-3 space-y-1 text-sm text-white/75">
-                      <div>{item.feeRange || 'Affordable options'}</div>
-                      <div>{item.duration || '6 years'}</div>
-                    </div>
+                    <p className="mt-3 text-sm leading-6 text-white/80">
+                      {item.cardHighlight || item.highlights?.find(Boolean) || item.tagline || 'Explore MBBS opportunities and student support.'}
+                    </p>
                   </Link>
                 );
               })}

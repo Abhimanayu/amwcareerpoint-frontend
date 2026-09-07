@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getApiBaseUrl } from '@/lib/apiBaseUrl';
+import { getCountrySlugCandidates } from '@/lib/slugUtils';
 
 const RESERVED_ROOT_PATHS = new Set([
   'about',
@@ -81,24 +82,33 @@ async function legacyDetailStatus(resource: 'universities' | 'blogs', slug: stri
 type PublicResource = 'universities' | 'blogs' | 'countries';
 
 async function publicDetailStatus(resource: PublicResource, slug: string) {
-  try {
-    const response = await fetch(
-      `${getApiBaseUrl()}/${resource}/${encodeURIComponent(slug)}/seo-status`,
-      {
-        headers: { accept: 'application/json' },
-        next: { revalidate: 300 },
-        signal: AbortSignal.timeout(2500),
-      },
-    );
+  const candidates = resource === 'countries' ? getCountrySlugCandidates(slug) : [slug];
+  let sawUnavailable = false;
 
-    if (response.status === 404) return 'missing';
-    if (!response.ok) return 'unavailable';
+  for (const candidate of candidates) {
+    try {
+      const response = await fetch(
+        `${getApiBaseUrl()}/${resource}/${encodeURIComponent(candidate)}/seo-status`,
+        {
+          headers: { accept: 'application/json' },
+          next: { revalidate: 300 },
+          signal: AbortSignal.timeout(2500),
+        },
+      );
 
-    const payload = await response.json();
-    return payload?.data?.slug === slug ? 'exists' : 'unavailable';
-  } catch {
-    return 'unavailable';
+      if (response.ok) {
+        const payload = await response.json();
+        if (payload?.data?.slug === candidate) return 'exists';
+        sawUnavailable = true;
+      } else if (response.status !== 404) {
+        sawUnavailable = true;
+      }
+    } catch {
+      sawUnavailable = true;
+    }
   }
+
+  return sawUnavailable ? 'unavailable' : 'missing';
 }
 
 function goneResponse(request: NextRequest) {
@@ -124,6 +134,11 @@ export async function proxy(request: NextRequest) {
   }
 
   const { pathname } = request.nextUrl;
+  const lastPathSegment = pathname.split('/').filter(Boolean).at(-1) || '';
+  if (isPublicAssetPath(lastPathSegment)) {
+    return NextResponse.next();
+  }
+
   if (isClearlyObsoleteOrSpamPath(pathname)) {
     return goneResponse(request);
   }

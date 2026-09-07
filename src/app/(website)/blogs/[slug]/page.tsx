@@ -6,6 +6,7 @@ import { clampSeoDescription, extractCollectionData, formatDate, pickBlogImageAl
 import { sanitizeAndOptimizeMobileContent } from '@/lib/contentValidation';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { SEO_HOLD } from '@/lib/seoHold';
+import { BlogArticleContent } from '@/components/blog/BlogArticleContent';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -230,25 +231,7 @@ export default async function BlogPostPage({ params }: Readonly<Props>) {
       {/* Article Content */}
       <section className="py-10 sm:py-14">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div
-            className="blog-content prose prose-sm sm:prose-base lg:prose-lg max-w-none text-[#4A4742] leading-relaxed
-              prose-headings:font-heading prose-headings:text-[#0D1B3E] prose-headings:scroll-mt-8
-              prose-a:text-[#F26419] prose-a:no-underline hover:prose-a:underline prose-a:break-words
-              prose-strong:text-[#0D1B3E] prose-strong:font-semibold
-              prose-img:rounded-xl prose-img:border prose-img:border-[#DDD9D2] prose-img:shadow-sm prose-img:mx-auto
-              prose-table:table-auto prose-table:w-full prose-table:text-sm
-              prose-th:bg-[#F9F8F6] prose-th:border prose-th:border-[#DDD9D2] prose-th:px-3 prose-th:py-2 prose-th:text-left prose-th:font-semibold prose-th:text-[#0D1B3E]
-              prose-td:border prose-td:border-[#DDD9D2] prose-td:px-3 prose-td:py-2
-              prose-blockquote:border-l-4 prose-blockquote:border-[#F26419] prose-blockquote:bg-[#F9F8F6] prose-blockquote:px-4 prose-blockquote:py-2 prose-blockquote:italic
-              prose-ul:list-disc prose-ol:list-decimal prose-li:marker:text-[#F26419]
-              prose-code:bg-[#F9F8F6] prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm prose-code:break-words
-              prose-pre:bg-[#0D1B3E] prose-pre:text-white prose-pre:overflow-x-auto prose-pre:rounded-lg
-              [&_a]:text-[#F26419] [&_a]:underline [&_a_strong]:text-[#F26419] [&_a_span]:text-[#F26419]
-              [&_.break-all]:break-all [&_.overflow-x-auto]:overflow-x-auto [&_.overflow-x-auto]:scrollbar-thin"
-            dangerouslySetInnerHTML={{ 
-              __html: sanitizeAndOptimizeMobileContent(sanitizeHtml((post.content || '').replaceAll('\n', '<br />')))
-            }}
-          />
+          <BlogArticleContent html={sanitizeAndOptimizeMobileContent(sanitizeHtml((post.content || '').replaceAll('\n', '<br />')))} />
         </div>
       </section>
 

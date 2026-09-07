@@ -161,6 +161,7 @@ type CountryFormState = {
   heroImageAlt: string;
   feeRange: string;
   duration: string;
+  cardHighlight: string;
   medium: string;
   livingCost: string;
   status: string;
@@ -200,6 +201,7 @@ function createEmptyForm(): CountryFormState {
     heroImageAlt: '',
     feeRange: '',
     duration: '',
+    cardHighlight: '',
     medium: '',
     livingCost: '',
     status: 'active',
@@ -246,6 +248,7 @@ function normalizeCountryData(data: Record<string, unknown>): Record<string, unk
     heroImage: typeof data.heroImage === 'string' ? data.heroImage : '',
     heroImageAlt: typeof data.heroImageAlt === 'string' ? data.heroImageAlt : '',
     feeRange: typeof data.feeRange === 'string' ? data.feeRange : '',
+    cardHighlight: typeof data.cardHighlight === 'string' ? data.cardHighlight : '',
       bannerImage: typeof data.bannerImage === 'string' ? data.bannerImage : '',
       bannerImageAlt: typeof data.bannerImageAlt === 'string' ? data.bannerImageAlt : '',
       cardImage: typeof data.cardImage === 'string' ? data.cardImage : '',
@@ -308,6 +311,7 @@ function buildCountryValidationInput(form: CountryFormState) {
     feeRange: form.feeRange,
     feeRangeUSD: form.feeRangeUSD,
     duration: form.duration,
+    cardHighlight: form.cardHighlight,
     medium: form.medium,
     livingCost: form.livingCost,
     countryCode: form.countryCode,
@@ -422,6 +426,7 @@ function buildCountryForm(initialData?: Record<string, unknown>): CountryFormSta
     heroImageAlt: (normalized.heroImageAlt as string) || '',
     feeRange: (normalized.feeRange as string) || '',
     duration: (normalized.duration as string) || '',
+    cardHighlight: (normalized.cardHighlight as string) || '',
     medium: (normalized.medium as string) || '',
     livingCost: (normalized.livingCost as string) || '',
       countryCode: (normalized.countryCode as string) || '',
@@ -568,6 +573,7 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
         ...form,
         feeRange: form.feeRange.trim(),
         duration: form.duration.trim(),
+        cardHighlight: form.cardHighlight.trim(),
         medium: form.medium.trim(),
         livingCost: form.livingCost.trim(),
         highlights: form.highlights.map((item) => item.value).filter(Boolean),
@@ -900,6 +906,23 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
               </div>
             </div>
           </div>
+        </section>
+
+        <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-2">
+          <label htmlFor="country-card-highlight" className="block text-sm font-medium text-gray-700">Related country card highlight</label>
+          <input
+            id="country-card-highlight"
+            maxLength={L.cardHighlight.max}
+            value={form.cardHighlight}
+            onChange={(e) => updateField('cardHighlight', e.target.value)}
+            className={textInputClass}
+            placeholder="e.g. Strong FMGE support and affordable living"
+          />
+          <div className="flex justify-between">
+            <FieldError message={getFieldError(validationErrors, 'cardHighlight')} />
+            <CharCount current={form.cardHighlight.length} max={L.cardHighlight.max} />
+          </div>
+          <p className="text-xs text-gray-500">Shown on the “Also consider these countries” card instead of fee and duration.</p>
         </section>
 
         {/* Images */}

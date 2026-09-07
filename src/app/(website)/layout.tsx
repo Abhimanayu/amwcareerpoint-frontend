@@ -1,5 +1,6 @@
 import { Header, Footer, MobileStickyCTA } from "@/components/layout";
 import { WhatsAppFloater } from '@/components/layout/WhatsAppFloater';
+import { DeferredLeadCapture } from '@/components/layout/DeferredLeadCapture';
 import { AnnouncementBar } from "@/components/home";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { SEO_HOLD } from '@/lib/seoHold';
@@ -51,6 +52,7 @@ export default function WebsiteLayout({
       <Footer />
       <MobileStickyCTA />
       <WhatsAppFloater />
+      <DeferredLeadCapture />
     </>
   );
 }

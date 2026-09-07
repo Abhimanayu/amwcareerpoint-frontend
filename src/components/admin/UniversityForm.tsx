@@ -43,6 +43,8 @@ const emptyForm = {
   logoAlt: '',
   heroImage: '',
   heroImageAlt: '',
+  lifeImage: '',
+  lifeImageAlt: '',
   gallery: [''],
   galleryAlt: [''],
   curriculum: DEFAULT_UNIVERSITY_CURRICULUM,
@@ -103,6 +105,8 @@ function buildUniversityForm(initialData?: Record<string, unknown>) {
     logoAlt: (initialData.logoAlt as string) || '',
     heroImage: (initialData.heroImage as string) || '',
     heroImageAlt: (initialData.heroImageAlt as string) || '',
+    lifeImage: (initialData.lifeImage as string) || '',
+    lifeImageAlt: (initialData.lifeImageAlt as string) || '',
     gallery,
     galleryAlt: gallery.map((_, index) => (typeof galleryAltSource[index] === 'string' ? galleryAltSource[index] : '')),
     curriculum,
@@ -184,6 +188,7 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
         establishedYear: parseInt(form.establishedYear) || undefined,
         logoAlt: form.logoAlt.trim(),
         heroImageAlt: form.heroImageAlt.trim(),
+        lifeImageAlt: form.lifeImageAlt.trim(),
         gallery: normalizedGallery.map((item) => item.url),
         galleryAlt: normalizedGallery.map((item) => item.alt),
         curriculum: form.curriculum
@@ -471,6 +476,17 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
                 onChange={(e) => updateField('heroImageAlt', e.target.value)}
                 maxLength={160}
                 placeholder="Image alt text"
+                className="mt-2 w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Student Life Image</label>
+              <ImageUploader folder="universities" currentImage={form.lifeImage} onUpload={(url) => updateField('lifeImage', url)} hint="Recommended: 900×1100 px. Used only in the What life actually looks like section." />
+              <input
+                value={form.lifeImageAlt}
+                onChange={(e) => updateField('lifeImageAlt', e.target.value)}
+                maxLength={180}
+                placeholder="Student life image alt text"
                 className="mt-2 w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#F26419] outline-none"
               />
             </div>
