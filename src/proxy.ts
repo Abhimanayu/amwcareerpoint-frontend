@@ -90,8 +90,8 @@ async function publicDetailStatus(resource: PublicResource, slug: string) {
       const response = await fetch(
         `${getApiBaseUrl()}/${resource}/${encodeURIComponent(candidate)}/seo-status`,
         {
+          cache: 'no-store',
           headers: { accept: 'application/json' },
-          next: { revalidate: 300 },
           signal: AbortSignal.timeout(2500),
         },
       );
