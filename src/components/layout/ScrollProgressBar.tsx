@@ -16,7 +16,7 @@ export function ScrollProgressBar() {
         : 0;
 
       if (progressRef.current) {
-        progressRef.current.style.transform = `scaleX(${progress})`;
+        progressRef.current.style.width = `${progress * 100}%`;
         progressRef.current.setAttribute('aria-valuenow', String(Math.round(progress * 100)));
       }
     };
@@ -37,7 +37,7 @@ export function ScrollProgressBar() {
   }, []);
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 top-0 z-[60] h-[3px] bg-[#F26419]/15">
+    <div className="pointer-events-none fixed inset-x-0 top-0 z-[60] h-[3px]">
       <div
         ref={progressRef}
         role="progressbar"
@@ -45,7 +45,7 @@ export function ScrollProgressBar() {
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={0}
-        className="h-full w-full origin-left scale-x-0 bg-[#F26419] shadow-[0_1px_4px_rgba(242,100,25,0.35)] will-change-transform"
+        className="h-full w-0 bg-[#F26419] shadow-[0_1px_4px_rgba(242,100,25,0.35)] will-change-[width]"
       />
     </div>
   );
