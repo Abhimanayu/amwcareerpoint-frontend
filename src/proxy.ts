@@ -113,7 +113,7 @@ async function publicDetailStatus(resource: PublicResource, slug: string) {
 
 function goneResponse(request: NextRequest) {
   const headers = {
-    'Cache-Control': 'public, max-age=86400, s-maxage=86400',
+    'Cache-Control': 'no-store, max-age=0',
     'Content-Type': 'text/html; charset=utf-8',
     'X-Robots-Tag': 'noindex, nofollow',
   };
