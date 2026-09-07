@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { SafeImage } from '../ui/SafeImage';
 import { getMbbsDestinationLinks } from '@/lib/mbbsDestinations';
+import { ScrollProgressBar } from './ScrollProgressBar';
 
 type DropdownItem = { href: string; label: string };
 
@@ -154,6 +155,7 @@ export function Header() {
             </button>
           </div>
         </div>
+        <ScrollProgressBar />
       </header>
 
       {isMenuOpen && (
