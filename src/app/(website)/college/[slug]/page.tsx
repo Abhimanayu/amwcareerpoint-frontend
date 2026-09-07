@@ -6,6 +6,7 @@ import { clampSeoDescription, extractCollectionData, pickUniversityImageSource, 
 import { getPublicFaqs } from '@/lib/server/faqs';
 import { SEO_HOLD } from '@/lib/seoHold';
 import UniversityDetailClient from '../../universities/[slug]/UniversityDetailClient';
+import { getApiBaseUrl } from '@/lib/apiBaseUrl';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -43,7 +44,7 @@ async function fetchUniversityDetail(slug: string) {
     // Fall through to a direct no-store fetch. This avoids stale server-cache misses.
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+  const baseUrl = getApiBaseUrl();
   for (const delay of DETAIL_RETRY_DELAYS_MS) {
     if (delay > 0) {
       await wait(delay);

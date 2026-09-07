@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getApiBaseUrl } from '@/lib/apiBaseUrl';
 
 const RESERVED_ROOT_PATHS = new Set([
   'about',
@@ -60,7 +61,7 @@ function isPublicAssetPath(slug: string) {
 }
 
 async function legacyDetailStatus(resource: 'universities' | 'blogs', slug: string) {
-  const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1').replace(/\/+$/, '');
+  const apiBaseUrl = getApiBaseUrl();
 
   try {
     const response = await fetch(`${apiBaseUrl}/${resource}/${encodeURIComponent(slug)}`, {
@@ -72,6 +73,29 @@ async function legacyDetailStatus(resource: 'universities' | 'blogs', slug: stri
     if (response.ok) return 'exists';
     if (response.status === 404) return 'missing';
     return 'unavailable';
+  } catch {
+    return 'unavailable';
+  }
+}
+
+type PublicResource = 'universities' | 'blogs' | 'countries';
+
+async function publicDetailStatus(resource: PublicResource, slug: string) {
+  try {
+    const response = await fetch(
+      `${getApiBaseUrl()}/${resource}/${encodeURIComponent(slug)}/seo-status`,
+      {
+        headers: { accept: 'application/json' },
+        next: { revalidate: 300 },
+        signal: AbortSignal.timeout(2500),
+      },
+    );
+
+    if (response.status === 404) return 'missing';
+    if (!response.ok) return 'unavailable';
+
+    const payload = await response.json();
+    return payload?.data?.slug === slug ? 'exists' : 'unavailable';
   } catch {
     return 'unavailable';
   }
@@ -105,6 +129,20 @@ export async function proxy(request: NextRequest) {
   }
 
   const parts = pathname.split('/').filter(Boolean);
+  if (parts.length === 2) {
+    const routeToResource: Record<string, PublicResource> = {
+      college: 'universities',
+      blogs: 'blogs',
+      countries: 'countries',
+    };
+    const resource = routeToResource[parts[0].toLowerCase()];
+
+    if (resource) {
+      const status = await publicDetailStatus(resource, parts[1]);
+      if (status === 'missing') return goneResponse(request);
+    }
+  }
+
   if (parts.length === 1) {
     const originalSlug = parts[0];
     const slug = originalSlug.toLowerCase();

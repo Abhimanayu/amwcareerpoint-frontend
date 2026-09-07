@@ -1,8 +1,8 @@
 // lib/api.ts
 import axios from "axios";
+import { getApiBaseUrl } from "./apiBaseUrl";
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
+const BASE_URL = getApiBaseUrl();
 
 // Public API (no token needed — used by Frontend)
 export const api = axios.create({
