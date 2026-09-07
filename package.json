@@ -9,6 +9,7 @@
     "start": "node scripts/start-next.mjs",
     "lint": "eslint",
     "test:college-predictor": "bash ./test_college_predictor.sh",
+    "seo:classify-404": "node scripts/analyze-gsc-404.mjs",
     "cleanup": "bash ./scripts/cleanup-temp.sh",
     "imagekit:upload-backup": "node scripts/upload-cloudinary-backup-to-imagekit.mjs",
     "imagekit:rewrite-payloads": "node scripts/apply-imagekit-url-mapping-to-api-payloads.mjs",

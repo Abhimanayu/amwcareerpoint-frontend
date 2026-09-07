@@ -1,4 +1,4 @@
-import { permanentRedirect } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -60,5 +60,9 @@ export default async function LegacyRootSlugPage({ params }: Props) {
     permanentRedirect(`/blogs/${slug}`);
   }
 
-  permanentRedirect(`/college/${slug}`);
+  if (await detailExists('universities', slug)) {
+    permanentRedirect(`/college/${slug}`);
+  }
+
+  notFound();
 }
