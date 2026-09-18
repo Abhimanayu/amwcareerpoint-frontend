@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { SafeImage } from '../ui/SafeImage';
 import { getMbbsDestinationLinks } from '@/lib/mbbsDestinations';
 import { ScrollProgressBar } from './ScrollProgressBar';
+import { getIndiaStates } from '@/lib/india';
 
 type DropdownItem = { href: string; label: string };
 
@@ -12,6 +13,7 @@ type MenuItem = {
   href: string;
   label: string;
   dropdown?: DropdownItem[];
+  viewAllLabel?: string;
 };
 
 const mbbsDestinationDropdownItems: DropdownItem[] = getMbbsDestinationLinks().map((item) => ({
@@ -21,7 +23,7 @@ const mbbsDestinationDropdownItems: DropdownItem[] = getMbbsDestinationLinks().m
 
 const staticMenuItems: MenuItem[] = [
   { href: '/', label: 'Home' },
-  { href: '/countries/mbbs-in-india', label: 'MBBS India' },
+  { href: '/mbbs-india', label: 'MBBS India', dropdown: [], viewAllLabel: 'View All States' },
   {
     href: '/countries',
     label: 'MBBS Abroad',
@@ -33,6 +35,9 @@ const staticMenuItems: MenuItem[] = [
 ];
 
 export function Header() {
+  const [indiaLinks, setIndiaLinks] = useState<DropdownItem[]>([]);
+  useEffect(() => { let active = true; getIndiaStates().then(states => { if (active) setIndiaLinks(states.map(s => ({ href: `/mbbs-india/${s.slug}`, label: `MBBS in ${s.name}` }))); }).catch(() => {}); return () => { active = false; }; }, []);
+  const menuItems = staticMenuItems.map(item => item.label === 'MBBS India' ? { ...item, dropdown: indiaLinks } : item);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
@@ -82,7 +87,7 @@ export function Header() {
 
             {/* Desktop Nav */}
             <nav className="hidden xl:flex items-center gap-5" ref={dropdownRef}>
-              {staticMenuItems.map((item) =>
+              {menuItems.map((item) =>
                 item.dropdown ? (
                   <div
                     key={item.label}
@@ -92,6 +97,8 @@ export function Header() {
                   >
                     <button
                       type="button"
+                      aria-expanded={openDropdown === item.label}
+                      onKeyDown={(event) => { if (event.key === 'Escape') setOpenDropdown(null); }}
                       onClick={() => setOpenDropdown(openDropdown === item.label ? null : item.label)}
                       className="flex items-center gap-1 text-[13px] font-medium text-[#0D1B3E] hover:text-[#F26419] transition-colors whitespace-nowrap"
                     >
@@ -114,14 +121,14 @@ export function Header() {
                               </Link>
                             ))
                           ) : (
-                            <div className="px-4 py-2 text-xs text-gray-400">Loading countries…</div>
+                            <div className="px-4 py-2 text-xs text-gray-400">Explore all {item.label === 'MBBS India' ? 'states' : 'countries'} below</div>
                           )}
                           <Link
                             href={item.href}
                             onClick={() => setOpenDropdown(null)}
                             className="block px-4 py-2 text-[13px] font-semibold text-[#F26419] hover:bg-gray-50 border-t border-gray-100 mt-1"
                           >
-                            View All Countries →
+                            {item.viewAllLabel || 'View All Countries'} →
                           </Link>
                         </div>
                       </div>
@@ -161,7 +168,7 @@ export function Header() {
       {isMenuOpen && (
         <div className="fixed inset-x-0 top-[48px] sm:top-[56px] z-40 bg-white border-b border-gray-200 shadow-md xl:hidden max-h-[calc(100vh-56px)] overflow-y-auto">
           <nav className="max-w-7xl mx-auto px-4 py-3 space-y-0.5">
-            {staticMenuItems.map((item) =>
+            {menuItems.map((item) =>
               item.dropdown ? (
                 <div key={item.label}>
                   <button
@@ -190,7 +197,7 @@ export function Header() {
                         onClick={() => { setIsMenuOpen(false); setMobileExpanded(null); }}
                         className="block px-3 py-2 text-[13px] font-semibold text-[#F26419] hover:bg-gray-50 rounded-lg border-t border-gray-100 mt-1"
                       >
-                        View All Countries →
+                        {item.viewAllLabel || 'View All Countries'} →
                       </Link>
                     </div>
                   )}

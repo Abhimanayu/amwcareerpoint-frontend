@@ -3,6 +3,7 @@ import { getApiBaseUrl } from '@/lib/apiBaseUrl';
 import { getCountrySlugCandidates } from '@/lib/slugUtils';
 
 const RESERVED_ROOT_PATHS = new Set([
+  'mbbs-india',
   'about',
   'admin',
   'api',

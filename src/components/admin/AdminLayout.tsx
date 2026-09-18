@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { isLoggedIn, getAdminUser, logoutAdmin } from '@/lib/auth';
 
 const navItems = [
+  { label: 'MBBS India', href: '/admin/mbbs-india', icon: 'M3 21h18M5 21V7l7-4 7 4v14M9 21v-4h6v4M9 9h.01M15 9h.01M9 13h.01M15 13h.01' },
   { label: 'Dashboard', href: '/admin', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
   { label: 'Home Page', href: '/admin/home', icon: 'M4 5a2 2 0 012-2h12a2 2 0 012 2v14a1 1 0 01-1.447.894L12 16.118l-6.553 3.776A1 1 0 014 19V5z' },
   { label: 'About Page', href: '/admin/about', icon: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },

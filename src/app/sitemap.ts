@@ -4,6 +4,8 @@ import { getUniversities } from '@/lib/universities';
 import { getBlogs } from '@/lib/blogs';
 import { extractCollectionData } from '@/lib/utils';
 import { SEO_HOLD } from '@/lib/seoHold';
+import { readIndiaPage, readIndiaStates } from '@/lib/server/india';
+import { indiaPath } from '@/lib/india';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -46,6 +48,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let countryPages: MetadataRoute.Sitemap = [];
   let universityPages: MetadataRoute.Sitemap = [];
   let blogPages: MetadataRoute.Sitemap = [];
+  let indiaPages: MetadataRoute.Sitemap = [];
+  try {
+    const [overview, states] = await Promise.all([readIndiaPage('india'), readIndiaStates()]);
+    indiaPages = [...(overview ? [overview] : []), ...states].filter(p => !p.seo.noindex && (!p.seo.canonicalUrl || p.seo.canonicalUrl === indiaPath(p) || p.seo.canonicalUrl === `${siteUrl}${indiaPath(p)}`)).map(p => ({ url: `${siteUrl}${indiaPath(p)}`, lastModified: p.updatedAt ? new Date(p.updatedAt) : undefined, changeFrequency: 'weekly', priority: 0.8 }));
+  } catch { /* Existing sitemap remains available during a module API outage. */ }
 
   try {
     const res = await getCountries({ limit: 100 });
@@ -53,6 +60,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     countryPages = countries.reduce<MetadataRoute.Sitemap>((pages, c) => {
         const slug = normalizeSlug(c.slug);
         if (!slug) return pages;
+        if (slug === 'mbbs-in-india') return pages;
 
         pages.push({
           url: `${siteUrl}/countries/${slug}`,
@@ -67,8 +75,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     const res = await getUniversities({ limit: 1000 });
-    const universities = extractCollectionData<{ slug?: unknown; updatedAt?: string }>(res, ['universities']);
+    const universities = extractCollectionData<{ slug?: unknown; updatedAt?: string; seo?: { noindex?: boolean } }>(res, ['universities']);
     universityPages = universities.reduce<MetadataRoute.Sitemap>((pages, u) => {
+        if (u.seo?.noindex) return pages;
         const slug = normalizeSlug(u.slug);
         if (!slug) return pages;
 
@@ -101,5 +110,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }, []);
   } catch { /* API unavailable */ }
 
-  return dedupeByUrl([...staticPages, ...countryPages, ...universityPages, ...blogPages]);
+  return dedupeByUrl([...staticPages, ...indiaPages, ...countryPages, ...universityPages, ...blogPages]);
 }

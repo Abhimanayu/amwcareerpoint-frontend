@@ -26,6 +26,8 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      { source: '/countries/mbbs-in-india', destination: '/mbbs-india', permanent: true },
+      { source: '/mbbs-in-india', destination: '/mbbs-india', permanent: true },
       {
         source: '/universities',
         destination: '/college',

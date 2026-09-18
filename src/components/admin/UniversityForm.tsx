@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ImageUploader from '@/components/admin/ImageUploader';
+import { IndiaCollegeFields } from './IndiaCollegeFields';
+import { emptyIndiaCollege, type IndiaCollegeData } from '@/lib/india';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { createUniversity, updateUniversity } from '@/lib/universities';
 import { adminGetCountries } from '@/lib/countries';
@@ -93,7 +95,7 @@ function buildUniversityForm(initialData?: Record<string, unknown>) {
         subjects: typeof item.subjects === 'string' ? item.subjects : '',
         desc: typeof item.desc === 'string' ? item.desc : '',
       }))
-    : DEFAULT_UNIVERSITY_CURRICULUM;
+    : initialData.indiaState ? [] : DEFAULT_UNIVERSITY_CURRICULUM;
 
   return {
     name: (initialData.name as string) || '',
@@ -151,13 +153,16 @@ function buildUniversityForm(initialData?: Record<string, unknown>) {
 export default function UniversityForm({ initialData, isEdit }: UniversityFormProps) {
   const router = useRouter();
   const [form, setForm] = useState(() => buildUniversityForm(initialData));
+  const [indiaState, setIndiaState] = useState((initialData?.indiaState as string) || '');
+  const [india, setIndia] = useState<IndiaCollegeData>((initialData?.india as IndiaCollegeData) || emptyIndiaCollege());
+  const [indiaSeo, setIndiaSeo] = useState({ noindex: Boolean((initialData?.seo as Record<string, unknown>)?.noindex), ogImage: String((initialData?.seo as Record<string, unknown>)?.ogImage || '') });
   const [countries, setCountries] = useState<{ _id: string; name: string; slug?: string }[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const L = LIMITS.university;
   const curriculumYearCount = Array.isArray(form.curriculum) ? form.curriculum.length : 0;
-  const generatedCurriculumHeading = curriculumYearCount > 0
+  const generatedCurriculumHeading = indiaState ? 'MBBS Curriculum' : curriculumYearCount > 0
     ? `${curriculumYearCount}-Year MD Curriculum`
     : 'MD Curriculum';
   const curriculumHeadingPreview = form.courseDuration.trim() || generatedCurriculumHeading;
@@ -184,6 +189,9 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
 
       const payload = {
         ...form,
+        indiaState: indiaState || null,
+        india,
+        seo: { ...form.seo, ...indiaSeo },
         sortOrder: Number.isFinite(Number(form.sortOrder)) ? Number(form.sortOrder) : 0,
         establishedYear: parseInt(form.establishedYear) || undefined,
         logoAlt: form.logoAlt.trim(),
@@ -240,6 +248,7 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
         <ValidationBanner errors={validationErrors} />
 
         {/* Basic Info */}
+        <IndiaCollegeFields stateId={indiaState} value={india} onChange={(state, data) => { setIndiaState(state); setIndia(data); if (state && form.curriculum === DEFAULT_UNIVERSITY_CURRICULUM) updateField('curriculum', []); }} />
         <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
           <h2 className="font-semibold text-gray-900">Basic Information</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -606,6 +615,7 @@ export default function UniversityForm({ initialData, isEdit }: UniversityFormPr
         </section>
 
         {/* SEO */}
+        {indiaState && <section className="space-y-4 rounded-xl border border-gray-200 bg-white p-5"><h2 className="font-semibold">India college search & sharing</h2><ImageUploader folder="universities" currentImage={indiaSeo.ogImage} onUpload={url => setIndiaSeo(p => ({ ...p, ogImage: url }))} label="Social sharing image" /><label className="flex gap-2 text-sm"><input type="checkbox" checked={indiaSeo.noindex} onChange={e => setIndiaSeo(p => ({ ...p, noindex: e.target.checked }))} />Keep college out of search results (noindex)</label></section>}
         <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
           <h2 className="font-semibold text-gray-900">SEO</h2>
           <div>

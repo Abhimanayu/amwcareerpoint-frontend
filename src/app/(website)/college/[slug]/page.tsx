@@ -7,6 +7,8 @@ import { getPublicFaqs } from '@/lib/server/faqs';
 import { SEO_HOLD } from '@/lib/seoHold';
 import UniversityDetailClient from '../../universities/[slug]/UniversityDetailClient';
 import { getApiBaseUrl } from '@/lib/apiBaseUrl';
+import { IndiaCollegeView } from '@/components/india/IndiaCollegeView';
+import { readIndiaStates } from '@/lib/server/india';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -96,7 +98,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       university.seo?.metaDescription || university.description,
       `Study MBBS at ${university.name}. Get complete admission details, fees, eligibility, and counselling support.`
     );
-    const ogImage = resolveMediaUrl(pickUniversityImageSource(university));
+    const ogImage = resolveMediaUrl(university.seo?.ogImage || pickUniversityImageSource(university));
     const canonical = resolveCanonicalUrl(university.seo?.canonicalUrl, `${siteUrl}/college/${slug}`);
     return {
       title: {
@@ -104,6 +106,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
       description,
       alternates: { canonical },
+      robots: university.seo?.noindex ? { index: false, follow: true } : undefined,
       openGraph: { title, description, type: 'article', url: canonical, images: ogImage ? [{ url: ogImage }] : undefined },
       twitter: {
         card: 'summary_large_image',
@@ -128,6 +131,14 @@ export default async function CollegeDetailPage({ params }: Readonly<Props>) {
   } catch { /* not found */ }
 
   if (!university) notFound();
+  if (university.indiaState) {
+    const states = await readIndiaStates();
+    const state = states.find(s => s._id === String(university.indiaState));
+    const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
+    const schema = { '@context': 'https://schema.org', '@type': 'CollegeOrUniversity', name: university.name, url: `${base}/college/${slug}`, address: { '@type': 'PostalAddress', addressCountry: 'IN', addressRegion: state?.name, addressLocality: university.city } };
+    const breadcrumbs = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: base }, { '@type': 'ListItem', position: 2, name: 'MBBS India', item: `${base}/mbbs-india` }, ...(state ? [{ '@type': 'ListItem', position: 3, name: state.name, item: `${base}/mbbs-india/${state.slug}` }] : []), { '@type': 'ListItem', position: state ? 4 : 3, name: university.name, item: `${base}/college/${slug}` }] };
+    return <>{!SEO_HOLD && !university.seo?.noindex && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd([schema, breadcrumbs]) }} />}<IndiaCollegeView college={university} state={state} /></>;
+  }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
   let schemaJsonLd: object | null = null;

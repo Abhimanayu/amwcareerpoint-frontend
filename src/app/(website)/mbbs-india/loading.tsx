@@ -1,0 +1,1 @@
+export default function Loading() { return <div role="status" className="mx-auto max-w-7xl animate-pulse px-6 py-16"><div className="h-10 w-2/3 rounded bg-gray-200" /><div className="mt-8 h-64 rounded-2xl bg-gray-100" /><span className="sr-only">Loading MBBS India</span></div>; }

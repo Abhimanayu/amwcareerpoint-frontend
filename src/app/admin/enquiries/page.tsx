@@ -154,6 +154,7 @@ export default function AdminEnquiriesPage() {
                     {selected.city ? <div><span className="text-gray-500 block text-xs mb-0.5">City</span>{String(selected.city)}</div> : null}
                     {selected.pinCode ? <div><span className="text-gray-500 block text-xs mb-0.5">Pin Code</span>{String(selected.pinCode)}</div> : null}
                     {selected.interestedCountry ? <div><span className="text-gray-500 block text-xs mb-0.5">Interested Country</span>{String(selected.interestedCountry)}</div> : null}
+                    {(['interestedState', 'interestedCollege', 'neetRank', 'academicYear'] as const).map(key => selected[key] ? <div key={key}><span className="text-gray-500 block text-xs mb-0.5">{{ interestedState: 'Interested State', interestedCollege: 'Interested College', neetRank: 'NEET Rank', academicYear: 'Admission Year' }[key]}</span>{String(selected[key])}</div> : null)}
                     {selected.source ? <div><span className="text-gray-500 block text-xs mb-0.5">Source</span>{String(selected.source)}</div> : null}
                     {selected.message ? <div><span className="text-gray-500 block text-xs mb-0.5">Message</span><p className="text-gray-700">{String(selected.message)}</p></div> : null}
                     <div><span className="text-gray-500 block text-xs mb-0.5">Date</span>{selected.createdAt ? new Date(selected.createdAt as string).toLocaleString() : '—'}</div>
