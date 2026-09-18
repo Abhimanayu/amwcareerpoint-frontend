@@ -314,7 +314,9 @@ export function pickUniversityImageSource(
     return preferredSource;
   }
 
-  if (options?.allowFallback === false) {
+  // A different campus photo must never stand in for a college's missing image.
+  // Existing callers render a neutral placeholder when no uploaded image exists.
+  if (options?.allowFallback !== true) {
     return '';
   }
 
