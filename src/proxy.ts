@@ -135,13 +135,13 @@ export async function proxy(request: NextRequest) {
   }
 
   const { pathname } = request.nextUrl;
+  if (isClearlyObsoleteOrSpamPath(pathname)) {
+    return goneResponse(request);
+  }
+
   const lastPathSegment = pathname.split('/').filter(Boolean).at(-1) || '';
   if (isPublicAssetPath(lastPathSegment)) {
     return NextResponse.next();
-  }
-
-  if (isClearlyObsoleteOrSpamPath(pathname)) {
-    return goneResponse(request);
   }
 
   const parts = pathname.split('/').filter(Boolean);
