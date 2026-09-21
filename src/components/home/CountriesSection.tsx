@@ -8,6 +8,7 @@ import { getCountries } from '@/lib/countries';
 import type { HomeCuratedCountry } from '@/lib/homeSettings';
 import { extractCollectionData, stripHtml } from '@/lib/utils';
 import { getCountrySlugFromObject } from '@/lib/slugUtils';
+import { useNearViewport } from '@/lib/hooks/useNearViewport';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -95,6 +96,7 @@ function readCountryTotal(payload: unknown, fallbackCount: number) {
 }
 
 export function CountriesSection({ items }: CountriesSectionProps) {
+  const { ref, isNear } = useNearViewport<HTMLElement>();
   const curatedCount = items?.length ?? 0;
   const curatedCountries = items ?? [];
   const [fetchedCountries, setFetchedCountries] = useState<any[]>([]);
@@ -163,6 +165,7 @@ export function CountriesSection({ items }: CountriesSectionProps) {
   };
 
   useEffect(() => {
+    if (!isNear) return;
     // Keep this above current production count, but avoid unnecessarily heavy homepage API payloads.
     getCountries({ limit: HOME_COUNTRY_DISPLAY_LIMIT })
       .then((res) => {
@@ -178,7 +181,7 @@ export function CountriesSection({ items }: CountriesSectionProps) {
         setFetchedTotalCountries(Math.max(fallbackCountries.length, curatedCount));
       });
 
-  }, [curatedCount]);
+  }, [curatedCount, isNear]);
 
   const mergedCountries = dedupeCountries([...curatedCountries, ...fetchedCountries]);
   const countries = mergedCountries.length > 0
@@ -195,7 +198,7 @@ export function CountriesSection({ items }: CountriesSectionProps) {
   const countNoun = countLabel === 1 ? 'Country' : 'Countries';
 
   return (
-    <section className="bg-white py-10 sm:py-14">
+    <section ref={ref} className="bg-white py-10 sm:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8 sm:mb-10">
           <span className="inline-block text-xs font-semibold text-orange uppercase tracking-wider mb-2">{countLabel} {countNoun} Available</span>

@@ -36,7 +36,14 @@ const staticMenuItems: MenuItem[] = [
 
 export function Header() {
   const [indiaLinks, setIndiaLinks] = useState<DropdownItem[]>([]);
-  useEffect(() => { let active = true; getIndiaStates().then(states => { if (active) setIndiaLinks(states.map(s => ({ href: `/mbbs-india/${s.slug}`, label: `MBBS in ${s.name}` }))); }).catch(() => {}); return () => { active = false; }; }, []);
+  const indiaLinksRequested = useRef(false);
+  const loadIndiaLinks = () => {
+    if (indiaLinksRequested.current) return;
+    indiaLinksRequested.current = true;
+    getIndiaStates()
+      .then(states => setIndiaLinks(states.map(s => ({ href: `/mbbs-india/${s.slug}`, label: `MBBS in ${s.name}` }))))
+      .catch(() => { indiaLinksRequested.current = false; });
+  };
   const menuItems = staticMenuItems.map(item => item.label === 'MBBS India' ? { ...item, dropdown: indiaLinks } : item);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -57,6 +64,7 @@ export function Header() {
 
   const handleMouseEnter = (label: string) => {
     if (dropdownTimeout.current) clearTimeout(dropdownTimeout.current);
+    if (label === 'MBBS India') loadIndiaLinks();
     setOpenDropdown(label);
   };
 
@@ -99,7 +107,10 @@ export function Header() {
                       type="button"
                       aria-expanded={openDropdown === item.label}
                       onKeyDown={(event) => { if (event.key === 'Escape') setOpenDropdown(null); }}
-                      onClick={() => setOpenDropdown(openDropdown === item.label ? null : item.label)}
+                      onClick={() => {
+                        if (item.label === 'MBBS India') loadIndiaLinks();
+                        setOpenDropdown(openDropdown === item.label ? null : item.label);
+                      }}
                       className="flex items-center gap-1 text-[13px] font-medium text-[#0D1B3E] hover:text-[#F26419] transition-colors whitespace-nowrap"
                     >
                       {item.label}
@@ -173,7 +184,10 @@ export function Header() {
                 <div key={item.label}>
                   <button
                     type="button"
-                    onClick={() => setMobileExpanded(mobileExpanded === item.label ? null : item.label)}
+                    onClick={() => {
+                      if (item.label === 'MBBS India') loadIndiaLinks();
+                      setMobileExpanded(mobileExpanded === item.label ? null : item.label);
+                    }}
                     className="flex items-center justify-between w-full px-3 py-2.5 text-sm font-medium text-[#0D1B3E] hover:bg-gray-50 rounded-lg"
                   >
                     {item.label}

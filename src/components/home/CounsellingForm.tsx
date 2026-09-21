@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { submitEnquiry } from '@/lib/enquiries';
 import { getCountries } from '@/lib/countries';
 import { extractCollectionData } from '@/lib/utils';
@@ -30,14 +30,13 @@ export function CounsellingForm() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const requestedDestinations = useRef(false);
 
-  useEffect(() => {
-    let mounted = true;
-
+  const loadDestinations = () => {
+    if (requestedDestinations.current) return;
+    requestedDestinations.current = true;
     getCountries({ limit: 500, sort: 'sortOrder' })
       .then((res) => {
-        if (!mounted) return;
-
         const countries = extractCollectionData<Record<string, unknown>>(res, ['countries']);
         const names = countries
           .map((country) => (typeof country.name === 'string' ? country.name.trim() : ''))
@@ -49,15 +48,9 @@ export function CounsellingForm() {
         }
       })
       .catch(() => {
-        if (mounted) {
-          setDestinations(fallbackDestinations);
-        }
+        requestedDestinations.current = false;
       });
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  };
 
   const destinationOptions = useMemo(() => [...destinations].sort((a, b) => a.localeCompare(b)), [destinations]);
 
@@ -133,7 +126,7 @@ export function CounsellingForm() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} onFocusCapture={loadDestinations} className="space-y-4">
         {submitted && (
           <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-center">
             <p className="text-sm font-semibold text-green-700">Thank you! Our expert will call you within 2 hours.</p>

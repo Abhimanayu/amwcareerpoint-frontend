@@ -7,6 +7,7 @@ import { getBlogs } from '@/lib/blogs';
 import { SafeImage } from '@/components/ui/SafeImage';
 import type { HomeCuratedBlog } from '@/lib/homeSettings';
 import { extractCollectionData, formatDate, pickBlogImageAltText, pickBlogImageSource } from '@/lib/utils';
+import { useNearViewport } from '@/lib/hooks/useNearViewport';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -21,6 +22,7 @@ type BlogsSectionProps = {
 };
 
 export function BlogsSection({ items }: BlogsSectionProps) {
+  const { ref, isNear } = useNearViewport<HTMLElement>();
   const curatedItems = items ?? [];
   const hasCuratedItems = curatedItems.length > 0;
   const shouldFetchSupplementalBlogs = !hasCuratedItems || curatedItems.length < 6;
@@ -28,7 +30,7 @@ export function BlogsSection({ items }: BlogsSectionProps) {
   const [usingFetchedFallback, setUsingFetchedFallback] = useState(true);
 
   useEffect(() => {
-    if (!shouldFetchSupplementalBlogs) {
+    if (!isNear || !shouldFetchSupplementalBlogs) {
       return;
     }
 
@@ -47,7 +49,7 @@ export function BlogsSection({ items }: BlogsSectionProps) {
         setFetchedBlogs(hasCuratedItems ? [] : fallbackBlogs);
         setUsingFetchedFallback(true);
       });
-  }, [hasCuratedItems, shouldFetchSupplementalBlogs]);
+  }, [hasCuratedItems, isNear, shouldFetchSupplementalBlogs]);
 
   const blogs = hasCuratedItems
     ? [
@@ -61,7 +63,7 @@ export function BlogsSection({ items }: BlogsSectionProps) {
   const usingFallback = hasCuratedItems ? false : usingFetchedFallback;
 
   return (
-    <section className="py-16 sm:py-20 bg-bg-light">
+    <section ref={ref} className="py-16 sm:py-20 bg-bg-light">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-10 sm:mb-12">

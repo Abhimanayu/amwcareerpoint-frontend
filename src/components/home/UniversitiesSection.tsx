@@ -7,6 +7,7 @@ import { SafeImage } from '@/components/ui/SafeImage';
 import { getUniversities } from '@/lib/universities';
 import type { HomeCuratedUniversity } from '@/lib/homeSettings';
 import { extractCollectionData, pickUniversityImageAltText, pickUniversityImageSource } from '@/lib/utils';
+import { useNearViewport } from '@/lib/hooks/useNearViewport';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -58,12 +59,14 @@ function readUniversityTotal(payload: unknown, fallbackCount: number) {
 }
 
 export function UniversitiesSection({ items }: UniversitiesSectionProps) {
+  const { ref, isNear } = useNearViewport<HTMLElement>();
   const hasCuratedItems = (items?.length ?? 0) > 0;
   const [fetchedUniversities, setFetchedUniversities] = useState<any[]>(fallbackUniversities);
   const [usingFetchedFallback, setUsingFetchedFallback] = useState(true);
   const [totalUniversities, setTotalUniversities] = useState(fallbackUniversities.length);
 
   useEffect(() => {
+    if (!isNear) return;
     getUniversities({ limit: HOME_UNIVERSITY_DISPLAY_LIMIT, sort: 'sortOrder' })
       .then((res) => {
         const items = extractCollectionData<any>(res, ['universities']);
@@ -88,7 +91,7 @@ export function UniversitiesSection({ items }: UniversitiesSectionProps) {
           setTotalUniversities(fallbackUniversities.length);
         }
       });
-  }, [hasCuratedItems]);
+  }, [hasCuratedItems, isNear]);
 
   const universities = hasCuratedItems ? (items ?? []) : fetchedUniversities;
   const visibleUniversities = universities.slice(0, HOME_UNIVERSITY_DISPLAY_LIMIT);
@@ -96,7 +99,7 @@ export function UniversitiesSection({ items }: UniversitiesSectionProps) {
   const visibleCount = Math.max(totalUniversities, universities.length);
 
   return (
-    <section className="bg-[#F9F8F6] py-10 sm:py-14">
+    <section ref={ref} className="bg-[#F9F8F6] py-10 sm:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Heading — left aligned like screenshot */}
         <div className="mb-8 sm:mb-10">
