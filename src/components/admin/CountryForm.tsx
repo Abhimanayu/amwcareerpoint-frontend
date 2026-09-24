@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { expandCountrySupportCards } from '@/lib/countrySupport';
 import { useRouter } from 'next/navigation';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ImageUploader from '@/components/admin/ImageUploader';
@@ -168,6 +169,7 @@ type CountryFormState = {
   sortOrder: number;
     countryCode: string;
     language: string;
+    capital: string;
     currency: string;
     climate: string;
     bannerImage: string;
@@ -208,6 +210,7 @@ function createEmptyForm(): CountryFormState {
     sortOrder: 0,
       countryCode: '',
       language: '',
+      capital: '',
       currency: '',
       climate: '',
       bannerImage: '',
@@ -255,6 +258,7 @@ function normalizeCountryData(data: Record<string, unknown>): Record<string, unk
       cardImageAlt: typeof data.cardImageAlt === 'string' ? data.cardImageAlt : '',
       countryCode: typeof data.countryCode === 'string' ? data.countryCode : '',
       language: typeof data.language === 'string' ? data.language : '',
+      capital: typeof data.capital === 'string' ? data.capital : '',
       currency: typeof data.currency === 'string' ? data.currency : '',
       climate: typeof data.climate === 'string' ? data.climate : '',
       feeRangeUSD: typeof data.feeRangeUSD === 'string' ? data.feeRangeUSD : '',
@@ -316,6 +320,7 @@ function buildCountryValidationInput(form: CountryFormState) {
     livingCost: form.livingCost,
     countryCode: form.countryCode,
     language: form.language,
+    capital: form.capital,
     currency: form.currency,
     climate: form.climate,
     visaInfo: form.visaInfo,
@@ -389,9 +394,9 @@ function buildCountryForm(initialData?: Record<string, unknown>): CountryFormSta
     ? (supportExperienceData.progressItems as Array<{ label?: string; value?: number; status?: string }>)
     : [];
 
-  const supportCardsRaw = Array.isArray(supportExperienceData?.supportCards)
+  const supportCardsRaw = expandCountrySupportCards(Array.isArray(supportExperienceData?.supportCards)
     ? (supportExperienceData.supportCards as Array<{ title?: string; subtitle?: string }>)
-    : [];
+    : []);
 
   const studentLifeData =
     normalized.studentLife && typeof normalized.studentLife === 'object'
@@ -431,6 +436,7 @@ function buildCountryForm(initialData?: Record<string, unknown>): CountryFormSta
     livingCost: (normalized.livingCost as string) || '',
       countryCode: (normalized.countryCode as string) || '',
       language: (normalized.language as string) || '',
+      capital: (normalized.capital as string) || '',
       currency: (normalized.currency as string) || '',
       climate: (normalized.climate as string) || '',
       bannerImage: (normalized.bannerImage as string) || '',
@@ -631,6 +637,7 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
         },
         countryCode: form.countryCode.trim(),
         language: form.language.trim(),
+        capital: form.capital.trim(),
         currency: form.currency.trim(),
         climate: form.climate.trim(),
         bannerImage: form.bannerImage.trim(),
@@ -831,6 +838,18 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
                 placeholder="e.g. English, Russian"
               />
               <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'language')} /><CharCount current={form.language.length} max={L.language.max} /></div>
+            </div>
+            <div>
+              <label htmlFor="country-capital" className="block text-sm font-medium text-gray-700 mb-1">Capital</label>
+              <input
+                id="country-capital"
+                maxLength={L.capital.max}
+                value={form.capital}
+                onChange={(e) => updateField('capital', e.target.value)}
+                className={textInputClass}
+                placeholder="e.g. Moscow"
+              />
+              <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'capital')} /><CharCount current={form.capital.length} max={L.capital.max} /></div>
             </div>
             <div>
               <label htmlFor="country-currency" className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
@@ -1175,104 +1194,7 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
             <p className="mt-1 text-sm text-gray-500">Controls the dark support block on the country page.</p>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label htmlFor="support-eyebrow" className="block text-sm font-medium text-gray-700 mb-1">Eyebrow</label>
-              <input
-                id="support-eyebrow"
-                maxLength={L.supportExperience.eyebrowMax}
-                value={form.supportExperience.eyebrow}
-                onChange={(e) => updateSupportExperience({ ...form.supportExperience, eyebrow: e.target.value })}
-                className={textInputClass}
-              />
-              <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'supportExperience.eyebrow')} /><CharCount current={form.supportExperience.eyebrow.length} max={L.supportExperience.eyebrowMax} /></div>
-            </div>
-            <div>
-              <label htmlFor="support-title" className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-              <input
-                id="support-title"
-                maxLength={L.supportExperience.titleMax}
-                value={form.supportExperience.title}
-                onChange={(e) => updateSupportExperience({ ...form.supportExperience, title: e.target.value })}
-                className={textInputClass}
-              />
-              <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'supportExperience.title')} /><CharCount current={form.supportExperience.title.length} max={L.supportExperience.titleMax} /></div>
-            </div>
-          </div>
-
           <div>
-            <label htmlFor="support-description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-            <textarea
-              id="support-description"
-              rows={4}
-              maxLength={L.supportExperience.descriptionMax}
-              value={form.supportExperience.description}
-              onChange={(e) => updateSupportExperience({ ...form.supportExperience, description: e.target.value })}
-              className={textAreaClass}
-            />
-            <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'supportExperience.description')} /><CharCount current={form.supportExperience.description.length} max={L.supportExperience.descriptionMax} /></div>
-          </div>
-
-          <div className="grid gap-6 lg:grid-cols-2">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-gray-900">Progress Items <span className="text-xs text-gray-400 font-normal">({form.supportExperience.progressItems.filter((item) => item.label.trim()).length}/{L.supportExperience.progressItemsMax})</span></h3>
-                {form.supportExperience.progressItems.length < L.supportExperience.progressItemsMax && (
-                  <button type="button" onClick={() => updateSupportExperience({ ...form.supportExperience, progressItems: [...form.supportExperience.progressItems, { ...createEmptySupportProgressItem(), value: 80 }] })} className={addButtonClass}>+ Add</button>
-                )}
-              </div>
-              <FieldError message={getFieldError(validationErrors, 'supportExperience.progressItems')} />
-              {form.supportExperience.progressItems.map((item, i) => (
-                <div key={item.id} className="rounded-xl bg-gray-50 p-3 space-y-2">
-                  <div className="flex gap-2">
-                    <input
-                      maxLength={L.supportExperience.progressLabelMax}
-                      value={item.label}
-                      onChange={(e) => {
-                        const arr = [...form.supportExperience.progressItems];
-                        arr[i] = { ...arr[i], label: e.target.value };
-                        updateSupportExperience({ ...form.supportExperience, progressItems: arr });
-                      }}
-                      placeholder="Label"
-                      className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm"
-                    />
-                    {form.supportExperience.progressItems.length > 1 && (
-                      <button type="button" onClick={() => updateSupportExperience({ ...form.supportExperience, progressItems: form.supportExperience.progressItems.filter((_, j) => j !== i) })} className="text-red-400 hover:text-red-600 px-2">×</button>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <input
-                      type="number"
-                      min={0}
-                      max={100}
-                      value={item.value}
-                      onChange={(e) => {
-                        const arr = [...form.supportExperience.progressItems];
-                        arr[i] = { ...arr[i], value: Math.min(100, Math.max(0, Number.parseInt(e.target.value) || 0)) };
-                        updateSupportExperience({ ...form.supportExperience, progressItems: arr });
-                      }}
-                      placeholder="Progress %"
-                      className={compactInputClass}
-                    />
-                    <input
-                      maxLength={L.supportExperience.progressStatusMax}
-                      value={item.status}
-                      onChange={(e) => {
-                        const arr = [...form.supportExperience.progressItems];
-                        arr[i] = { ...arr[i], status: e.target.value };
-                        updateSupportExperience({ ...form.supportExperience, progressItems: arr });
-                      }}
-                      placeholder="Status text"
-                      className={compactInputClass}
-                    />
-                  </div>
-                  <div className="text-[11px] text-gray-400">
-                    Keep labels short for the country-page layout.
-                  </div>
-                </div>
-              ))}
-            </div>
-
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-gray-900">Support Cards <span className="text-xs text-gray-400 font-normal">({form.supportExperience.supportCards.filter((item) => item.title.trim()).length}/{L.supportExperience.supportCardsMax})</span></h3>

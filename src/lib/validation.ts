@@ -59,6 +59,7 @@ export const LIMITS = {
     livingCost: { max: 120 },
     countryCode: { max: 20 },
     language: { max: 180 },
+    capital: { max: 120 },
     currency: { max: 120 },
     climate: { max: 180 },
     visaInfo: { max: 4000 },
@@ -85,7 +86,7 @@ export const LIMITS = {
       progressItemsMax: 6,
       progressLabelMax: 160,
       progressStatusMax: 40,
-      supportCardsMax: 6,
+      supportCardsMax: 8,
       supportCardTitleMax: 60,
       supportCardSubtitleMax: 180,
     },
@@ -149,6 +150,7 @@ export function validateCountryForm(form: {
   livingCost: string;
   countryCode: string;
   language: string;
+  capital: string;
   currency: string;
   climate: string;
   visaInfo: string;
@@ -201,6 +203,7 @@ export function validateCountryForm(form: {
   if (form.livingCost.length > L.livingCost.max) errors.push({ field: 'livingCost', message: `Living cost must not exceed ${L.livingCost.max} characters` });
   if (form.countryCode.length > L.countryCode.max) errors.push({ field: 'countryCode', message: `Country code must not exceed ${L.countryCode.max} characters` });
   if (form.language.length > L.language.max) errors.push({ field: 'language', message: `Language must not exceed ${L.language.max} characters` });
+  if (form.capital.length > L.capital.max) errors.push({ field: 'capital', message: `Capital must not exceed ${L.capital.max} characters` });
   if (form.currency.length > L.currency.max) errors.push({ field: 'currency', message: `Currency must not exceed ${L.currency.max} characters` });
   if (form.climate.length > L.climate.max) errors.push({ field: 'climate', message: `Climate must not exceed ${L.climate.max} characters` });
   if (form.visaInfo.length > L.visaInfo.max) errors.push({ field: 'visaInfo', message: `Visa information must not exceed ${L.visaInfo.max} characters` });

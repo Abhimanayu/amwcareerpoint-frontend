@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { expandCountrySupportCards } from '@/lib/countrySupport';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { SafeImage } from '@/components/ui/SafeImage';
@@ -106,29 +107,6 @@ type SupportCard = {
   subtitle?: string;
 };
 
-type StudentLifeCard = {
-  icon?: string;
-  title?: string;
-  description?: string;
-};
-
-type StudentLife = {
-  eyebrow?: string;
-  title?: string;
-  description?: string;
-  cards?: StudentLifeCard[];
-};
-
-type DocumentsChecklistItem = {
-  label?: string;
-};
-
-type DocumentsChecklist = {
-  eyebrow?: string;
-  title?: string;
-  items?: DocumentsChecklistItem[];
-};
-
 type SupportExperience = {
   eyebrow?: string;
   title?: string;
@@ -189,15 +167,6 @@ function getUniversityHostelFee(university: UniversitySummary) {
   return university.hostelFees || university.hostelFee || '';
 }
 
-function getHostelFeeLabel(university: UniversitySummary) {
-  const fee = getUniversityHostelFee(university);
-  if (fee) {
-    return { value: fee, isMissing: false };
-  }
-
-  return { value: 'Ask counsellor', isMissing: true };
-}
-
 async function enrichUniversityHostelFees(universities: UniversitySummary[]) {
   const needsLookup = universities.filter(
     (university) => !getUniversityHostelFee(university) && Boolean(university.slug)
@@ -248,25 +217,6 @@ const CARD_ACCENTS = [
   'from-[#15803D]/14 to-[#15803D]/5',
 ];
 
-const LIFE_CARD_BACKGROUNDS = [
-  'bg-[#1E3A5F]',
-  'bg-[#1D6F5F]',
-  'bg-[#80512B]',
-  'bg-[#583C8C]',
-  'bg-[#8B304D]',
-  'bg-[#176B73]',
-];
-
-const DOCUMENTS_REQUIRED = [
-  '10th and 12th mark sheets',
-  'NEET scorecard',
-  'Valid passport',
-  'Passport-size photographs',
-  'Medical fitness certificate',
-  'Birth certificate or ID proof',
-  'Admission or invitation letter',
-  'Visa support documents',
-];
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (SEO_HOLD) {
@@ -364,48 +314,6 @@ function hasNmcMention(university: UniversitySummary) {
   const accreditation = university.accreditation || '';
   const recognition = Array.isArray(university.recognition) ? university.recognition.join(' ') : '';
   return /\bnmc\b/i.test(`${accreditation} ${recognition}`);
-}
-
-function getFallbackLifeCards(countryName: string) {
-  return [
-    {
-      title: 'Accommodation and student comfort',
-      description: `Indian students in ${countryName} usually look for safe housing, manageable daily costs, and campus support from day one.`,
-      icon: 'Home',
-    },
-    {
-      title: 'Food and daily routine',
-      description: 'AMW helps students understand hostel life, meal options, and what to expect from their first semester abroad.',
-      icon: 'Food',
-    },
-    {
-      title: 'Campus and classroom culture',
-      description: `The academic environment in ${countryName} combines structured teaching with steady clinical exposure over time.`,
-      icon: 'Study',
-    },
-  ];
-}
-
-function resolveLifeCards(
-  countryName: string,
-  studentLifeCards: StudentLifeCard[],
-  reasonCards: Array<{ title: string; description: string; icon: string }>
-) {
-  if (studentLifeCards.length > 0) {
-    return studentLifeCards.slice(0, 6).map((card) => ({
-      icon: card.icon || 'Study',
-      title: card.title || 'Student life',
-      description:
-        card.description ||
-        `Students in ${countryName} can expect practical academic support, cultural adjustment guidance, and day-to-day clarity after arrival.`,
-    }));
-  }
-
-  if (reasonCards.length > 0) {
-    return reasonCards.slice(0, 6);
-  }
-
-  return getFallbackLifeCards(countryName);
 }
 
 function normalizeObjectPosition(value?: string) {
@@ -629,24 +537,16 @@ export default async function CountryPage({ params }: Props) {
         (step) => Boolean(step?.title || step?.description)
       )
     : [];
-  const studentLife =
-    country.studentLife && typeof country.studentLife === 'object'
-      ? (country.studentLife as StudentLife)
-      : {};
-  const documentsChecklist =
-    country.documentsChecklist && typeof country.documentsChecklist === 'object'
-      ? (country.documentsChecklist as DocumentsChecklist)
-      : {};
   const supportExperience =
     country.supportExperience && typeof country.supportExperience === 'object'
       ? (country.supportExperience as SupportExperience)
       : {};
 
   const heroStats = [
-    { label: 'Tuition fee', value: country.feeRange ?? 'On request' },
+    { label: 'Capital', value: country.capital || 'To be updated' },
     { label: 'Course duration', value: country.duration ?? '6 years' },
     { label: 'Medium of study', value: country.medium ?? 'English medium' },
-    { label: 'Living cost', value: country.livingCost ?? 'Budget friendly' },
+    { label: 'Currency', value: country.currency || 'To be updated' },
   ];
 
   const countrySnapshot = [
@@ -673,32 +573,6 @@ export default async function CountryPage({ params }: Props) {
           icon: '+',
         }));
 
-  const studentLifeCards = Array.isArray(studentLife.cards)
-    ? studentLife.cards.filter(
-        (card): card is Required<Pick<StudentLifeCard, 'title'>> & StudentLifeCard =>
-          Boolean(card?.title)
-      )
-    : [];
-  const lifeCards = resolveLifeCards(country.name || 'this destination', studentLifeCards, reasonCards);
-  const studentLifeDescriptionHtml = studentLife.description
-    ? sanitizeAndOptimizeMobileContent(sanitizeHtml(studentLife.description))
-    : '';
-
-  const resolvedDocumentsChecklistItems = Array.isArray(documentsChecklist.items)
-    ? documentsChecklist.items
-        .filter((item): item is Required<DocumentsChecklistItem> => Boolean(item?.label))
-        .slice(0, 12)
-    : [];
-
-  const trustPills =
-    highlights.length > 0
-      ? highlights.slice(0, 4)
-      : [
-          'Internationally recognised options',
-          'Student-first counselling support',
-          'Affordable fee planning',
-          'Visa and travel guidance',
-        ];
   const heroTrustItems = [
     { title: 'Trusted by 18,500+ Students', subtitle: 'Successful admissions across top universities' },
     { title: '10+ Years of Experience', subtitle: 'Expert guidance you can rely on' },
@@ -706,32 +580,15 @@ export default async function CountryPage({ params }: Props) {
     { title: 'End-to-End Support', subtitle: 'From admission to accommodation' },
   ];
 
-  const supportProgressItems = Array.isArray(supportExperience.progressItems)
-    ? supportExperience.progressItems.filter(
-        (item): item is Required<SupportProgressItem> =>
-          Boolean(item?.label) && typeof item?.value === 'number'
-      )
-    : [];
-
   const supportCards = Array.isArray(supportExperience.supportCards)
     ? supportExperience.supportCards.filter(
         (item): item is Required<SupportCard> => Boolean(item?.title)
       )
     : [];
 
-  const resolvedSupportProgressItems =
-    supportProgressItems.length > 0
-      ? supportProgressItems.slice(0, 6)
-      : [
-          { label: 'Country shortlisting and options', value: 92, status: 'Included' },
-          { label: 'University comparison and counselling', value: 86, status: 'Included' },
-          { label: 'Application and documentation help', value: 88, status: 'Included' },
-          { label: 'Visa, travel, and arrival coordination', value: 80, status: 'Included' },
-        ];
-
   const resolvedSupportCards =
     supportCards.length > 0
-      ? supportCards.slice(0, 6)
+      ? expandCountrySupportCards(supportCards)
       : [
           { title: 'Day 1', subtitle: 'Counselling support begins' },
           { title: '1:1', subtitle: 'Application guidance' },
@@ -739,6 +596,8 @@ export default async function CountryPage({ params }: Props) {
           { title: 'Stay', subtitle: 'Travel and arrival support' },
           { title: 'Funds', subtitle: 'Fee planning assistance' },
           { title: 'After', subtitle: 'Post-arrival support' },
+          { title: 'Prepare', subtitle: 'Pre-departure briefing' },
+          { title: 'Connect', subtitle: 'Counsellor follow-up' },
         ];
 
   const collegesFilterValue = [countryId, countryFilterSlug, resolvedSlug].find(
@@ -872,16 +731,6 @@ export default async function CountryPage({ params }: Props) {
               ))}
             </div>
 
-            {trustPills.length > 0 && (
-              <div className="flex flex-wrap items-center justify-center gap-3">
-                {trustPills.map((pill, idx) => (
-                  <div key={`${idx}-${pill}`} className="inline-flex items-center gap-2 rounded-full border border-[#E7DECF] bg-white/82 px-4 py-2 text-[12px] font-medium text-[#4A4742] shadow-sm backdrop-blur">
-                    <span className="text-[#F26419]">+</span>
-                    <span>{pill}</span>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         </div>
       </section>
@@ -1104,227 +953,9 @@ export default async function CountryPage({ params }: Props) {
         </section>
       )}
 
-      {universities.length > 0 && (
-        <section className="px-4 pb-14 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-7xl overflow-hidden rounded-[28px] border border-[#E7DECF] bg-white shadow-[0_18px_55px_rgba(13,27,62,0.04)]">
-            <div className="border-b border-[#EFE6D8] px-6 py-5">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F26419]">
-                Fee Comparison
-              </span>
-              <h2 className="mt-2 font-heading text-2xl sm:text-3xl font-bold text-[#0D1B3E]">
-                MBBS {country.name} fee structure
-              </h2>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-max w-full text-left text-sm">
-                <thead className="bg-[#10244B] text-white">
-                  <tr>
-                    <th className="px-5 py-3 font-semibold">University</th>
-                    <th className="px-5 py-3 font-semibold">Annual Tuition</th>
-                    <th className="px-5 py-3 font-semibold">Hostel Fee</th>
-                    <th className="px-5 py-3 font-semibold">Duration</th>
-                    <th className="px-5 py-3 font-semibold">Medium</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#EFE6D8] bg-white">
-                  {universities.slice(0, 8).map((university) => {
-                    const hostelFee = getHostelFeeLabel(university);
-
-                    return (
-                      <tr key={university._id || university.slug || university.name} className="hover:bg-[#F8F4EC]">
-                        <td className="px-5 py-4 font-medium text-[#0D1B3E] whitespace-normal break-words">{university.name || 'University'}</td>
-                        <td className="px-5 py-4 text-[#4A4742] whitespace-normal break-words">{university.annualFees || country.feeRange || 'On request'}</td>
-                        <td className="px-5 py-4">
-                          <span
-                            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
-                              hostelFee.isMissing
-                                ? 'bg-[#FFF7ED] text-[#B45309] border border-[#FDE68A]'
-                                : 'bg-[#ECFDF3] text-[#047857] border border-[#A7F3D0]'
-                            }`}
-                          >
-                            {hostelFee.value}
-                          </span>
-                        </td>
-                        <td className="px-5 py-4 text-[#4A4742] whitespace-normal break-words">{getUniversityDuration(university, country.duration)}</td>
-                        <td className="px-5 py-4 text-[#4A4742] whitespace-normal break-words">{university.medium || 'English'}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {typeof country.visaInfo === 'string' && country.visaInfo.trim() && (
-        <section className="bg-white px-4 py-14 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-7xl">
-            <div className="mb-8 max-w-3xl">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F26419]">
-                Visa Information
-              </span>
-              <h2 className="mt-3 font-heading text-2xl sm:text-3xl font-bold text-[#0D1B3E]">
-                Visa requirements for {country.name}
-              </h2>
-            </div>
-            <div className="rounded-[24px] border border-[#E7DECF] bg-[#FFFDF9] p-6 shadow-[0_12px_36px_rgba(13,27,62,0.04)]">
-              <p className="whitespace-pre-line text-[15px] leading-7 text-[#4A4742]">{country.visaInfo}</p>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {admissionSteps.length > 0 && (
-        <section className="bg-white px-4 py-14 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-7xl">
-            <div className="mb-8 max-w-3xl">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F26419]">
-                Admission Process
-              </span>
-              <h2 className="mt-3 font-heading text-2xl sm:text-3xl font-bold text-[#0D1B3E]">
-                {country.name} MBBS admission process
-              </h2>
-              <p className="mt-3 text-[15px] leading-7 text-[#4A4742]">
-                From counselling to visa readiness, here is the usual sequence students follow when planning admission in {country.name}.
-              </p>
-            </div>
-
-            <div className="grid gap-4 lg:grid-cols-4">
-              {admissionSteps.map((step) => (
-                <article
-                  key={`${step.step}-${step.title}`}
-                  className="rounded-[26px] border border-[#E7DECF] bg-[#FFFDF9] p-6 shadow-[0_14px_40px_rgba(13,27,62,0.04)]"
-                >
-                  <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#10244B] text-sm font-semibold text-white">
-                    {step.step || <>&bull;</>}
-                  </div>
-                  <h3 className="text-lg font-semibold text-[#0D1B3E]">{step.title || 'Step'}</h3>
-                  <p className="mt-3 text-sm leading-7 text-[#4A4742]">{step.description || 'Admission support details will be shared by our counselling team.'}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      <section className="px-4 py-14 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="rounded-[28px] border border-[#E7DECF] bg-white p-6 shadow-[0_16px_48px_rgba(13,27,62,0.04)]">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F26419]">
-              Eligibility and Entry Basics
-            </span>
-            <h2 className="mt-3 font-heading text-2xl sm:text-3xl font-bold text-[#0D1B3E]">
-              {country.name} MBBS eligibility at a glance
-            </h2>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              {eligibility.length > 0 ? (
-                eligibility.map((item, idx) => (
-                  <div
-                    key={`${idx}-${item}`}
-                    className="rounded-2xl border border-[#EFE6D8] bg-[#FFFDF9] px-4 py-4 text-sm font-medium text-[#0D1B3E]"
-                  >
-                    <span className="mr-2 text-[#22A06B]">&#10003;</span>
-                    {item}
-                  </div>
-                ))
-              ) : (
-                <div className="rounded-2xl border border-[#EFE6D8] bg-[#FFFDF9] px-4 py-4 text-sm text-[#4A4742]">
-                  Eligibility details will be confirmed during counselling.
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="rounded-[28px] border border-[#E7DECF] bg-white p-6 shadow-[0_16px_48px_rgba(13,27,62,0.04)]">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F26419]">
-              {documentsChecklist.eyebrow || 'Documents Checklist'}
-            </span>
-            <h2 className="mt-3 font-heading text-2xl sm:text-3xl font-bold text-[#0D1B3E]">
-              {documentsChecklist.title || 'Documents commonly needed'}
-            </h2>
-            <ul className="mt-6 space-y-3 text-sm leading-7 text-[#4A4742]">
-              {(resolvedDocumentsChecklistItems.length > 0
-                ? resolvedDocumentsChecklistItems.map((item) => item.label)
-                : DOCUMENTS_REQUIRED).map((item, idx) => (
-                <li key={`${idx}-${item}`} className="flex items-start gap-3 rounded-2xl border border-[#EFE6D8] bg-[#FFFDF9] px-4 py-3">
-                  <span className="mt-1 text-[#F26419]">&bull;</span>
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {lifeCards.length > 0 && (
-        <section className="bg-white px-4 py-14 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-7xl">
-            <div className="mb-8 max-w-3xl">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F26419]">
-                {studentLife.eyebrow || 'Student Life'}
-              </span>
-              <h2 className="mt-3 font-heading text-2xl sm:text-3xl font-bold text-[#0D1B3E]">
-                {studentLife.title || `What is life like in ${country.name} for Indian students?`}
-              </h2>
-              {studentLifeDescriptionHtml ? (
-                <div
-                  className="blog-content prose prose-sm sm:prose-base mt-3 max-w-none text-[#4A4742] prose-a:text-[#F26419] prose-a:no-underline hover:prose-a:underline"
-                  dangerouslySetInnerHTML={{ __html: studentLifeDescriptionHtml }}
-                />
-              ) : (
-                <p className="mt-3 text-[15px] leading-7 text-[#4A4742]">
-                  Beyond admission, students want clarity on accommodation, classroom culture, practical training, and day-to-day comfort abroad.
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {lifeCards.map((card, index) => (
-                <article
-                  key={`${index}-${card.title}`}
-                  className="overflow-hidden rounded-[24px] border border-[#E7DECF] bg-white shadow-[0_12px_36px_rgba(13,27,62,0.04)]"
-                >
-                  <div className={`flex items-center gap-3 px-5 py-4 text-white ${LIFE_CARD_BACKGROUNDS[index % LIFE_CARD_BACKGROUNDS.length]}`}>
-                    <span className="text-2xl">{card.icon}</span>
-                    <h3 className="text-base font-semibold">{card.title}</h3>
-                  </div>
-                  <div className="p-5 text-sm leading-7 text-[#4A4742]">{card.description}</div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
       <section className="bg-[#10244B] px-4 py-14 text-white sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
-          <div>
-            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F7B37E]">
-              {supportExperience.eyebrow || 'AMW Support Experience'}
-            </span>
-            <h2 className="mt-3 font-heading text-2xl sm:text-3xl font-bold">
-              {supportExperience.title || 'We prepare students from counselling to campus arrival'}
-            </h2>
-            <p className="mt-4 max-w-2xl text-[15px] leading-7 text-white/72">
-              {supportExperience.description || `Students choosing ${country.name} usually need more than university names. They need clear selection support, document guidance, fee planning, and dependable follow-through.`}
-            </p>
-            <div className="mt-6 space-y-4">
-              {resolvedSupportProgressItems.map((item, idx) => (
-                <div key={`${idx}-${item.label}`}>
-                  <div className="mb-2 flex flex-col gap-0.5 text-sm text-white/75 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                    <span className="min-w-0 break-words">{item.label}</span>
-                    <span className="break-words text-right text-white/90 sm:text-white/75">{item.status || 'Included'}</span>
-                  </div>
-                  <div className="h-2 rounded-full bg-white/10">
-                    <div className="h-2 rounded-full bg-[#F26419]" style={{ width: `${Math.min(100, Math.max(0, item.value))}%` }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {resolvedSupportCards.map((item, idx) => (
               <div key={`${idx}-${item.title}`} className="rounded-[24px] border border-white/10 bg-white/6 px-5 py-6 backdrop-blur">
                 <div className="break-words text-2xl sm:text-3xl font-heading font-bold leading-none text-[#F7B37E] sm:text-[2rem]">{item.title}</div>
