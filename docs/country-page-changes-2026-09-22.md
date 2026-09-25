@@ -8,6 +8,7 @@ Source: website changes .pdf. Applies to all MBBS Abroad country pages, as confi
 - Remove fee comparison, visa information and admission process sections.
 - Remove eligibility, documents checklist and student life sections.
 - Remove the left support narrative/progress area and its admin controls.
+- Remove the admin controls for visa, admission process, eligibility, documents and student life; old saved data remains compatible but is no longer editable.
 - Support eight admin-managed cards in a full-width responsive grid, including backend validation.
 - Preserve other sections, imagery and stored content.
 

@@ -1017,8 +1017,8 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
           </div>
         </section>
 
-        {/* Student Life */}
-        <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+        {/* Student Life is retained in stored records for compatibility, but is no longer editable. */}
+        {false && (<section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
           <div>
             <h2 className="font-semibold text-gray-900">Student Life Section</h2>
             <p className="mt-1 text-sm text-gray-500">Controls the student-life block on the country page.</p>
@@ -1124,10 +1124,10 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
               </div>
             ))}
           </div>
-        </section>
+        </section>)}
 
-        {/* Documents Checklist */}
-        <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+        {/* Documents Checklist is retained in stored records for compatibility, but is no longer editable. */}
+        {false && (<section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
           <div>
             <h2 className="font-semibold text-gray-900">Documents Checklist Section</h2>
             <p className="mt-1 text-sm text-gray-500">Controls the documents checklist block on the country page.</p>
@@ -1185,7 +1185,7 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
               </div>
             ))}
           </div>
-        </section>
+        </section>)}
 
         {/* Support Experience */}
         <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
@@ -1324,8 +1324,8 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
           ))}
         </section>
 
-        {/* Visa Information */}
-        <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+        {/* Visa Information is retained in stored records for compatibility, but is no longer editable. */}
+        {false && (<section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
               <h2 className="font-semibold text-gray-900">Visa Information <span className="text-xs font-normal text-gray-400">(Optional)</span></h2>
@@ -1347,7 +1347,7 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
             placeholder="Visa requirements, processing time, fees, documents needed..."
           />
           <div className="flex justify-between"><FieldError message={getFieldError(validationErrors, 'visaInfo')} /><CharCount current={form.visaInfo.length} max={L.visaInfo.max} /></div>
-        </section>
+        </section>)}
 
                {/* FAQs */}
         <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
@@ -1397,8 +1397,8 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
           ))}
         </section>
 
-        {/* Eligibility */}
-        <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+        {/* Eligibility is retained in stored records for compatibility, but is no longer editable. */}
+        {false && (<section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-gray-900">Eligibility Criteria <span className="text-xs text-gray-400 font-normal">({form.eligibility.filter(Boolean).length}/{L.eligibility.maxItems})</span></h2>
             {form.eligibility.length < L.eligibility.maxItems && (
@@ -1421,10 +1421,10 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
               )}
             </div>
           ))}
-        </section>
+        </section>)}
 
-        {/* Admission Process */}
-        <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+        {/* Admission Process is retained in stored records for compatibility, but is no longer editable. */}
+        {false && (<section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-gray-900">Admission Process <span className="text-xs text-gray-400 font-normal">({form.admissionProcess.filter(a => a.title).length}/{L.admissionProcess.maxItems})</span></h2>
             {form.admissionProcess.length < L.admissionProcess.maxItems && (
@@ -1445,7 +1445,7 @@ export default function CountryForm({ initialData, isEdit }: Readonly<CountryFor
               )}
             </div>
           ))}
-        </section>
+        </section>)}
 
         {/* SEO */}
         <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
