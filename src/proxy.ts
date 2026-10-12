@@ -62,6 +62,10 @@ function isPublicAssetPath(slug: string) {
     || slug === 'og-image';
 }
 
+function normalizeMalformedDetailSlug(slug: string) {
+  return slug.replace(/[.,;]+$/g, '');
+}
+
 async function legacyDetailStatus(resource: 'universities' | 'blogs', slug: string) {
   const apiBaseUrl = getApiBaseUrl();
 
@@ -129,6 +133,24 @@ function goneResponse(request: NextRequest) {
   );
 }
 
+function serviceUnavailableResponse(request: NextRequest) {
+  const headers = {
+    'Cache-Control': 'no-store, max-age=0',
+    'Content-Type': 'text/html; charset=utf-8',
+    'Retry-After': '60',
+    'X-Robots-Tag': 'noindex, follow',
+  };
+
+  if (request.method === 'HEAD') {
+    return new NextResponse(null, { status: 503, headers });
+  }
+
+  return new NextResponse(
+    '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex,follow"><title>Temporarily unavailable</title></head><body><h1>Temporarily unavailable</h1><p>Please try again shortly.</p></body></html>',
+    { status: 503, headers },
+  );
+}
+
 export async function proxy(request: NextRequest) {
   if (request.method !== 'GET' && request.method !== 'HEAD') {
     return NextResponse.next();
@@ -139,12 +161,12 @@ export async function proxy(request: NextRequest) {
     return goneResponse(request);
   }
 
-  const lastPathSegment = pathname.split('/').filter(Boolean).at(-1) || '';
-  if (isPublicAssetPath(lastPathSegment)) {
+  const parts = pathname.split('/').filter(Boolean);
+  const lastPathSegment = parts.at(-1) || '';
+  if (parts.length === 1 && isPublicAssetPath(lastPathSegment)) {
     return NextResponse.next();
   }
 
-  const parts = pathname.split('/').filter(Boolean);
   if (parts.length === 2) {
     const routeToResource: Record<string, PublicResource> = {
       college: 'universities',
@@ -154,8 +176,18 @@ export async function proxy(request: NextRequest) {
     const resource = routeToResource[parts[0].toLowerCase()];
 
     if (resource) {
-      const status = await publicDetailStatus(resource, parts[1]);
+      const originalSlug = parts[1];
+      const normalizedSlug = normalizeMalformedDetailSlug(originalSlug);
+      const status = await publicDetailStatus(resource, normalizedSlug);
+
+      if (status === 'exists' && normalizedSlug !== originalSlug) {
+        const destination = request.nextUrl.clone();
+        destination.pathname = `/${parts[0]}/${normalizedSlug}`;
+        return NextResponse.redirect(destination, 308);
+      }
+
       if (status === 'missing') return goneResponse(request);
+      if (status === 'unavailable') return serviceUnavailableResponse(request);
     }
   }
 
@@ -182,6 +214,10 @@ export async function proxy(request: NextRequest) {
 
     if (blogStatus === 'missing' && universityStatus === 'missing') {
       return goneResponse(request);
+    }
+
+    if (blogStatus === 'unavailable' || universityStatus === 'unavailable') {
+      return serviceUnavailableResponse(request);
     }
   }
 
