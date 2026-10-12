@@ -86,6 +86,15 @@ async function legacyDetailStatus(resource: 'universities' | 'blogs', slug: stri
 
 type PublicResource = 'universities' | 'blogs' | 'countries';
 
+const DETAIL_ROUTE_ALIASES: Record<string, { canonicalSegment: string; resource: PublicResource }> = {
+  blog: { canonicalSegment: 'blogs', resource: 'blogs' },
+  blogs: { canonicalSegment: 'blogs', resource: 'blogs' },
+  college: { canonicalSegment: 'college', resource: 'universities' },
+  colleges: { canonicalSegment: 'college', resource: 'universities' },
+  countries: { canonicalSegment: 'countries', resource: 'countries' },
+  universities: { canonicalSegment: 'college', resource: 'universities' },
+};
+
 async function publicDetailStatus(resource: PublicResource, slug: string) {
   const candidates = resource === 'countries' ? getCountrySlugCandidates(slug) : [slug];
   let sawUnavailable = false;
@@ -167,22 +176,24 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (parts.length === 2) {
-    const routeToResource: Record<string, PublicResource> = {
-      college: 'universities',
-      blogs: 'blogs',
-      countries: 'countries',
-    };
-    const resource = routeToResource[parts[0].toLowerCase()];
+  const isIndexPhpDetail = parts.length === 3 && parts[0].toLowerCase() === 'index.php';
+  const detailParts = isIndexPhpDetail ? parts.slice(1) : parts;
 
-    if (resource) {
-      const originalSlug = parts[1];
+  if (detailParts.length === 2) {
+    const originalSegment = detailParts[0].toLowerCase();
+    const route = DETAIL_ROUTE_ALIASES[originalSegment];
+
+    if (route) {
+      const originalSlug = detailParts[1];
       const normalizedSlug = normalizeMalformedDetailSlug(originalSlug);
-      const status = await publicDetailStatus(resource, normalizedSlug);
+      const status = await publicDetailStatus(route.resource, normalizedSlug);
+      const needsCanonicalRedirect = isIndexPhpDetail
+        || originalSegment !== route.canonicalSegment
+        || normalizedSlug !== originalSlug;
 
-      if (status === 'exists' && normalizedSlug !== originalSlug) {
+      if (status === 'exists' && needsCanonicalRedirect) {
         const destination = request.nextUrl.clone();
-        destination.pathname = `/${parts[0]}/${normalizedSlug}`;
+        destination.pathname = `/${route.canonicalSegment}/${normalizedSlug}`;
         return NextResponse.redirect(destination, 308);
       }
 

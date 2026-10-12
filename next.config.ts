@@ -34,18 +34,8 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
-        source: '/universities/:slug',
-        destination: '/college/:slug',
-        permanent: true,
-      },
-      {
         source: '/index.php',
         destination: '/',
-        permanent: true,
-      },
-      {
-        source: '/index.php/:path*',
-        destination: '/:path*',
         permanent: true,
       },
       {
@@ -79,16 +69,6 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
-        source: '/colleges/:slug',
-        destination: '/college/:slug',
-        permanent: true,
-      },
-      {
-        source: '/colleges/:slug/',
-        destination: '/college/:slug',
-        permanent: true,
-      },
-      {
         source: '/country-colleges/:country',
         destination: '/college?country=:country',
         permanent: true,
@@ -106,16 +86,6 @@ const nextConfig: NextConfig = {
       {
         source: '/blog/',
         destination: '/blogs',
-        permanent: true,
-      },
-      {
-        source: '/blog/:slug',
-        destination: '/blogs/:slug',
-        permanent: true,
-      },
-      {
-        source: '/blog/:slug/',
-        destination: '/blogs/:slug',
         permanent: true,
       },
       {
