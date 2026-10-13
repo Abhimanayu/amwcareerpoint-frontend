@@ -85,6 +85,9 @@ async function legacyDetailStatus(resource: 'universities' | 'blogs', slug: stri
 }
 
 type PublicResource = 'universities' | 'blogs' | 'countries';
+type PublicDetailStatus =
+  | { state: 'exists'; slug: string }
+  | { state: 'missing' | 'unavailable' };
 
 const DETAIL_ROUTE_ALIASES: Record<string, { canonicalSegment: string; resource: PublicResource }> = {
   blog: { canonicalSegment: 'blogs', resource: 'blogs' },
@@ -95,7 +98,7 @@ const DETAIL_ROUTE_ALIASES: Record<string, { canonicalSegment: string; resource:
   universities: { canonicalSegment: 'college', resource: 'universities' },
 };
 
-async function publicDetailStatus(resource: PublicResource, slug: string) {
+async function publicDetailStatus(resource: PublicResource, slug: string): Promise<PublicDetailStatus> {
   const candidates = resource === 'countries' ? getCountrySlugCandidates(slug) : [slug];
   let sawUnavailable = false;
 
@@ -112,7 +115,7 @@ async function publicDetailStatus(resource: PublicResource, slug: string) {
 
       if (response.ok) {
         const payload = await response.json();
-        if (payload?.data?.slug === candidate) return 'exists';
+        if (payload?.data?.slug === candidate) return { state: 'exists', slug: candidate };
         sawUnavailable = true;
       } else if (response.status !== 404) {
         sawUnavailable = true;
@@ -122,7 +125,7 @@ async function publicDetailStatus(resource: PublicResource, slug: string) {
     }
   }
 
-  return sawUnavailable ? 'unavailable' : 'missing';
+  return { state: sawUnavailable ? 'unavailable' : 'missing' };
 }
 
 function goneResponse(request: NextRequest) {
@@ -187,18 +190,19 @@ export async function proxy(request: NextRequest) {
       const originalSlug = detailParts[1];
       const normalizedSlug = normalizeMalformedDetailSlug(originalSlug);
       const status = await publicDetailStatus(route.resource, normalizedSlug);
+      const canonicalSlug = status.state === 'exists' ? status.slug : normalizedSlug;
       const needsCanonicalRedirect = isIndexPhpDetail
         || originalSegment !== route.canonicalSegment
-        || normalizedSlug !== originalSlug;
+        || canonicalSlug !== originalSlug;
 
-      if (status === 'exists' && needsCanonicalRedirect) {
+      if (status.state === 'exists' && needsCanonicalRedirect) {
         const destination = request.nextUrl.clone();
-        destination.pathname = `/${route.canonicalSegment}/${normalizedSlug}`;
+        destination.pathname = `/${route.canonicalSegment}/${canonicalSlug}`;
         return NextResponse.redirect(destination, 308);
       }
 
-      if (status === 'missing') return goneResponse(request);
-      if (status === 'unavailable') return serviceUnavailableResponse(request);
+      if (status.state === 'missing') return goneResponse(request);
+      if (status.state === 'unavailable') return serviceUnavailableResponse(request);
     }
   }
 
