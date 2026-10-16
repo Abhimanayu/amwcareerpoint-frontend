@@ -23,6 +23,7 @@ const nextConfig: NextConfig = {
     cpus: 2,
     staticGenerationMaxConcurrency: 2,
     staticGenerationMinPagesPerWorker: 10,
+    inlineCss: true,
   },
   async redirects() {
     return [
