@@ -4,17 +4,28 @@ import { getApiBaseUrl } from "./apiBaseUrl";
 
 const BASE_URL = getApiBaseUrl();
 
+const serverHeaders =
+  typeof window === "undefined"
+    ? {
+        // Hostinger's CDN rejects Axios' default user agent on public API routes.
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+        Accept: "application/json,text/plain,*/*",
+        Referer: "https://amwcareerpoint.com/",
+      }
+    : {};
+
 // Public API (no token needed — used by Frontend)
 export const api = axios.create({
   baseURL: BASE_URL,
-  headers: { "Content-Type": "application/json" },
+  headers: { "Content-Type": "application/json", ...serverHeaders },
   timeout: 12000,
 });
 
 // Admin API (auto-attaches token — used by Admin Panel)
 export const adminApi = axios.create({
   baseURL: BASE_URL,
-  headers: { "Content-Type": "application/json" },
+  headers: { "Content-Type": "application/json", ...serverHeaders },
 });
 
 // Auto-inject token from localStorage on every admin request
@@ -103,5 +114,5 @@ adminApi.interceptors.response.use(
     }
 
     throw err;
-  }
+  },
 );
