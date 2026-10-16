@@ -29,8 +29,10 @@ export const revalidate = 120;
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 type Props = {
-  searchParams: Promise<{ country?: string }>;
+  searchParams: Promise<{ country?: string; page?: string }>;
 };
+
+const COLLEGES_PER_PAGE = 24;
 
 const UNIVERSITY_PROMISES = [
   { id: 'who', icon: '🏆', title: 'WHO Approved', desc: 'All universities are approved by the World Health Organization.' },
@@ -56,6 +58,38 @@ function normalizeCountryFilterValue(value?: string) {
   } catch {
     return trimmed;
   }
+}
+
+function normalizePage(value?: string) {
+  const parsed = Number.parseInt(value || '1', 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+}
+
+function readTotal(payload: unknown, fallback: number) {
+  if (!payload || typeof payload !== 'object') return fallback;
+  const root = payload as Record<string, unknown>;
+  const data = root.data && typeof root.data === 'object' && !Array.isArray(root.data)
+    ? root.data as Record<string, unknown>
+    : null;
+  const pagination = root.pagination && typeof root.pagination === 'object'
+    ? root.pagination as Record<string, unknown>
+    : null;
+  const candidates = [root.total, data?.total, pagination?.total];
+
+  for (const candidate of candidates) {
+    const total = Number(candidate);
+    if (Number.isFinite(total) && total >= 0) return total;
+  }
+
+  return fallback;
+}
+
+function collegePageHref(page: number, country?: string) {
+  const params = new URLSearchParams();
+  if (country) params.set('country', country);
+  if (page > 1) params.set('page', String(page));
+  const query = params.toString();
+  return query ? `/college?${query}` : '/college';
 }
 
 async function resolveCountryFilterCandidates(countryFilter?: string) {
@@ -127,27 +161,43 @@ function formatUniversityLocation(university: Record<string, any>) {
 }
 
 export default async function CollegesPage({ searchParams }: Readonly<Props>) {
-  const { country } = await searchParams;
+  const { country, page: requestedPage } = await searchParams;
+  const currentPage = normalizePage(requestedPage);
   const normalizedCountry = normalizeCountryFilterValue(country);
   const isIndia = normalizedCountry.toLowerCase() === 'india';
   const countryFilterCandidates = await resolveCountryFilterCandidates(normalizedCountry);
   let universities: any[] = [];
+  let totalUniversities = 0;
 
   const filtersToTry = countryFilterCandidates.length > 0 ? countryFilterCandidates : [''];
   for (const countryFilter of filtersToTry) {
     try {
-      const params: Record<string, any> = { limit: 1000, sort: 'sortOrder' };
+      const params: Record<string, any> = {
+        limit: COLLEGES_PER_PAGE,
+        page: currentPage,
+        sort: 'sortOrder',
+      };
       if (countryFilter) params.country = countryFilter;
       const res = await getUniversities(params);
       universities = extractCollectionData<any>(res, ['universities']);
+      totalUniversities = readTotal(res, universities.length);
     } catch {
       universities = [];
+      totalUniversities = 0;
     }
 
     if (universities.length > 0) {
       break;
     }
   }
+
+  const totalPages = Math.max(1, Math.ceil(totalUniversities / COLLEGES_PER_PAGE));
+  const paginationStart = Math.max(1, currentPage - 2);
+  const paginationEnd = Math.min(totalPages, paginationStart + 4);
+  const visiblePages = Array.from(
+    { length: Math.max(0, paginationEnd - paginationStart + 1) },
+    (_, index) => paginationStart + index
+  );
 
   return (
     <div className="bg-white">
@@ -173,7 +223,7 @@ export default async function CollegesPage({ searchParams }: Readonly<Props>) {
       <section className="bg-[#F9F8F6] border-b border-[#DDD9D2] py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-[14px] text-[#4A4742]">
-            <span className="font-bold text-[#0D1B3E]">{universities.length}</span> Colleges Available · <span className="font-semibold text-[#F26419]">{PARTNER_COLLEGE_COMPLIANCE_TEXT}</span>
+            <span className="font-bold text-[#0D1B3E]">{totalUniversities}</span> Colleges Available · <span className="font-semibold text-[#F26419]">{PARTNER_COLLEGE_COMPLIANCE_TEXT}</span>
           </p>
         </div>
       </section>
@@ -224,6 +274,7 @@ export default async function CollegesPage({ searchParams }: Readonly<Props>) {
                         src={imageSource}
                         alt={uni.name}
                         fill
+                        sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
                         className={useContainImage ? 'object-contain object-center bg-[#F7F6F2]' : 'object-cover object-center'}
                         fallbackElement={
                           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0D1B3E] to-[#162550] text-3xl text-white/30">🏫</div>
@@ -298,6 +349,61 @@ export default async function CollegesPage({ searchParams }: Readonly<Props>) {
                 );
               })}
             </div>
+          )}
+
+          {universities.length > 0 && totalPages > 1 && (
+            <nav className="mt-8 flex flex-wrap items-center justify-center gap-2" aria-label="College pages">
+              {currentPage > 1 && (
+                <Link
+                  href={collegePageHref(currentPage - 1, normalizedCountry)}
+                  rel="prev"
+                  className="inline-flex h-10 items-center justify-center rounded-md border border-[#DDD9D2] bg-white px-4 text-sm font-semibold text-[#0D1B3E] hover:border-[#F26419] hover:text-[#F26419]"
+                >
+                  Previous
+                </Link>
+              )}
+              {paginationStart > 1 && (
+                <Link
+                  href={collegePageHref(1, normalizedCountry)}
+                  className="inline-flex h-10 min-w-10 items-center justify-center rounded-md border border-[#DDD9D2] bg-white px-3 text-sm font-semibold text-[#0D1B3E] hover:border-[#F26419] hover:text-[#F26419]"
+                >
+                  1
+                </Link>
+              )}
+              {paginationStart > 2 && <span className="px-1 text-[#4A4742]">...</span>}
+              {visiblePages.map((pageNumber) => (
+                <Link
+                  key={pageNumber}
+                  href={collegePageHref(pageNumber, normalizedCountry)}
+                  aria-current={pageNumber === currentPage ? 'page' : undefined}
+                  className={`inline-flex h-10 min-w-10 items-center justify-center rounded-md border px-3 text-sm font-semibold ${
+                    pageNumber === currentPage
+                      ? 'border-[#F26419] bg-[#F26419] text-white'
+                      : 'border-[#DDD9D2] bg-white text-[#0D1B3E] hover:border-[#F26419] hover:text-[#F26419]'
+                  }`}
+                >
+                  {pageNumber}
+                </Link>
+              ))}
+              {paginationEnd < totalPages - 1 && <span className="px-1 text-[#4A4742]">...</span>}
+              {paginationEnd < totalPages && (
+                <Link
+                  href={collegePageHref(totalPages, normalizedCountry)}
+                  className="inline-flex h-10 min-w-10 items-center justify-center rounded-md border border-[#DDD9D2] bg-white px-3 text-sm font-semibold text-[#0D1B3E] hover:border-[#F26419] hover:text-[#F26419]"
+                >
+                  {totalPages}
+                </Link>
+              )}
+              {currentPage < totalPages && (
+                <Link
+                  href={collegePageHref(currentPage + 1, normalizedCountry)}
+                  rel="next"
+                  className="inline-flex h-10 items-center justify-center rounded-md border border-[#DDD9D2] bg-white px-4 text-sm font-semibold text-[#0D1B3E] hover:border-[#F26419] hover:text-[#F26419]"
+                >
+                  Next
+                </Link>
+              )}
+            </nav>
           )}
         </div>
       </section>
