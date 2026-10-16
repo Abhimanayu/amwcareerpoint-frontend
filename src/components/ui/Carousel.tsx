@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import useEmblaCarousel from 'embla-carousel-react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import type { EmblaCarouselType } from 'embla-carousel';
 
 interface CarouselProps {
   children: ReactNode[];
@@ -14,15 +14,50 @@ interface CarouselProps {
 }
 
 export function Carousel({ children, slideClass = '', dots = true, maxDots }: CarouselProps) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    align: 'start',
-    slidesToScroll: 1,
-    loop: true,
-  });
-
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const [emblaApi, setEmblaApi] = useState<EmblaCarouselType | null>(null);
+  const [nearViewport, setNearViewport] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollSnapCount, setScrollSnapCount] = useState(0);
   const [canScroll, setCanScroll] = useState(false);
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport || nearViewport) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        setNearViewport(true);
+        observer.disconnect();
+      },
+      { rootMargin: '450px 0px' }
+    );
+    observer.observe(viewport);
+    return () => observer.disconnect();
+  }, [nearViewport]);
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!nearViewport || !viewport) return;
+
+    let disposed = false;
+    let api: EmblaCarouselType | undefined;
+    void import('embla-carousel').then(({ default: EmblaCarousel }) => {
+      if (disposed) return;
+      api = EmblaCarousel(viewport, {
+        align: 'start',
+        slidesToScroll: 1,
+        loop: true,
+      });
+      setEmblaApi(api);
+    });
+
+    return () => {
+      disposed = true;
+      api?.destroy();
+      setEmblaApi(null);
+    };
+  }, [nearViewport]);
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
@@ -74,7 +109,7 @@ export function Carousel({ children, slideClass = '', dots = true, maxDots }: Ca
   return (
     <div className="relative">
       {/* Viewport */}
-      <div className="overflow-hidden" ref={emblaRef}>
+      <div className="overflow-hidden" ref={viewportRef}>
         <div className="flex">
           {children.map((child, i) => (
             <div key={i} className={`min-w-0 shrink-0 ${slideClass}`}>

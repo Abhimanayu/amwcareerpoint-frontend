@@ -3,17 +3,18 @@ import {
   HeroSection,
   StatsSection,
   WhyChooseSection,
-  ExpertCounsellorsSection,
-  UniversitiesSection,
-  CountriesSection,
+  LazyExpertsSection,
+  LazyUniversitiesSection,
+  LazyCountriesSection,
   ComparisonSection,
   ProcessSection,
   PredictorSection,
-  ReviewsSection,
-  VideosSection,
-  BlogsSection,
+  LazyReviewsSection,
+  LazyVideosSection,
+  LazyBlogsSection,
   CTASection,
-  FAQSection
+  FAQSection,
+  DeferredSection,
 } from '@/components/home';
 import { getPublicFaqs, homeFallbackFaqs } from '@/lib/server/faqs';
 import { SEO_HOLD } from '@/lib/seoHold';
@@ -289,17 +290,17 @@ export default async function Home() {
       {sections.hero && <HeroSection settings={settings.hero} />}
       {sections.stats && <StatsSection items={settings.stats} />}
       {sections.whyChoose && <WhyChooseSection />}
-      {sections.experts && <ExpertCounsellorsSection />}
-      {sections.universities && <UniversitiesSection items={settings.homeUniversities} />}
-      {sections.countries && <CountriesSection items={settings.homeCountries} />}
-      {sections.comparison && <ComparisonSection />}
-      {sections.process && <ProcessSection />}
-      {sections.predictor && <PredictorSection />}
-      {sections.reviews && <ReviewsSection />}
-      {sections.videos && <VideosSection />}
-      {sections.blogs && <BlogsSection items={settings.homeBlogs} />}
-      {sections.cta && <CTASection />}
-      {sections.faq && <FAQSection faqs={faqs} />}
+      {sections.experts && <LazyExpertsSection />}
+      {sections.universities && <LazyUniversitiesSection items={settings.homeUniversities} />}
+      {sections.countries && <LazyCountriesSection items={settings.homeCountries} />}
+      {sections.comparison && <DeferredSection><ComparisonSection /></DeferredSection>}
+      {sections.process && <DeferredSection><ProcessSection /></DeferredSection>}
+      {sections.predictor && <DeferredSection><PredictorSection /></DeferredSection>}
+      {sections.reviews && <LazyReviewsSection />}
+      {sections.videos && <LazyVideosSection />}
+      {sections.blogs && <LazyBlogsSection items={settings.homeBlogs} />}
+      {sections.cta && <DeferredSection><CTASection /></DeferredSection>}
+      {sections.faq && <DeferredSection><FAQSection faqs={faqs} /></DeferredSection>}
     </>
   );
 }

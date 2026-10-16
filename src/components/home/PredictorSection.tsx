@@ -20,12 +20,14 @@ export function PredictorSection() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
             href="/college-predictor"
+            prefetch={false}
             className="w-full sm:w-auto h-11 px-8 rounded-full bg-[#F26419] text-white text-[13px] font-bold hover:bg-[#FF8040] transition-colors flex items-center justify-center"
           >
             Predict My College →
           </Link>
           <Link
             href="/college-predictor"
+            prefetch={false}
             className="w-full sm:w-auto h-11 px-8 rounded-full border border-white/30 text-white text-[13px] font-medium hover:bg-white/10 transition-colors flex items-center justify-center"
           >
             View All State Cutoffs

@@ -12,6 +12,7 @@ type DropdownItem = { href: string; label: string };
 type MenuItem = {
   href: string;
   label: string;
+  prefetch?: boolean;
   dropdown?: DropdownItem[];
   viewAllLabel?: string;
 };
@@ -29,7 +30,7 @@ const staticMenuItems: MenuItem[] = [
     label: 'MBBS Abroad',
     dropdown: mbbsDestinationDropdownItems,
   },
-  { href: '/college-predictor', label: 'College Predictor' },
+  { href: '/college-predictor', label: 'College Predictor', prefetch: false },
   { href: '/blogs', label: 'Blog' },
   { href: '/about', label: 'About Us' },
 ];
@@ -146,7 +147,7 @@ export function Header() {
                     )}
                   </div>
                 ) : (
-                  <Link key={item.label} href={item.href} className="flex items-center gap-1 text-[13px] font-medium text-[#0D1B3E] hover:text-[#F26419] transition-colors whitespace-nowrap">
+                  <Link key={item.label} href={item.href} prefetch={item.prefetch} className="flex items-center gap-1 text-[13px] font-medium text-[#0D1B3E] hover:text-[#F26419] transition-colors whitespace-nowrap">
                     {item.label}
                   </Link>
                 )
@@ -217,7 +218,7 @@ export function Header() {
                   )}
                 </div>
               ) : (
-                <Link key={item.label} href={item.href} onClick={() => setIsMenuOpen(false)} className="block px-3 py-2.5 text-sm font-medium text-[#0D1B3E] hover:bg-gray-50 rounded-lg">
+                <Link key={item.label} href={item.href} prefetch={item.prefetch} onClick={() => setIsMenuOpen(false)} className="block px-3 py-2.5 text-sm font-medium text-[#0D1B3E] hover:bg-gray-50 rounded-lg">
                   {item.label}
                 </Link>
               )

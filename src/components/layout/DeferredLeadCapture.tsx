@@ -5,7 +5,7 @@ import { submitEnquiry } from '@/lib/enquiries';
 
 const DISMISSED_KEY = 'amw-lead-popup-dismissed';
 
-export function DeferredLeadCapture() {
+export function DeferredLeadCapture({ openDelayMs = 9000 }: { openDelayMs?: number }) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -14,9 +14,9 @@ export function DeferredLeadCapture() {
 
   useEffect(() => {
     if (window.sessionStorage.getItem(DISMISSED_KEY)) return;
-    const timer = window.setTimeout(() => setOpen(true), 9000);
+    const timer = window.setTimeout(() => setOpen(true), openDelayMs);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [openDelayMs]);
 
   useEffect(() => {
     if (!open) return;

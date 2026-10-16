@@ -7,14 +7,12 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com'
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
   variable: '--font-dm-sans',
   display: 'swap',
 });
 
 const fraunces = Fraunces({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800', '900'],
   variable: '--font-fraunces',
   display: 'swap',
 });
