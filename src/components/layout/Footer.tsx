@@ -71,14 +71,17 @@ export function Footer() {
           {/* Map */}
           <div className="col-span-2 md:col-span-4 xl:col-span-1">
             <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-2.5">Find Us</h4>
-            <div className="overflow-hidden rounded-lg border border-white/10 bg-white/5">
-              <iframe
-                title="AMW Career Point office location in Jaipur"
-                src={`https://www.google.com/maps?q=${encodedOfficeAddress}&output=embed`}
-                className="h-40 w-full border-0"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
+            <div className="flex h-40 flex-col justify-between rounded-lg border border-white/10 bg-white/5 p-4">
+              <div>
+                <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#F26419] text-sm font-bold text-white" aria-hidden="true">
+                  AMW
+                </div>
+                <p className="text-sm font-semibold text-white">AMW Career Point</p>
+                <p className="mt-1 text-xs leading-relaxed text-gray-400">
+                  Bani Park, Jaipur, Rajasthan
+                </p>
+              </div>
+              <p className="text-[11px] text-gray-500">D 100 A, Supreme Complex, Meera Marg</p>
             </div>
             <a
               href={`https://www.google.com/maps/search/?api=1&query=${encodedOfficeAddress}`}
