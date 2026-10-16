@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import '@/styles/blog-content.css';
 import { expandCountrySupportCards } from '@/lib/countrySupport';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import '@/styles/blog-content.css';
 import Link from 'next/link';
 import { CollegeHero } from '@/components/ui/CollegeHero';
 import { CollegeGallery } from '@/components/ui/CollegeGallery';

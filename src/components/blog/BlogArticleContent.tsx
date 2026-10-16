@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import '@/styles/blog-content.css';
 
 type TocItem = { id: string; label: string; level: 2 | 3 };
 
