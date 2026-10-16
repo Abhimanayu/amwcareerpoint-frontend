@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useEffect, useRef, useState, type ComponentType, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type ComponentType } from 'react';
 import type { HomeCuratedBlog, HomeCuratedCountry, HomeCuratedUniversity } from '@/lib/homeSettings';
 
 const LazyExperts = dynamic(() => import('./ExpertCounsellorsSection').then((module) => module.ExpertCounsellorsSection), { ssr: false });
@@ -11,10 +11,10 @@ const LazyReviews = dynamic(() => import('./ReviewsSection').then((module) => mo
 const LazyVideos = dynamic(() => import('./VideosSection').then((module) => module.VideosSection), { ssr: false });
 const LazyBlogs = dynamic(() => import('./BlogsSection').then((module) => module.BlogsSection), { ssr: false });
 
-function ViewportSection<P extends object>({ component: Component, props, minHeight }: {
+function ViewportSection<P extends object>({ component: Component, props, className }: {
   component: ComponentType<P>;
   props: P;
-  minHeight: CSSProperties['minHeight'];
+  className: string;
 }) {
   const markerRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -32,32 +32,32 @@ function ViewportSection<P extends object>({ component: Component, props, minHei
   }, [visible]);
 
   return (
-    <div ref={markerRef} className="home-deferred-section" style={visible ? undefined : { minHeight }}>
+    <div ref={markerRef} className={`home-lazy-section ${className}`}>
       {visible ? <Component {...props} /> : null}
     </div>
   );
 }
 
 export function LazyExpertsSection() {
-  return <ViewportSection component={LazyExperts} props={{}} minHeight="620px" />;
+  return <ViewportSection component={LazyExperts} props={{}} className="home-lazy-experts" />;
 }
 
 export function LazyUniversitiesSection({ items }: { items: HomeCuratedUniversity[] }) {
-  return <ViewportSection component={LazyUniversities} props={{ items }} minHeight="680px" />;
+  return <ViewportSection component={LazyUniversities} props={{ items }} className="home-lazy-universities" />;
 }
 
 export function LazyCountriesSection({ items }: { items: HomeCuratedCountry[] }) {
-  return <ViewportSection component={LazyCountries} props={{ items }} minHeight="650px" />;
+  return <ViewportSection component={LazyCountries} props={{ items }} className="home-lazy-countries" />;
 }
 
 export function LazyReviewsSection() {
-  return <ViewportSection component={LazyReviews} props={{}} minHeight="700px" />;
+  return <ViewportSection component={LazyReviews} props={{}} className="home-lazy-reviews" />;
 }
 
 export function LazyVideosSection() {
-  return <ViewportSection component={LazyVideos} props={{}} minHeight="620px" />;
+  return <ViewportSection component={LazyVideos} props={{}} className="home-lazy-videos" />;
 }
 
 export function LazyBlogsSection({ items }: { items: HomeCuratedBlog[] }) {
-  return <ViewportSection component={LazyBlogs} props={{ items }} minHeight="650px" />;
+  return <ViewportSection component={LazyBlogs} props={{ items }} className="home-lazy-blogs" />;
 }

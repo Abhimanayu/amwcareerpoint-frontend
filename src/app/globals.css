@@ -1,8 +1,20 @@
 @import "tailwindcss";
 
-.home-deferred-section {
-  content-visibility: auto;
-  contain-intrinsic-block-size: auto 720px;
+.home-lazy-section { min-height: 1px; }
+.home-lazy-experts { min-height: 1300px; }
+.home-lazy-universities { min-height: 880px; }
+.home-lazy-countries { min-height: 833px; }
+.home-lazy-reviews { min-height: 1156px; }
+.home-lazy-videos { min-height: 1378px; }
+.home-lazy-blogs { min-height: 841px; }
+
+@media (min-width: 1024px) {
+  .home-lazy-experts { min-height: 1159px; }
+  .home-lazy-universities { min-height: 853px; }
+  .home-lazy-countries { min-height: 1414px; }
+  .home-lazy-reviews { min-height: 997px; }
+  .home-lazy-videos { min-height: 712px; }
+  .home-lazy-blogs { min-height: 913px; }
 }
 
 @theme inline {

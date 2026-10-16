@@ -14,7 +14,6 @@ import {
   LazyBlogsSection,
   CTASection,
   FAQSection,
-  DeferredSection,
 } from '@/components/home';
 import { getPublicFaqs, homeFallbackFaqs } from '@/lib/server/faqs';
 import { SEO_HOLD } from '@/lib/seoHold';
@@ -293,14 +292,14 @@ export default async function Home() {
       {sections.experts && <LazyExpertsSection />}
       {sections.universities && <LazyUniversitiesSection items={settings.homeUniversities} />}
       {sections.countries && <LazyCountriesSection items={settings.homeCountries} />}
-      {sections.comparison && <DeferredSection><ComparisonSection /></DeferredSection>}
-      {sections.process && <DeferredSection><ProcessSection /></DeferredSection>}
-      {sections.predictor && <DeferredSection><PredictorSection /></DeferredSection>}
+      {sections.comparison && <ComparisonSection />}
+      {sections.process && <ProcessSection />}
+      {sections.predictor && <PredictorSection />}
       {sections.reviews && <LazyReviewsSection />}
       {sections.videos && <LazyVideosSection />}
       {sections.blogs && <LazyBlogsSection items={settings.homeBlogs} />}
-      {sections.cta && <DeferredSection><CTASection /></DeferredSection>}
-      {sections.faq && <DeferredSection><FAQSection faqs={faqs} /></DeferredSection>}
+      {sections.cta && <CTASection />}
+      {sections.faq && <FAQSection faqs={faqs} />}
     </>
   );
 }

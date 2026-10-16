@@ -18,5 +18,4 @@ export { ReviewsSection } from './ReviewsSection';
 export { VideosSection } from './VideosSection';
 export { BlogsSection } from './BlogsSection';
 export { FAQSection } from './FAQSection';
-export { DeferredSection } from './DeferredSection';
 export * from './LazyHomepageSections';
