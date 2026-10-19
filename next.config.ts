@@ -1,12 +1,29 @@
 import type { NextConfig } from "next";
 
 const legacyCollegeSlugRedirects = {
+  'al-azhar-university-faculty-of-medicine-for-girls-in-asyut': 'faculty-of-medicine-for-girls-asyut-egypt',
   'alexandria-national-university-faculty-of-medicine-alexandria': 'alexandria-national-university-faculty-medicine',
   'armenian-medical-institute': 'armenian-medical-institute-medicine',
+  'canada-schulich-school-of-medicine-and-dentistry-western-university-london-ontario': 'schulich-school-of-medicine-dentistry-canada',
   'bicol-christian-college-of-medicine': 'bicol-christian-college-medicine',
   'bukhara-state-medical-institute-bsmi-uzbekistan': 'bukhara-state-medical-institute-bsmi-bukhara-uzbekistan',
   'fergana-medical-institute-of-public-health-uzbekistan': 'fergana-medical-institute-public-health-uzbekistan',
+  'istanbul-university-cerrahpasa-medicine': 'istanbul-university-cerrahpasa-cerrahpasa-faculty-of-medicine',
   'lobachevsky-state-university-of-nizhny-novgorod-institute-of-biology-and-biomedicine-nizhny-novgorod': 'lobachevsky-state-university-nizhny-novgorod-biology-biomedicine',
+  'luxor-university-faculty-of-medicine-new-tiba': 'faculty-of-medicine-luxor-upper-egypt',
+  'max-rady-college-of-medicine-university-of-manitoba-winnipeg': 'max-rady-college-of-medicine-manitoba-canada',
+  'mbbs-in-ashiyan-medical-college': 'ashiyan-medical-college',
+  'mbbs-in-hubei-university-of-science-and-technolog-faculty-of-medicine': 'hubei-university-of-science-and-technolog-faculty-of-medicine',
+  'mbbs-in-ivanovo-state-medical-university': 'ivanovo-state-medical-university',
+  'mbbs-in-johannes-kepler-university-linz-medical-faculty': 'medical-faculty-linz-austria',
+  'mbbs-in-medizinische-fakult-t-universit-t-des-saarlandes-homburg': 'medizinische-fakult-t-universit-t-des-saarlandes-homburg',
+  'mbbs-in-new-ismailia-national-university-college-of-medicine-ismailia': 'new-ismailia-national-university-college-of-medicine-ismailia',
+  'mbbs-in-phenikaa-university-faculty-of-medicine': 'phenikaa-university-faculty-of-medicine',
+  'mbbs-in-queen-s-university-belfast-school-of-medicine-dentistry-and-biomedical-sciences': 'queen-s-university-belfast-school-of-medicine-dentistry-and-biomedical-sciences',
+  'mbbs-in-vita-salute-san-raffaele-university-faculty-of-medicine-and-surgery': 'vita-salute-san-raffaele-university-faculty-of-medicine-and-surgery',
+  'mcgill-university-faculty-of-medicine-and-health-sciences': 'faculty-of-medicine-health-sciences-mcgill-canada',
+  'michael-g-degroote-school-of-medicine-mcmaster-university': 'michael-degroote-school-of-medicine-canada',
+  'near-east-university-neu-faculty-of-medicine-lefko-a-nicosia-northern-cyprus-trnc': 'faculty-of-medicine-neu-nicosia-northern-cyprus',
   'nahda-university-in-beni-suef-faculty-of-medicine-beni-suef': 'nahda-university-faculty-of-medicine',
   'opole-university-faculty-of-medicine-opole': 'opole-medicine-faculty',
   'samarkand-state-medical-university-ssmu-uzbekistan': 'samarkand-state-medical-university-ssmu-samarkand-uzbekistan',
@@ -15,6 +32,9 @@ const legacyCollegeSlugRedirects = {
   'universitat-de-les-illes-balears-facultat-de-medicina-palma': 'de-les-illes-balears-facultat-de-medicina',
   'university-of-new-england-faculty-of-medicine-health-school-of-rural-medicine-armidale': 'new-england-university-faculty-medicine-health-school-rural-medicine',
   'university-of-zielona-gora-faculty-of-medicine-and-health-sciences-zielona-gora': 'university-of-zielona-gora-faculty-of-medicine-and-health-sciences',
+  'university-of-brescia-faculty-of-medicine-and-surger': 'university-of-brescia-faculty-of-medicine-and-surgery',
+  'surrey-school-of-medicine-guildford': 'university-of-surrey-school-of-medicine',
+  'toronto-metropolitan-university-school-of-medicine-school-of-medicine': 'school-of-medicine-toronto-canada',
   'victor-papilian-faculty-of-medicine-at-lucian-blaga-university-of-sibiu-ulbs': 'lucian-blaga-university-faculty-of-medicine-romania',
 } as const;
 
@@ -67,6 +87,11 @@ const nextConfig: NextConfig = {
       {
         source: '/colleges/bicol-christian-college-of-medicine',
         destination: '/college/bicol-christian-college-medicine',
+        permanent: true,
+      },
+      {
+        source: '/college/universities/de-la-salle-medicine',
+        destination: '/college/de-la-salle-medicine',
         permanent: true,
       },
       {
@@ -227,6 +252,11 @@ const nextConfig: NextConfig = {
       ...Object.entries(legacyCollegeSlugRedirects).flatMap(([sourceSlug, destinationSlug]) => [
         {
           source: `/college/${sourceSlug}`,
+          destination: `/college/${destinationSlug}`,
+          permanent: true,
+        },
+        {
+          source: `/colleges/${sourceSlug}`,
           destination: `/college/${destinationSlug}`,
           permanent: true,
         },
