@@ -270,11 +270,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
-  const settings = await readHomeSettings();
+  const [settings, fetchedFaqs] = await Promise.all([
+    readHomeSettings(),
+    getPublicFaqs('home', { fallback: homeFallbackFaqs }),
+  ]);
   const sections = settings.sections;
-  const faqs = sections.faq
-    ? await getPublicFaqs('home', { fallback: homeFallbackFaqs })
-    : [];
+  const faqs = sections.faq ? fetchedFaqs : [];
   const jsonLd = buildHomeJsonLd(settings);
 
   return (
