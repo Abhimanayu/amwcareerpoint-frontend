@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { cache } from 'react';
 import { 
   HeroSection,
   StatsSection,
@@ -185,13 +186,13 @@ const homeJsonLd = {
   ],
 };
 
-async function readHomeSettings() {
+const readHomeSettings = cache(async () => {
   try {
     return mergeHomeSettings(await getHomeSettings());
   } catch {
     return defaultHomeSettings;
   }
-}
+});
 
 function splitKeywords(keywords: string) {
   return keywords
