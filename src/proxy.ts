@@ -18,6 +18,7 @@ const OBSOLETE_WORDPRESS_PATHS = new Set([
   '/blogs_paginate',
   '/colleges_paginate',
   '/comments',
+  '/country-colleges',
   '/country_colleges_paginate',
   '/country_paginate',
   '/documentation',
@@ -45,7 +46,10 @@ const SPAM_PATH_MARKERS = [
 function isClearlyObsoleteOrSpamPath(pathname: string) {
   const normalizedPath = pathname.toLowerCase().replace(/\/+$/, '') || '/';
 
-  return OBSOLETE_WORDPRESS_PATHS.has(normalizedPath)
+  return [...OBSOLETE_WORDPRESS_PATHS].some((obsoletePath) =>
+    normalizedPath === obsoletePath || normalizedPath.startsWith(`${obsoletePath}/`),
+  )
+    || normalizedPath === '/college/country_colleges_paginate'
     || normalizedPath.startsWith('/public/')
     || /^\/\d+\.shtml$/.test(normalizedPath)
     || normalizedPath.includes('%3clink')
