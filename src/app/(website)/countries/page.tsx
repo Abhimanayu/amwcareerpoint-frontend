@@ -67,6 +67,46 @@ export default async function CountriesPage() {
         </div>
       </section>
 
+      <section className="bg-white py-10 sm:py-14">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          <span className="mb-2 inline-block text-xs font-semibold uppercase tracking-wider text-[#F26419]">
+            A practical shortlist
+          </span>
+          <h2 className="font-heading text-2xl font-bold text-[#0D1B3E] sm:text-3xl">
+            How to compare countries for MBBS abroad
+          </h2>
+          <p className="mt-3 text-[15px] leading-7 text-[#4A4742]">
+            Tuition is only one part of the decision. Compare each destination using the same checklist: the university and programme, the language used in classes and clinical training, admission requirements, the full course duration, and the likely cost of accommodation and day-to-day living. The country pages below outline options; confirm current details with the university and relevant official sources before applying.
+          </p>
+
+          <div className="mt-7 grid gap-6 sm:grid-cols-2">
+            <div>
+              <h3 className="font-heading text-lg font-bold text-[#0D1B3E]">Check the full cost</h3>
+              <p className="mt-2 text-sm leading-6 text-[#4A4742]">
+                Note the currency and period for every fee. Add tuition, hostel or rent, food, insurance, travel and other stated charges, then ask the university for its latest written fee schedule. A low headline tuition figure may not represent the total budget.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-heading text-lg font-bold text-[#0D1B3E]">Check the actual study experience</h3>
+              <p className="mt-2 text-sm leading-6 text-[#4A4742]">
+                Ask which language is used in lectures, examinations and patient-facing training. Confirm where clinical placements take place, what support international students receive, and which documents are needed for admission and travel.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-heading text-lg font-bold text-[#0D1B3E]">Verify the exact programme</h3>
+              <p className="mt-2 text-sm leading-6 text-[#4A4742]">
+                Check the university name, campus, degree and programme details together; similar names can refer to different institutions. Students should independently confirm the current academic and licensing requirements that apply to their plans.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-heading text-lg font-bold text-[#0D1B3E]">Compare options side by side</h3>
+              <p className="mt-2 text-sm leading-6 text-[#4A4742]">
+                Shortlist a few countries, compare the same criteria for each, and keep links to the official information you checked. Then explore the country and university pages for destination-specific details or contact AMW Career Point for counselling.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
 
       {/* ── Countries Grid ── */}

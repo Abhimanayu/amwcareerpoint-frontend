@@ -510,6 +510,32 @@ export function resolveCanonicalUrl(value: unknown, fallback: string): string {
 /** Sanitize HTML: strip script tags, event handlers, and dangerous elements */
 export function sanitizeHtml(html: string): string {
   return html
+    .replace(/\bhref=(['"])(.*?)\1/gi, (match, quote: string, href: string) => {
+      try {
+        const url = new URL(href, 'https://amwcareerpoint.com');
+        const host = url.hostname.toLowerCase();
+        if (host !== 'amwcareerpoint.com' && host !== 'www.amwcareerpoint.com') {
+          return match;
+        }
+
+        const rewrites: Record<string, string> = {
+          '/college/qarshi-state-medical-university-qarshi-uzbekistan': '/countries/mbbs-in-uzbekistan',
+          '/countries/mbbs-in-vetnam': '/countries/mbbs-in-vietnam',
+          '/college/mbbs-in-edge-hill-university-medical-school': '/college/edge-hill-university-medical-school',
+          '/blogs/mbbs-in-abroad-2026v': '/blogs/mbbs-in-abroad-2026',
+          '/college/qena-faculty-of-medicine-south-valley-university': '/college/qena-faculty-of-medicine-south-valley-national-university',
+          '/college/ufr-de-medecine-et-professions-paramedicales-universite-clermont-auvergne-clermont-ferrand-clermont-ferrand': '/college/clermont-auvergne-faculty-of-medicine',
+          '/college/northern-ontario-school-of-medicine-university-school-of-medicine': '/college/school-of-medicine-northern-ontario-canada',
+        };
+        const replacement = rewrites[url.pathname.toLowerCase()];
+        if (!replacement) return match;
+
+        const prefix = href.startsWith('/') ? '' : `${url.origin}`;
+        return `href=${quote}${prefix}${replacement}${url.search}${url.hash}${quote}`;
+      } catch {
+        return match;
+      }
+    })
     .replaceAll(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
     .replaceAll(/<iframe\b[^>]*>.*?<\/iframe>/gi, '')
     .replaceAll(/<object\b[^>]*>.*?<\/object>/gi, '')

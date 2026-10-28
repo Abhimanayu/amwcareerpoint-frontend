@@ -3,13 +3,13 @@ import { CollegePredictorClient } from '@/components/college/CollegePredictorCli
 
 export const metadata: Metadata = {
   title: {
-    absolute: 'NEET College Predictor 2025 | MBBS Admission Predictor | AMW Career Point',
+    absolute: 'NEET College Predictor | MBBS Admission | AMW Career Point',
   },
   description:
-    'Paid NEET MBBS college predictor with 7-day access. Find colleges based on your NEET 2025 rank, category, sub category, state, and quota.',
+    'Paid NEET MBBS college predictor with 7-day access. Explore colleges by NEET rank, category, state, and quota.',
   alternates: { canonical: 'https://amwcareerpoint.com/college-predictor' },
   openGraph: {
-    title: 'NEET MBBS College Predictor 2025 - AMW Career Point',
+    title: 'NEET MBBS College Predictor - AMW Career Point',
     description: 'Unlock 7-day access to predict MBBS college chances from backend-managed NEET cutoff data.',
     url: 'https://amwcareerpoint.com/college-predictor',
   },
@@ -24,7 +24,7 @@ export default function CollegePredictorPage() {
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'WebApplication',
-            name: 'NEET MBBS College Predictor 2025',
+            name: 'NEET MBBS College Predictor',
             applicationCategory: 'EducationApplication',
             description: 'Paid MBBS college predictor using backend-managed NEET cutoff data.',
             url: 'https://amwcareerpoint.com/college-predictor',
