@@ -7,23 +7,6 @@ import { SafeImage } from '@/components/ui/SafeImage';
 import { clampText, extractCollectionData, pickUniversityImageSource, resolveUniversityDuration, stripHtml } from '@/lib/utils';
 import { SEO_HOLD } from '@/lib/seoHold';
 
-export const metadata: Metadata = {
-  ...(SEO_HOLD
-    ? {
-        title: 'AMW Career Point',
-        description: 'AMW Career Point official website.',
-        robots: {
-          index: false,
-          follow: false,
-        },
-      }
-    : {
-        title: 'Top Medical Colleges Abroad',
-        description: 'Explore top medical colleges for MBBS abroad with AMW Career Point. Find WHO and MCI approved colleges in Russia, Ukraine, Georgia, and more countries.',
-        alternates: { canonical: '/college' },
-      }),
-};
-
 export const revalidate = 120;
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -31,6 +14,26 @@ export const revalidate = 120;
 type Props = {
   searchParams: Promise<{ country?: string; page?: string }>;
 };
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  if (SEO_HOLD) {
+    return {
+      title: 'AMW Career Point',
+      description: 'AMW Career Point official website.',
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const { country, page } = await searchParams;
+  const hasListingFilters = Boolean(country || page);
+
+  return {
+    title: 'Top Medical Colleges Abroad',
+    description: 'Explore top medical colleges for MBBS abroad with AMW Career Point. Find WHO and MCI approved colleges in Russia, Ukraine, Georgia, and more countries.',
+    alternates: { canonical: '/college' },
+    ...(hasListingFilters ? { robots: { index: false, follow: true } } : {}),
+  };
+}
 
 const COLLEGES_PER_PAGE = 24;
 
