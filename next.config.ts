@@ -31,6 +31,7 @@ const legacyCollegeSlugRedirects = {
   'universidad-rey-juan-carlos-facultad-de-ciencias-de-la-salud-alcorcon': 'universidad-rey-juan-carlos-facultad-de-ciencias-de-la-salud',
   'universitat-de-les-illes-balears-facultat-de-medicina-palma': 'de-les-illes-balears-facultat-de-medicina',
   'university-of-new-england-faculty-of-medicine-health-school-of-rural-medicine-armidale': 'new-england-university-faculty-medicine-health-school-rural-medicine',
+  'university-of-new-south-wales-faculty-of-medicine-sydney': 'university-of-new-south-wales-sydney-australia',
   'university-of-zielona-gora-faculty-of-medicine-and-health-sciences-zielona-gora': 'university-of-zielona-gora-faculty-of-medicine-and-health-sciences',
   'university-of-brescia-faculty-of-medicine-and-surger': 'university-of-brescia-faculty-of-medicine-and-surgery',
   'surrey-school-of-medicine-guildford': 'university-of-surrey-school-of-medicine',
