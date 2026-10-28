@@ -43,6 +43,12 @@ const SPAM_PATH_MARKERS = [
   'whitepaper',
 ];
 
+const PUBLIC_API_HEADERS = {
+  accept: 'application/json',
+  'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
+  referer: 'https://amwcareerpoint.com/',
+};
+
 function isClearlyObsoleteOrSpamPath(pathname: string) {
   const normalizedPath = pathname.toLowerCase().replace(/\/+$/, '') || '/';
 
@@ -76,7 +82,7 @@ async function legacyDetailStatus(resource: 'universities' | 'blogs', slug: stri
   try {
     const response = await fetch(`${apiBaseUrl}/${resource}/${encodeURIComponent(slug)}`, {
       cache: 'no-store',
-      headers: { accept: 'application/json' },
+      headers: PUBLIC_API_HEADERS,
       signal: AbortSignal.timeout(2500),
     });
 
@@ -112,7 +118,7 @@ async function publicDetailStatus(resource: PublicResource, slug: string): Promi
         `${getApiBaseUrl()}/${resource}/${encodeURIComponent(candidate)}/seo-status`,
         {
           cache: 'no-store',
-          headers: { accept: 'application/json' },
+          headers: PUBLIC_API_HEADERS,
           signal: AbortSignal.timeout(2500),
         },
       );
