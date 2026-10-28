@@ -119,7 +119,13 @@ async function publicDetailStatus(resource: PublicResource, slug: string): Promi
 
       if (response.ok) {
         const payload = await response.json();
-        if (payload?.data?.slug === candidate) return { state: 'exists', slug: candidate };
+        const canonicalSlug = payload?.data?.slug;
+        if (
+          typeof canonicalSlug === 'string'
+          && canonicalSlug.toLowerCase() === candidate.toLowerCase()
+        ) {
+          return { state: 'exists', slug: canonicalSlug };
+        }
         sawUnavailable = true;
       } else if (response.status !== 404) {
         sawUnavailable = true;
