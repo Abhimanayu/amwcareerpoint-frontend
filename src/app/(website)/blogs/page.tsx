@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { getBlogs, getBlogCategories } from '@/lib/blogs';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { clampText, extractCollectionData, formatDate, pickBlogImageAltText, pickBlogImageSource } from '@/lib/utils';
+import { clampText, extractCollectionData, formatDate, IMAGEKIT_BLOG_FALLBACKS, pickBlogImageAltText, pickBlogImageSource } from '@/lib/utils';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { SubscribeForm } from '@/components/blog/BlogInteractive';
 import { SEO_HOLD } from '@/lib/seoHold';
@@ -348,7 +348,7 @@ export default async function BlogPage({
                           alt={pickBlogImageAltText(featured)}
                           fill
                           className={BLOG_BANNER_IMAGE_CLASS}
-                          fallbackSrc="/blogs/russia-universities-nmc.jpg"
+                          fallbackSrc={IMAGEKIT_BLOG_FALLBACKS.default}
                           fallbackElement={<div className="absolute inset-0 flex items-center justify-center text-5xl bg-[#F9F8F6]">📚</div>}
                         />
                       ) : (

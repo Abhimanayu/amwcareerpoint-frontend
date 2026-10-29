@@ -173,6 +173,15 @@ export function isRemoteImageUrl(src: unknown): src is string {
   return typeof src === 'string' && /^https?:\/\//i.test(src);
 }
 
+export const IMAGEKIT_BLOG_FALLBACKS = {
+  default: 'https://ik.imagekit.io/vqtojmabhd/amw/blogs/1788438094228-855680.png',
+  comparison: 'https://ik.imagekit.io/vqtojmabhd/amw/blogs/1787226445725-430285.png',
+  universities: 'https://ik.imagekit.io/vqtojmabhd/amw/blogs/1787218882848-223694.png',
+  georgia: 'https://ik.imagekit.io/vqtojmabhd/amw/amw/blogs/1780659582570-493014--1f04985d83.jpg',
+  neet: 'https://ik.imagekit.io/vqtojmabhd/amw/blogs/1792739298884-97565.png',
+  europe: 'https://ik.imagekit.io/vqtojmabhd/amw/blogs/1788436836779-429639.png',
+} as const;
+
 const UNIVERSITY_FALLBACK_IMAGES = [
   '/static-universities/moscow.jpg',
   '/static-universities/astana.jpg',
@@ -180,15 +189,15 @@ const UNIVERSITY_FALLBACK_IMAGES = [
   '/static-universities/tashkent.jpg',
   '/static-universities/aiims.jpg',
   '/static-universities/china.jpg',
-  '/blogs/mbbs-georgia-vs-india.jpg',
+  'https://ik.imagekit.io/vqtojmabhd/amw/amw/universities/1779527266687-563796--683e8b7c77.png',
 ];
 
 const BLOG_FALLBACK_IMAGES = [
-  '/blogs/russia-universities-nmc.jpg',
-  '/blogs/cost-abroad-vs-india.jpg',
-  '/blogs/alte-university.jpg',
-  '/blogs/mbbs-georgia-vs-india.jpg',
-  '/blogs/neet-cutoff-2025.jpg',
+  IMAGEKIT_BLOG_FALLBACKS.default,
+  IMAGEKIT_BLOG_FALLBACKS.comparison,
+  IMAGEKIT_BLOG_FALLBACKS.universities,
+  IMAGEKIT_BLOG_FALLBACKS.georgia,
+  IMAGEKIT_BLOG_FALLBACKS.neet,
 ];
 
 function getStableFallback(seed: unknown, fallbacks: string[]) {

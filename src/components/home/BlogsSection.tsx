@@ -6,15 +6,15 @@ import { Carousel } from '@/components/ui/Carousel';
 import { getBlogs } from '@/lib/blogs';
 import { SafeImage } from '@/components/ui/SafeImage';
 import type { HomeCuratedBlog } from '@/lib/homeSettings';
-import { extractCollectionData, formatDate, pickBlogImageAltText, pickBlogImageSource } from '@/lib/utils';
+import { extractCollectionData, formatDate, IMAGEKIT_BLOG_FALLBACKS, pickBlogImageAltText, pickBlogImageSource } from '@/lib/utils';
 import { useNearViewport } from '@/lib/hooks/useNearViewport';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 const fallbackBlogs = [
-  { title: 'MBBS in Georgia vs MBBS in India: Which is Better for You?', category: 'MBBS ABROAD', readTime: '8 min read', date: 'March 2025', slug: 'mbbs-in-georgia-vs-mbbs-in-india-which-is-better-for-you', image: '/blogs/mbbs-georgia-vs-india.jpg', excerpt: 'Choosing where to pursue your MBBS is one of the most important decisions of your life...' },
-  { title: 'MBBS in France 2026: Complete Guide for Indian Students', category: 'MBBS ABROAD', readTime: '8 min read', date: 'February 2025', slug: 'mbbs-in-france-2026-complete-guide-for-indian-students', image: '/blogs/mbbs-france-2026.jpg', excerpt: 'Everything you need to know about studying MBBS in France...' },
-  { title: 'NEET Cutoff for MBBS Abroad 2025 — Country-wise Complete List', category: 'NEET GUIDE', readTime: '5 min read', date: 'December 2024', slug: 'neet-cutoff-mbbs-abroad-2025', image: '/blogs/neet-cutoff-2025.jpg', excerpt: 'Complete country-wise NEET cutoff list for MBBS abroad admissions...' },
+  { title: 'MBBS in Georgia vs MBBS in India: Which is Better for You?', category: 'MBBS ABROAD', readTime: '8 min read', date: 'March 2025', slug: 'mbbs-in-georgia-vs-mbbs-in-india-which-is-better-for-you', image: IMAGEKIT_BLOG_FALLBACKS.georgia, excerpt: 'Choosing where to pursue your MBBS is one of the most important decisions of your life...' },
+  { title: 'MBBS in France 2026: Complete Guide for Indian Students', category: 'MBBS ABROAD', readTime: '8 min read', date: 'February 2025', slug: 'mbbs-in-france-2026-complete-guide-for-indian-students', image: IMAGEKIT_BLOG_FALLBACKS.europe, excerpt: 'Everything you need to know about studying MBBS in France...' },
+  { title: 'NEET Cutoff for MBBS Abroad 2025 — Country-wise Complete List', category: 'NEET GUIDE', readTime: '5 min read', date: 'December 2024', slug: 'neet-cutoff-mbbs-abroad-2025', image: IMAGEKIT_BLOG_FALLBACKS.neet, excerpt: 'Complete country-wise NEET cutoff list for MBBS abroad admissions...' },
 ];
 
 type BlogsSectionProps = {
@@ -82,7 +82,7 @@ export function BlogsSection({ items }: BlogsSectionProps) {
         <div className="px-4 sm:px-5">
           <Carousel slideClass="basis-full sm:basis-1/2 lg:basis-1/3 pl-4 sm:pl-5" maxDots={5}>
             {blogs.map((blog: any) => {
-              const imageSource = usingFallback ? (blog.image || '/blogs/russia-universities-nmc.jpg') : (pickBlogImageSource(blog) || '/blogs/russia-universities-nmc.jpg');
+              const imageSource = usingFallback ? (blog.image || IMAGEKIT_BLOG_FALLBACKS.default) : (pickBlogImageSource(blog) || IMAGEKIT_BLOG_FALLBACKS.default);
 
               return (
               <Link
@@ -97,7 +97,7 @@ export function BlogsSection({ items }: BlogsSectionProps) {
                     alt={usingFallback ? blog.title || 'Blog post' : pickBlogImageAltText(blog)}
                     fill
                     className="object-contain object-top"
-                    fallbackSrc="/blogs/russia-universities-nmc.jpg"
+                    fallbackSrc={IMAGEKIT_BLOG_FALLBACKS.default}
                     fallbackElement={<div className="absolute inset-0 flex items-center justify-center text-3xl bg-linear-to-br from-bg-light to-border">📝</div>}
                   />
                 </div>
