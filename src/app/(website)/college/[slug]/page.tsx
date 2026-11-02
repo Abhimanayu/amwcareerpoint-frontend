@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { getUniversityBySlug, getUniversities } from '@/lib/universities';
 import { getCountryBySlug } from '@/lib/countries';
 import { clampSeoDescription, extractCollectionData, pickUniversityImageSource, resolveCanonicalUrl, resolveMediaUrl, serializeJsonLd } from '@/lib/utils';
@@ -76,6 +76,23 @@ async function fetchUniversityDetail(slug: string) {
   return null;
 }
 
+function getCollegeCanonicalRedirect(canonicalUrl: unknown, slug: string, siteUrl: string) {
+  if (typeof canonicalUrl !== 'string' || !canonicalUrl.trim()) return null;
+
+  try {
+    const site = new URL(siteUrl);
+    const canonical = new URL(canonicalUrl.trim(), site);
+    if (canonical.origin !== site.origin || canonical.search || canonical.hash) return null;
+    if (!/^\/college\/[^/]+\/?$/.test(canonical.pathname)) return null;
+
+    const currentPath = `/college/${encodeURIComponent(slug)}`.replace(/\/$/, '');
+    const canonicalPath = canonical.pathname.replace(/\/$/, '');
+    return canonicalPath !== currentPath ? canonicalPath : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (SEO_HOLD) {
     return {
@@ -131,6 +148,12 @@ export default async function CollegeDetailPage({ params }: Readonly<Props>) {
   } catch { /* not found */ }
 
   if (!university) notFound();
+  if (!university.seo?.noindex) {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amwcareerpoint.com';
+    const canonicalRedirect = getCollegeCanonicalRedirect(university.seo?.canonicalUrl, slug, siteUrl);
+    if (canonicalRedirect) permanentRedirect(canonicalRedirect);
+  }
+
   if (university.indiaState) {
     const states = await readIndiaStates();
     const state = states.find(s => s._id === String(university.indiaState));
