@@ -1,11 +1,11 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { getCountries } from '@/lib/countries';
-import { EmptyState } from '@/components/ui/EmptyState';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { getCountrySlugFromObject } from '@/lib/slugUtils';
 import { clampList, clampText, extractCollectionData, stripHtml } from '@/lib/utils';
 import { SEO_HOLD } from '@/lib/seoHold';
+import { CountriesClientRecovery } from './CountriesClientRecovery';
 
 export const metadata: Metadata = {
   ...(SEO_HOLD
@@ -24,7 +24,9 @@ export const metadata: Metadata = {
       }),
 };
 
-export const revalidate = 60;
+// Country records are managed in the admin and can change independently of a deployment.
+// Render this route at request time so an empty build-time API response cannot be cached as the page.
+export const dynamic = 'force-dynamic';
 
 const COUNTRY_PAGE_FEATURES = [
   { id: 'fees', icon: '💰', title: 'Affordable Fees', desc: 'Much lower tuition fees compared to private medical colleges in India.' },
@@ -123,13 +125,7 @@ export default async function CountriesPage() {
           </div>
 
           {countries.length === 0 ? (
-            <EmptyState
-              icon="🌍"
-              title="No countries available"
-              description="We're updating our country listings. Please check back soon."
-              actionLabel="Contact Us"
-              actionHref="/contact"
-            />
+            <CountriesClientRecovery />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
               {countries.map((country: any) => {
@@ -152,6 +148,19 @@ export default async function CountriesPage() {
                     href={`/countries/${getCountrySlugFromObject(country)}`}
                     className="group rounded-xl border border-[#DDD9D2] bg-white overflow-hidden hover:shadow-md transition-shadow flex flex-col h-full"
                   >
+                    {(country.cardImage || country.heroImage) && (
+                      <div className="aspect-[16/9] overflow-hidden bg-[#F1F0ED]">
+                        <SafeImage
+                          src={country.cardImage || country.heroImage}
+                          alt={(country.cardImageAlt as string) || `${country.name} medical education`}
+                          width={960}
+                          height={540}
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                        />
+                      </div>
+                    )}
+
                     {/* Header with flag */}
                     <div className="bg-[#0D1B3E] px-4 py-3 text-white">
                       <div className="flex items-center gap-2.5">
